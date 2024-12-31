@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.3
+
+### Fixed
+
+- updated Dockerfile to include CHANGELOG
+
 ## Version 0.1.2
 
 ### Added
