@@ -2,11 +2,11 @@
 
 import fs from 'fs/promises'
 import path from 'path'
-import { 
-  HabitsData, 
-  CoinsData, 
-  CoinTransaction, 
-  TransactionType, 
+import {
+  HabitsData,
+  CoinsData,
+  CoinTransaction,
+  TransactionType,
   WishlistItemType,
   WishlistData,
   Settings,
@@ -162,4 +162,14 @@ export async function removeCoins(
 
   await saveCoinsData(newData)
   return newData
+}
+
+export async function getChangelog(): Promise<string> {
+  try {
+    const changelogPath = path.join(process.cwd(), 'CHANGELOG.md')
+    return await fs.readFile(changelogPath, 'utf8')
+  } catch (error) {
+    console.error('Error loading changelog:', error)
+    return '# Changelog\n\nNo changelog available.'
+  }
 }

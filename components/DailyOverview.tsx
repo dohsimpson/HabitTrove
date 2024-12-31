@@ -126,9 +126,14 @@ export default function DailyOverview({
           </div>
 
           <div className="space-y-2">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold">Wishlist Goals</h3>
+              <Badge variant="secondary">
+                {wishlistItems.filter(item => item.coinCost <= coinBalance).length}/{wishlistItems.length} Redeemable
+              </Badge>
+            </div>
             {achievableWishlistItems.length > 0 && (
               <div>
-                <h3 className="font-semibold mb-2">Wishlist Goals</h3>
                 <div className={`space-y-3 transition-all duration-300 ease-in-out ${expandedWishlist ? 'max-h-[500px]' : 'max-h-[200px]'} overflow-hidden`}>
                   {achievableWishlistItems
                     .slice(0, expandedWishlist ? undefined : 1)

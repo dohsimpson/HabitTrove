@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.1.2
+
+### Added
+
+- About modal
+  - display changelog and version info
+
+### Changed
+
+- show number of redeemable wishlist items on dashboard
+
 ## Version 0.1.1
 
 ### Added

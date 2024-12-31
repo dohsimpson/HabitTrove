@@ -1,5 +1,14 @@
 #!/bin/bash
 
+_warn() {
+  echo -e -n "\033[1;33mWarning:\033[0m "
+  echo "${1}"
+  shift
+  for arg in "$@"; do
+    echo "         ${arg}"
+  done
+}
+
 bump_version() {
   echo "Which version part would you like to bump? ([M]ajor/[m]inor/[p]atch)"
   read -r version_part
@@ -26,23 +35,47 @@ bump_version() {
 }
 
 commit() {
-  # Check if package.json is staged
-  if git diff --cached --name-only | grep -q "package.json"; then
+  # First check if versions match between package.json and CHANGELOG.md
+  if ! check_versions; then
+    _warn "Version mismatch between package.json and CHANGELOG.md" "Please update the changelog or package.json before committing"
+    return 1
+  fi
+
+  # Check if package.json version has changed in staged changes
+  if git diff --cached package.json | grep -q '"version":'; then
     # Get the new version from package.json
     new_version=$(node -p "require('./package.json').version")
 
-    echo "package.json has been modified. Would you like to tag this release as v$new_version? (y/n)"
+    echo "Version has been changed. Would you like to tag this release as v$new_version? (y/n)"
     read -r response
 
     if [[ "$response" =~ ^[Yy]$ ]]; then
       git commit
       git tag -a "v$new_version" -m "Release version $new_version"
       echo "Created tag v$new_version"
-    else
+    elif [[ "$response" =~ ^[Nn]$ ]]; then
       git commit
+    else
+      _warn "Unrecognized reply: $response"
+      return 1
     fi
   else
     git commit
+  fi
+}
+
+check_versions() {
+  # Get version from package.json
+  pkg_version=$(node -p "require('./package.json').version")
+
+  # Get latest version from CHANGELOG.md (first version entry)
+  changelog_version=$(grep -m 1 "^## Version" CHANGELOG.md | sed 's/^## Version //')
+
+  # Compare versions
+  if [ "$pkg_version" = "$changelog_version" ]; then
+    return 0
+  else
+    return 1
   fi
 }
 
