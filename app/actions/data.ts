@@ -2,9 +2,21 @@
 
 import fs from 'fs/promises'
 import path from 'path'
-import { HabitsData, CoinsData, CoinTransaction, TransactionType, WishlistItemType } from '@/lib/types'
+import { 
+  HabitsData, 
+  CoinsData, 
+  CoinTransaction, 
+  TransactionType, 
+  WishlistItemType,
+  WishlistData,
+  Settings,
+  DataType,
+  DATA_DEFAULTS
+} from '@/lib/types'
 
-type DataType = 'wishlist' | 'habits' | 'coins'
+function getDefaultData<T>(type: DataType): T {
+  return DATA_DEFAULTS[type]() as T;
+}
 
 async function ensureDataDir() {
   const dataDir = path.join(process.cwd(), 'data')
@@ -23,13 +35,8 @@ async function loadData<T>(type: DataType): Promise<T> {
     try {
       await fs.access(filePath)
     } catch {
-      // File doesn't exist, create it with initial data
-      const initialData = type === 'wishlist'
-        ? { items: [] }
-        : type === 'habits'
-          ? { habits: [] }
-          : { balance: 0, transactions: [] }
-
+      // File doesn't exist, create it with default data
+      const initialData = getDefaultData(type)
       await fs.writeFile(filePath, JSON.stringify(initialData, null, 2))
       return initialData as T
     }
@@ -37,13 +44,10 @@ async function loadData<T>(type: DataType): Promise<T> {
     // File exists, read and return its contents
     const data = await fs.readFile(filePath, 'utf8')
     const jsonData = JSON.parse(data)
-    return type === 'wishlist' ? jsonData.items : jsonData
+    return jsonData
   } catch (error) {
     console.error(`Error loading ${type} data:`, error)
-    if (type === 'wishlist') return [] as T
-    if (type === 'habits') return { habits: [] } as T
-    if (type === 'coins') return { balance: 0, transactions: [] } as T
-    return {} as T
+    return getDefaultData<T>(type)
   }
 }
 
@@ -51,7 +55,7 @@ async function saveData<T>(type: DataType, data: T): Promise<void> {
   try {
     await ensureDataDir()
     const filePath = path.join(process.cwd(), 'data', `${type}.json`)
-    const saveData = type === 'wishlist' ? { items: data } : data
+    const saveData = data
     await fs.writeFile(filePath, JSON.stringify(saveData, null, 2))
   } catch (error) {
     console.error(`Error saving ${type} data:`, error)
@@ -60,11 +64,12 @@ async function saveData<T>(type: DataType, data: T): Promise<void> {
 
 // Wishlist specific functions
 export async function loadWishlistItems(): Promise<WishlistItemType[]> {
-  return loadData<WishlistItemType[]>('wishlist')
+  const data = await loadData<WishlistData>('wishlist')
+  return data.items
 }
 
 export async function saveWishlistItems(items: WishlistItemType[]): Promise<void> {
-  return saveData('wishlist', items)
+  return saveData('wishlist', { items })
 }
 
 // Habits specific functions
@@ -112,6 +117,26 @@ export async function addCoins(
 
   await saveCoinsData(newData)
   return newData
+}
+
+export async function loadSettings(): Promise<Settings> {
+  const defaultSettings: Settings = {
+    ui: {
+      useNumberFormatting: true,
+      useGrouping: true,
+    }
+  }
+
+  try {
+    const data = await loadData<Settings>('settings')
+    return { ...defaultSettings, ...data }
+  } catch {
+    return defaultSettings
+  }
+}
+
+export async function saveSettings(settings: Settings): Promise<void> {
+  return saveData('settings', settings)
 }
 
 export async function removeCoins(

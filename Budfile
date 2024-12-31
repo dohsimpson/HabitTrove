@@ -1,0 +1,56 @@
+#!/bin/bash
+
+bump_version() {
+  echo "Which version part would you like to bump? ([M]ajor/[m]inor/[p]atch)"
+  read -r version_part
+
+  # Get current version
+  current_version=$(node -p "require('./package.json').version")
+  IFS='.' read -r major minor patch <<<"$current_version"
+
+  # Calculate new version
+  if [[ "$version_part" =~ ^M$ ]]; then
+    new_version="$((major + 1)).0.0"
+  elif [[ "$version_part" =~ ^m$ ]]; then
+    new_version="$major.$((minor + 1)).0"
+  elif [[ "$version_part" =~ ^p$ ]]; then
+    new_version="$major.$minor.$((patch + 1))"
+  else
+    echo "Invalid version part. Please use M, m, or p"
+    return 1
+  fi
+
+  # Update package.json with new version
+  sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
+  echo "Version bumped from $current_version to $new_version"
+}
+
+commit() {
+  # Check if package.json is staged
+  if git diff --cached --name-only | grep -q "package.json"; then
+    # Get the new version from package.json
+    new_version=$(node -p "require('./package.json').version")
+
+    echo "package.json has been modified. Would you like to tag this release as v$new_version? (y/n)"
+    read -r response
+
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+      git commit
+      git tag -a "v$new_version" -m "Release version $new_version"
+      echo "Created tag v$new_version"
+    else
+      git commit
+    fi
+  else
+    git commit
+  fi
+}
+
+docker_push() {
+  local version=$(node -p "require('./package.json').version")
+  docker tag habittrove dohsimpson/habittrove:latest
+  docker tag habittrove "dohsimpson/habittrove:v$version"
+  docker push dohsimpson/habittrove:latest
+  docker push "dohsimpson/habittrove:v$version"
+  echo "Pushed Docker images with tags: latest and v$version"
+}

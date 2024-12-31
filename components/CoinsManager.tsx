@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { useSettings } from '@/hooks/useSettings'
 import { Button } from '@/components/ui/button'
+import { formatNumber } from '@/lib/utils/formatNumber'
 import { History } from 'lucide-react'
 import EmptyState from './EmptyState'
 import { Input } from '@/components/ui/input'
@@ -13,6 +15,7 @@ import Link from 'next/link'
 
 export default function CoinsManager() {
   const { balance, transactions, addAmount, removeAmount } = useCoins()
+  const { settings } = useSettings()
   const DEFAULT_AMOUNT = '0'
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
 
@@ -43,7 +46,7 @@ export default function CoinsManager() {
               <span className="text-2xl animate-bounce hover:animate-none cursor-default">🪙</span>
               <div>
                 <div className="text-sm font-normal text-muted-foreground">Current Balance</div>
-                <div className="text-3xl font-bold">{balance} coins</div>
+                <div className="text-3xl font-bold">{formatNumber({ amount: balance, settings })} coins</div>
               </div>
             </CardTitle>
           </CardHeader>
@@ -108,29 +111,33 @@ export default function CoinsManager() {
               <div className="p-4 rounded-lg bg-green-100 dark:bg-green-900">
                 <div className="text-sm text-green-800 dark:text-green-100 mb-1">Total Earned</div>
                 <div className="text-2xl font-bold text-green-900 dark:text-green-50">
-                  {transactions
-                    .filter(t => {
-                      if (t.type === 'HABIT_COMPLETION' && t.relatedItemId) {
-                        return !transactions.some(undoT =>
-                          undoT.type === 'HABIT_UNDO' &&
-                          undoT.relatedItemId === t.relatedItemId
-                        )
-                      }
-                      return t.amount > 0 && t.type !== 'HABIT_UNDO'
-                    })
-                    .reduce((sum, t) => sum + t.amount, 0)
-                  } 🪙
+                  {formatNumber({
+                    amount: transactions
+                      .filter(t => {
+                        if (t.type === 'HABIT_COMPLETION' && t.relatedItemId) {
+                          return !transactions.some(undoT =>
+                            undoT.type === 'HABIT_UNDO' &&
+                            undoT.relatedItemId === t.relatedItemId
+                          )
+                        }
+                        return t.amount > 0 && t.type !== 'HABIT_UNDO'
+                      })
+                      .reduce((sum, t) => sum + t.amount, 0)
+                    , settings
+                  })} 🪙
                 </div>
               </div>
 
               <div className="p-4 rounded-lg bg-red-100 dark:bg-red-900">
                 <div className="text-sm text-red-800 dark:text-red-100 mb-1">Total Spent</div>
                 <div className="text-2xl font-bold text-red-900 dark:text-red-50">
-                  {Math.abs(
-                    transactions
-                      .filter(t => t.type === 'WISH_REDEMPTION' || t.type === 'MANUAL_ADJUSTMENT')
-                      .reduce((sum, t) => sum + (t.amount < 0 ? t.amount : 0), 0)
-                  )} 🪙
+                  {formatNumber({
+                    amount: Math.abs(
+                      transactions
+                        .filter(t => t.type === 'WISH_REDEMPTION' || t.type === 'MANUAL_ADJUSTMENT')
+                        .reduce((sum, t) => sum + (t.amount < 0 ? t.amount : 0), 0)
+                    ), settings
+                  })} 🪙
                 </div>
               </div>
 
@@ -165,59 +172,59 @@ export default function CoinsManager() {
                 />
               ) : (
                 transactions.map((transaction) => {
-                const getBadgeStyles = () => {
-                  switch (transaction.type) {
-                    case 'HABIT_COMPLETION':
-                      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
-                    case 'HABIT_UNDO':
-                      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
-                    case 'WISH_REDEMPTION':
-                      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100'
-                    case 'MANUAL_ADJUSTMENT':
-                      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
-                    default:
-                      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
+                  const getBadgeStyles = () => {
+                    switch (transaction.type) {
+                      case 'HABIT_COMPLETION':
+                        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+                      case 'HABIT_UNDO':
+                        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+                      case 'WISH_REDEMPTION':
+                        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100'
+                      case 'MANUAL_ADJUSTMENT':
+                        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+                      default:
+                        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
+                    }
                   }
-                }
 
-                return (
-                  <div
-                    key={transaction.id}
-                    className="flex justify-between items-center p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        {transaction.relatedItemId ? (
-                          <Link
-                            href={`${transaction.type === 'WISH_REDEMPTION' ? '/wishlist' : '/habits'}?highlight=${transaction.relatedItemId}`}
-                            className="font-medium hover:underline"
-                            scroll={true}
-                          >
-                            {transaction.description}
-                          </Link>
-                        ) : (
-                          <p className="font-medium">{transaction.description}</p>
-                        )}
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full ${getBadgeStyles()}`}
-                        >
-                          {transaction.type.split('_').join(' ')}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500">
-                        {format(new Date(transaction.timestamp), 'PPpp')}
-                      </p>
-                    </div>
-                    <span
-                      className={`font-mono ${transaction.amount >= 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
-                        }`}
+                  return (
+                    <div
+                      key={transaction.id}
+                      className="flex justify-between items-center p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
-                      {transaction.amount >= 0 ? '+' : ''}{transaction.amount}
-                    </span>
-                  </div>
-                )
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          {transaction.relatedItemId ? (
+                            <Link
+                              href={`${transaction.type === 'WISH_REDEMPTION' ? '/wishlist' : '/habits'}?highlight=${transaction.relatedItemId}`}
+                              className="font-medium hover:underline"
+                              scroll={true}
+                            >
+                              {transaction.description}
+                            </Link>
+                          ) : (
+                            <p className="font-medium">{transaction.description}</p>
+                          )}
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full ${getBadgeStyles()}`}
+                          >
+                            {transaction.type.split('_').join(' ')}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          {format(new Date(transaction.timestamp), 'PPpp')}
+                        </p>
+                      </div>
+                      <span
+                        className={`font-mono ${transaction.amount >= 0
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-red-600 dark:text-red-400'
+                          }`}
+                      >
+                        {transaction.amount >= 0 ? '+' : ''}{transaction.amount}
+                      </span>
+                    </div>
+                  )
                 })
               )}
             </div>

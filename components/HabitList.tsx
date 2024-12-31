@@ -61,7 +61,7 @@ export default function HabitList() {
         }}
         onSave={async (habit) => {
           if (editingHabit) {
-            await editHabit(editingHabit)
+            await editHabit({ ...habit, id: editingHabit.id })
           } else {
             await addHabit(habit)
           }

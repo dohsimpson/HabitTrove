@@ -33,3 +33,50 @@ export interface CoinsData {
   balance: number;
   transactions: CoinTransaction[];
 }
+
+// Default value functions
+// Data container types
+export interface WishlistData {
+  items: WishlistItemType[];
+}
+
+// Default value functions
+export const getDefaultHabitsData = (): HabitsData => ({
+  habits: []
+});
+
+export const getDefaultCoinsData = (): CoinsData => ({
+  balance: 0,
+  transactions: []
+});
+
+export const getDefaultWishlistData = (): WishlistData => ({
+  items: []
+});
+
+export const getDefaultSettings = (): Settings => ({
+  ui: {
+    useNumberFormatting: true,
+    useGrouping: true,
+  }
+});
+
+// Map of data types to their default values
+export const DATA_DEFAULTS = {
+  wishlist: getDefaultWishlistData,
+  habits: getDefaultHabitsData,
+  coins: getDefaultCoinsData,
+  settings: getDefaultSettings,
+} as const;
+
+// Type for all possible data types
+export type DataType = keyof typeof DATA_DEFAULTS;
+
+export interface UISettings {
+  useNumberFormatting: boolean;
+  useGrouping: boolean;
+}
+
+export interface Settings {
+  ui: UISettings;
+}
