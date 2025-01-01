@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Plus, Gift } from 'lucide-react'
 import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
@@ -11,13 +11,13 @@ import { WishlistItemType } from '@/lib/types'
 import { useWishlist } from '@/hooks/useWishlist'
 
 export default function WishlistManager() {
-  const { 
-    wishlistItems, 
-    addWishlistItem, 
-    editWishlistItem, 
-    deleteWishlistItem, 
+  const {
+    wishlistItems,
+    addWishlistItem,
+    editWishlistItem,
+    deleteWishlistItem,
     redeemWishlistItem,
-    canRedeem 
+    canRedeem
   } = useWishlist()
 
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null)
@@ -29,8 +29,9 @@ export default function WishlistManager() {
     itemId: null
   })
 
-  useEffect(() => {
+  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
+  useEffect(() => {
     // Check URL for highlight parameter
     const params = new URLSearchParams(window.location.search)
     const highlightId = params.get('highlight')
@@ -38,7 +39,7 @@ export default function WishlistManager() {
       setHighlightedItemId(highlightId)
       // Scroll the element into view after a short delay to ensure rendering
       setTimeout(() => {
-        const element = document.getElementById(`wishlist-${highlightId}`)
+        const element = itemRefs.current[highlightId]
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
@@ -78,19 +79,27 @@ export default function WishlistManager() {
           </div>
         ) : (
           wishlistItems.map((item) => (
-          <WishlistItem
-            key={item.id}
-            item={item}
-            isHighlighted={item.id === highlightedItemId}
-            isRecentlyRedeemed={item.id === recentlyRedeemedId}
-            onEdit={() => {
-              setEditingItem(item)
-              setIsModalOpen(true)
-            }}
-            onDelete={() => setDeleteConfirmation({ isOpen: true, itemId: item.id })}
-            onRedeem={() => handleRedeem(item)}
-            canRedeem={canRedeem(item.coinCost)}
-          />
+            <div
+              key={item.id}
+              ref={(el) => {
+                if (el) {
+                  itemRefs.current[item.id] = el
+                }
+              }}
+            >
+              <WishlistItem
+                item={item}
+                isHighlighted={item.id === highlightedItemId}
+                isRecentlyRedeemed={item.id === recentlyRedeemedId}
+                onEdit={() => {
+                  setEditingItem(item)
+                  setIsModalOpen(true)
+                }}
+                onDelete={() => setDeleteConfirmation({ isOpen: true, itemId: item.id })}
+                onRedeem={() => handleRedeem(item)}
+                canRedeem={canRedeem(item.coinCost)}
+              />
+            </div>
           ))
         )}
       </div>

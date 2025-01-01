@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.4
+
+### Changed
+
+- new effect when redeeming wishlist
+
 ## Version 0.1.3
 
 ### Fixed

@@ -26,7 +26,7 @@ export function useWishlist() {
   }
 
   const editWishlistItem = async (updatedItem: WishlistItemType) => {
-    const newItems = wishlistItems.map(item => 
+    const newItems = wishlistItems.map(item =>
       item.id === updatedItem.id ? updatedItem : item
     )
     setWishlistItems(newItems)
@@ -47,12 +47,10 @@ export function useWishlist() {
         'WISH_REDEMPTION',
         item.id
       )
-      
+
       // Randomly choose a celebration effect
       const celebrationEffects = [
-        celebrations.basic,
-        celebrations.fireworks,
-        celebrations.shower
+        celebrations.emojiParty
       ]
       const randomEffect = celebrationEffects[Math.floor(Math.random() * celebrationEffects.length)]
       randomEffect()
@@ -61,7 +59,7 @@ export function useWishlist() {
         title: "🎉 Reward Redeemed!",
         description: `You've redeemed "${item.name}" for ${item.coinCost} coins.`,
       })
-      
+
       return true
     } else {
       toast({
