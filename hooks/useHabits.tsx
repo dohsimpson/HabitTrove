@@ -5,7 +5,7 @@ import { toast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 import { Undo2 } from 'lucide-react'
 import { Habit } from '@/lib/types'
-import { getTodayInTimezone } from '@/lib/utils'
+import { getDateInTimezone, getTodayInTimezone } from '@/lib/utils'
 
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([])
@@ -21,7 +21,7 @@ export function useHabits() {
   }
 
   const addHabit = async (habit: Omit<Habit, 'id'>) => {
-    const newHabit = { ...habit, id: Date.now().toString() }
+    const newHabit = { ...habit, id: getDateInTimezone(new Date(), settings.system.timezone).getTime().toString() }
     const newHabits = [...habits, newHabit]
     setHabits(newHabits)
     await saveHabitsData({ habits: newHabits })
@@ -74,7 +74,7 @@ export function useHabits() {
   }
 
   const undoComplete = async (habit: Habit) => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = getTodayInTimezone(settings.system.timezone)
     const updatedHabit = {
       ...habit,
       completions: habit.completions.filter(date => date !== today)
