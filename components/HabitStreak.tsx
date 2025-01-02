@@ -3,7 +3,7 @@
 import { Habit } from '@/lib/types'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSettings } from '@/hooks/useSettings'
-import { getDateInTimezone } from '@/lib/utils'
+import { d2s, getNow } from '@/lib/utils'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface HabitStreakProps {
@@ -12,20 +12,21 @@ interface HabitStreakProps {
 
 export default function HabitStreak({ habits }: HabitStreakProps) {
   const { settings } = useSettings()
-  // Get the last 30 days of data
-  const dates = Array.from({ length: 30 }, (_, i) => {
-    const d = getDateInTimezone(new Date(), settings.system.timezone)
-    d.setDate(d.getDate() - i)
-    return d.toISOString().split('T')[0]
+  // Get the last 7 days of data
+  const dates = Array.from({ length: 7 }, (_, i) => {
+    const d = getNow({ timezone: settings.system.timezone });
+    return d2s({ dateTime: d.minus({ days: i }), format: 'yyyy-MM-dd' });
   }).reverse()
 
-  // Count completed habits per day
-  const completions = dates.map(date => ({
-    date: new Date(date).toLocaleDateString(),
-    completed: habits.filter(habit =>
-      habit.completions.includes(date)
-    ).length
-  }))
+  const completions = dates.map(date => {
+    const completedCount = habits.reduce((count, habit) => {
+      return count + (habit.completions.includes(date) ? 1 : 0);
+    }, 0);
+    return {
+      date,
+      completed: completedCount
+    };
+  });
 
   return (
     <Card>

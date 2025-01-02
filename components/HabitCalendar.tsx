@@ -7,14 +7,24 @@ import { Badge } from '@/components/ui/badge'
 
 import { loadHabitsData } from '@/app/actions/data'
 import { Habit } from '@/lib/types'
+import { d2s, getNow } from '@/lib/utils'
+import { useSettings } from '@/hooks/useSettings'
+import { DateTime } from 'luxon'
 
 export default function HabitCalendar() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
+  const { settings } = useSettings()
+  const [selectedDate, setSelectedDate] = useState<DateTime>(getNow({ timezone: settings.system.timezone }))
   const [habits, setHabits] = useState<Habit[]>([])
 
   useEffect(() => {
     fetchHabitsData()
   }, [])
+
+  // Update selectedDate when timezone changes
+  useEffect(() => {
+    const now = getNow({ timezone: settings.system.timezone })
+    setSelectedDate(now)
+  }, [settings])
 
   const fetchHabitsData = async () => {
     const data = await loadHabitsData()
@@ -39,8 +49,8 @@ export default function HabitCalendar() {
           <CardContent>
             <Calendar
               mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
+              selected={selectedDate.toJSDate()}
+              onSelect={(e) => e && setSelectedDate(DateTime.fromJSDate(e))}
               className="rounded-md border"
               modifiers={{
                 completed: (date) => getHabitsForDate(date).length > 0,
@@ -55,7 +65,7 @@ export default function HabitCalendar() {
           <CardHeader>
             <CardTitle>
               {selectedDate ? (
-                <>Habits for {selectedDate.toLocaleDateString()}</>
+                <>Habits for {d2s({ dateTime: selectedDate })}</>
               ) : (
                 'Select a date'
               )}
@@ -65,7 +75,7 @@ export default function HabitCalendar() {
             {selectedDate && (
               <ul className="space-y-2">
                 {habits.map((habit) => {
-                  const isCompleted = getHabitsForDate(selectedDate).some(h => h.id === habit.id)
+                  const isCompleted = getHabitsForDate(selectedDate.toJSDate()).some(h => h.id === habit.id)
                   return (
                     <li key={habit.id} className="flex items-center justify-between">
                       <span>{habit.name}</span>

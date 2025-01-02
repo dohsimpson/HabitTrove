@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useSettings } from '@/hooks/useSettings'
-import { getDateInTimezone } from '@/lib/utils'
+import { t2d, d2s, getNow, isSameDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { formatNumber } from '@/lib/utils/formatNumber'
 import { History } from 'lucide-react'
@@ -145,8 +145,7 @@ export default function CoinsManager() {
                 <div className="text-sm text-blue-800 dark:text-blue-100 mb-1">Today's Transactions</div>
                 <div className="text-2xl font-bold text-blue-900 dark:text-blue-50">
                   {transactions.filter(t =>
-                    getDateInTimezone(t.timestamp, settings.system.timezone).toDateString() ===
-                    getDateInTimezone(new Date(), settings.system.timezone).toDateString()
+                    isSameDate(getNow({}), t2d({ timestamp: t.timestamp }))
                   ).length} 📊
                 </div>
               </div>
@@ -213,7 +212,7 @@ export default function CoinsManager() {
                           </span>
                         </div>
                         <p className="text-sm text-gray-500">
-                          {getDateInTimezone(transaction.timestamp, settings.system.timezone).toLocaleString()}
+                          {d2s({ dateTime: t2d({ timestamp: transaction.timestamp, timezone: settings.system.timezone }) })}
                         </p>
                       </div>
                       <span

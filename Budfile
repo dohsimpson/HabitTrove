@@ -93,3 +93,11 @@ docker_push() {
     echo "Pushed Docker images with tags: v$version"
   fi
 }
+
+run() {
+  npm run dev
+}
+
+build() {
+  npm run build
+}

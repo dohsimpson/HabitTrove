@@ -5,7 +5,7 @@ import { toast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 import { Undo2 } from 'lucide-react'
 import { Habit } from '@/lib/types'
-import { getDateInTimezone, getTodayInTimezone } from '@/lib/utils'
+import { getNowInMilliseconds, getTodayInTimezone } from '@/lib/utils'
 
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([])
@@ -21,7 +21,7 @@ export function useHabits() {
   }
 
   const addHabit = async (habit: Omit<Habit, 'id'>) => {
-    const newHabit = { ...habit, id: getDateInTimezone(new Date(), settings.system.timezone).getTime().toString() }
+    const newHabit = { ...habit, id: getNowInMilliseconds() }
     const newHabits = [...habits, newHabit]
     setHabits(newHabits)
     await saveHabitsData({ habits: newHabits })

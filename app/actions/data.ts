@@ -13,6 +13,7 @@ import {
   DataType,
   DATA_DEFAULTS
 } from '@/lib/types'
+import { d2t, getNow, getNowInMilliseconds } from '@/lib/utils';
 
 function getDefaultData<T>(type: DataType): T {
   return DATA_DEFAULTS[type]() as T;
@@ -106,7 +107,7 @@ export async function addCoins(
     amount,
     type,
     description,
-    timestamp: new Date().toISOString(),
+    timestamp: d2t({ dateTime: getNow({}) }),
     ...(relatedItemId && { relatedItemId })
   }
 
@@ -154,7 +155,7 @@ export async function removeCoins(
     amount: -amount,
     type,
     description,
-    timestamp: new Date().toISOString(),
+    timestamp: d2t({ dateTime: getNow({}) }),
     ...(relatedItemId && { relatedItemId })
   }
 

@@ -1,18 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import moment from 'moment-timezone'
+import { DateTime } from 'luxon'
+import { d2s } from '@/lib/utils'
 
 interface DynamicTimeProps {
   timezone: string
 }
 
 export function DynamicTime({ timezone }: DynamicTimeProps) {
-  const [time, setTime] = useState(moment())
+  const [time, setTime] = useState(DateTime.now().setZone(timezone))
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTime(moment())
+      setTime((prevTime) => prevTime.plus({ seconds: 1 }))
     }, 1000)
 
     return () => clearInterval(timer)
@@ -20,7 +21,7 @@ export function DynamicTime({ timezone }: DynamicTimeProps) {
 
   return (
     <div className="text-sm text-muted-foreground">
-      {time.tz(timezone).format('dddd, MMMM D, YYYY h:mm:ss A')}
+      {d2s({ dateTime: time })}
     </div>
   )
 }

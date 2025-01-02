@@ -2,7 +2,7 @@
 
 import HeatMap from '@uiw/react-heat-map'
 import { Habit } from '@/lib/types'
-import { getDateInTimezone } from '@/lib/utils'
+import { getNow } from '@/lib/utils'
 import { useSettings } from '@/hooks/useSettings'
 
 interface HabitHeatmapProps {
@@ -29,9 +29,8 @@ export default function HabitHeatmap({ habits }: HabitHeatmapProps) {
   const { settings } = useSettings()
 
   // Get start date (30 days ago)
-  const now = getDateInTimezone(new Date(), settings.system.timezone)
-  const startDate = now
-  startDate.setDate(now.getDate() - 30)
+  const now = getNow({ timezone: settings.system.timezone })
+  const startDate = now.minus({ days: 30 }).toJSDate()
 
   return (
     <div className="p-4 bg-white rounded-lg shadow">
