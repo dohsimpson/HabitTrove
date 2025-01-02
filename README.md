@@ -60,15 +60,54 @@ npm run dev
 
 ## Docker Deployment
 
-For production deployment, you can use Docker. The application data will be persisted in the `data` directory.
+HabitTrove can be run using Docker in several ways, depending on your needs:
+
+### Using Pre-built Images
+
+The easiest way to run HabitTrove is using our pre-built Docker images from DockerHub:
+
+1. First, prepare the data directory with correct permissions:
+
+```bash
+mkdir -p data
+chown -R 1001:1001 data  # Required for the nextjs user in container
+```
+
+2. Then run using either method:
+
+```bash
+# Using docker-compose (recommended)
+docker compose up -d
+
+# Or using docker run directly
+docker run -d -p 3000:3000 -v ./data:/app/data dohsimpson/habittrove
+```
+
+Available image tags:
+
+- `latest`: Stable release version, recommended for most users
+- `vX.Y.Z` (e.g., `v0.1.4`): Specific version for reproducible deployments and rollbacks
+- `dev`: Latest development build from the main branch, may contain unstable features
+
+Choose your tag based on needs:
+
+- Use `latest` for general production use
+- Use version tags (e.g., `v0.1.4`) for reproducible deployments
+- Use `dev` for testing new features
+
+### Building Locally
+
+If you want to build the image locally (useful for development):
 
 ```bash
 # Build the Docker image
 npm run docker-build
 
-# Run the Docker container
+# Run the container
 npm run docker-run
 ```
+
+The application data will be persisted in the `data` directory in both cases.
 
 ## Contributing
 
