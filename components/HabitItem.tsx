@@ -1,4 +1,6 @@
 import { Habit } from '@/lib/types'
+import { useSettings } from '@/hooks/useSettings'
+import { getTodayInTimezone } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Coins, Edit, Trash2, Check, Undo2 } from 'lucide-react'
@@ -13,7 +15,8 @@ interface HabitItemProps {
 }
 
 export default function HabitItem({ habit, onEdit, onDelete, onComplete, onUndo }: HabitItemProps) {
-  const today = new Date().toISOString().split('T')[0]
+  const { settings } = useSettings()
+  const today = getTodayInTimezone(settings.system.timezone)
   const isCompletedToday = habit.completions?.includes(today)
   const [isHighlighted, setIsHighlighted] = useState(false)
 

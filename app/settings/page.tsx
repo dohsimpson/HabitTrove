@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { useSettings } from '@/hooks/useSettings'
+import { DynamicTimeNoSSR } from '@/components/DynamicTimeNoSSR'
 
 export default function SettingsPage() {
   const { settings, updateSettings } = useSettings()
@@ -13,7 +14,6 @@ export default function SettingsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Settings</h1>
-      
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>UI Settings</CardTitle>
@@ -55,6 +55,42 @@ export default function SettingsPage() {
                 })
               }
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>System Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="timezone">Timezone</Label>
+              <div className="text-sm text-muted-foreground">
+                Select your timezone for accurate date tracking
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <select
+                id="timezone"
+                value={settings.system.timezone}
+                onChange={(e) =>
+                  updateSettings({
+                    ...settings,
+                    system: { ...settings.system, timezone: e.target.value }
+                  })
+                }
+                className="w-[200px] rounded-md border border-input bg-background px-3 py-2"
+              >
+                {Intl.supportedValuesOf('timeZone').map((tz) => (
+                  <option key={tz} value={tz}>
+                    {tz}
+                  </option>
+                ))}
+              </select>
+              <DynamicTimeNoSSR timezone={settings.system.timezone} />
+            </div>
           </div>
         </CardContent>
       </Card>

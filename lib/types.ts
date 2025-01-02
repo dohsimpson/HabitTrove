@@ -58,6 +58,9 @@ export const getDefaultSettings = (): Settings => ({
   ui: {
     useNumberFormatting: true,
     useGrouping: true,
+  },
+  system: {
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
   }
 });
 
@@ -77,6 +80,11 @@ export interface UISettings {
   useGrouping: boolean;
 }
 
+export interface SystemSettings {
+  timezone: string;
+}
+
 export interface Settings {
   ui: UISettings;
+  system: SystemSettings;
 }

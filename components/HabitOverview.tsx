@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useSettings } from '@/hooks/useSettings'
+import { getTodayInTimezone } from '@/lib/utils'
 import { loadHabitsData } from '@/app/actions/data'
 import { Habit } from '@/lib/types'
 
@@ -15,7 +17,8 @@ export default function HabitOverview() {
     fetchHabits()
   }, [])
 
-  const today = new Date().toISOString().split('T')[0]
+  const { settings } = useSettings()
+  const today = getTodayInTimezone(settings.system.timezone)
 
   const completedToday = habits.filter(habit =>
     habit.completions.includes(today)

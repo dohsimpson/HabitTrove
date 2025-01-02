@@ -1,0 +1,7 @@
+services:
+  habittrove:
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./data:/app/data" # Use a relative path instead of $(pwd)
+    image: dohsimpson/habittrove

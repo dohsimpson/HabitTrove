@@ -1,6 +1,8 @@
 import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useSettings } from '@/hooks/useSettings'
+import { getTodayInTimezone } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -22,7 +24,8 @@ export default function DailyOverview({
   onComplete,
   onUndo
 }: UpcomingItemsProps) {
-  const today = new Date().toISOString().split('T')[0]
+  const { settings } = useSettings()
+  const today = getTodayInTimezone(settings.system.timezone)
   const todayCompletions = habits.filter(habit =>
     habit.completions.includes(today)
   )

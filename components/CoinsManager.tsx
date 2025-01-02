@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSettings } from '@/hooks/useSettings'
+import { getDateInTimezone } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { formatNumber } from '@/lib/utils/formatNumber'
 import { History } from 'lucide-react'
@@ -10,7 +11,6 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from '@/hooks/use-toast'
 import { useCoins } from '@/hooks/useCoins'
-import { format } from 'date-fns'
 import Link from 'next/link'
 
 export default function CoinsManager() {
@@ -145,7 +145,8 @@ export default function CoinsManager() {
                 <div className="text-sm text-blue-800 dark:text-blue-100 mb-1">Today's Transactions</div>
                 <div className="text-2xl font-bold text-blue-900 dark:text-blue-50">
                   {transactions.filter(t =>
-                    new Date(t.timestamp).toDateString() === new Date().toDateString()
+                    getDateInTimezone(t.timestamp, settings.system.timezone).toDateString() ===
+                    getDateInTimezone(new Date(), settings.system.timezone).toDateString()
                   ).length} 📊
                 </div>
               </div>
@@ -212,7 +213,7 @@ export default function CoinsManager() {
                           </span>
                         </div>
                         <p className="text-sm text-gray-500">
-                          {format(new Date(transaction.timestamp), 'PPpp')}
+                          {getDateInTimezone(transaction.timestamp, settings.system.timezone).toLocaleString()}
                         </p>
                       </div>
                       <span
@@ -231,6 +232,6 @@ export default function CoinsManager() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </div >
   )
 }

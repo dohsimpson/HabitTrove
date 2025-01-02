@@ -124,6 +124,9 @@ export async function loadSettings(): Promise<Settings> {
     ui: {
       useNumberFormatting: true,
       useGrouping: true,
+    },
+    system: {
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     }
   }
 

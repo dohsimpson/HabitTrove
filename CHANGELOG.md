@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.1.5
+
+### Added
+
+- docker-compose.yaml
+- timezone settings
+
+### Fixed
+
+- completing habits now respect timezone settings
+
 ## Version 0.1.4
 
 ### Changed

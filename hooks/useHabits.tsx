@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
+import { useSettings } from '@/hooks/useSettings'
 import { loadHabitsData, saveHabitsData, addCoins, removeCoins } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 import { Undo2 } from 'lucide-react'
 import { Habit } from '@/lib/types'
+import { getTodayInTimezone } from '@/lib/utils'
 
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([])
+  const { settings } = useSettings()
 
   useEffect(() => {
     fetchHabits()
@@ -39,7 +42,7 @@ export function useHabits() {
   }
 
   const completeHabit = async (habit: Habit) => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = getTodayInTimezone(settings.system.timezone)
     if (!habit.completions.includes(today)) {
       const updatedHabit = {
         ...habit,

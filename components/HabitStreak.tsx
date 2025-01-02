@@ -2,6 +2,8 @@
 
 import { Habit } from '@/lib/types'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useSettings } from '@/hooks/useSettings'
+import { getDateInTimezone } from '@/lib/utils'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface HabitStreakProps {
@@ -11,7 +13,8 @@ interface HabitStreakProps {
 export default function HabitStreak({ habits }: HabitStreakProps) {
   // Get the last 30 days of data
   const dates = Array.from({ length: 30 }, (_, i) => {
-    const d = new Date()
+    const { settings } = useSettings()
+    const d = getDateInTimezone(new Date(), settings.system.timezone)
     d.setDate(d.getDate() - i)
     return d.toISOString().split('T')[0]
   }).reverse()
