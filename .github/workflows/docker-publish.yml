@@ -1,0 +1,53 @@
+name: Docker Build and Publish
+
+on:
+  push:
+    branches:
+      - main
+      - github-actions
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Get version from package.json
+        id: package-version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Check if version exists
+        id: check-version
+        run: |
+          if docker pull dohsimpson/habittrove:v${{ steps.package-version.outputs.VERSION }} 2>/dev/null; then
+            echo "EXISTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "EXISTS=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Docker image
+        run: docker build -t habittrove .
+
+      - name: Push Docker images
+        run: |
+          if [ "${{ steps.check-version.outputs.EXISTS }}" = "false" ]; then
+            docker tag habittrove dohsimpson/habittrove:v${{ steps.package-version.outputs.VERSION }}
+            docker push dohsimpson/habittrove:v${{ steps.package-version.outputs.VERSION }}
+            echo "Pushed version tag v${{ steps.package-version.outputs.VERSION }}"
+          fi
+          docker tag habittrove dohsimpson/habittrove:latest
+          docker push dohsimpson/habittrove:latest
+          echo "Pushed latest tag"
