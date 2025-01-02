@@ -11,9 +11,9 @@ interface HabitStreakProps {
 }
 
 export default function HabitStreak({ habits }: HabitStreakProps) {
+  const { settings } = useSettings()
   // Get the last 30 days of data
   const dates = Array.from({ length: 30 }, (_, i) => {
-    const { settings } = useSettings()
     const d = getDateInTimezone(new Date(), settings.system.timezone)
     d.setDate(d.getDate() - i)
     return d.toISOString().split('T')[0]

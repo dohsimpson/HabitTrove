@@ -81,9 +81,15 @@ check_versions() {
 
 docker_push() {
   local version=$(node -p "require('./package.json').version")
-  docker tag habittrove dohsimpson/habittrove:latest
-  docker tag habittrove "dohsimpson/habittrove:v$version"
-  docker push dohsimpson/habittrove:latest
-  docker push "dohsimpson/habittrove:v$version"
-  echo "Pushed Docker images with tags: latest and v$version"
+  # check if version already exist on dockerhub, if so, don't tag and push versioned image
+  if docker pull "dohsimpson/habittrove:v$version" &>/dev/null; then
+    echo "Docker image with tag v$version already exists on DockerHub. Skipping versioned image push"
+    docker tag habittrove dohsimpson/habittrove:latest
+    docker push dohsimpson/habittrove:latest
+    echo "Pushed Docker images with tags: latest"
+  else
+    docker tag habittrove "dohsimpson/habittrove:v$version"
+    docker push "dohsimpson/habittrove:v$version"
+    echo "Pushed Docker images with tags: v$version"
+  fi
 }
