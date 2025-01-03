@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      # - github-actions
+      - github-actions
 
 jobs:
   build-and-push:
@@ -40,22 +40,19 @@ jobs:
             echo "EXISTS=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build Docker image
-        run: docker build -t habittrove .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Push Docker images
-        run: |
-          if [ "${{ steps.check-version.outputs.EXISTS }}" = "false" ]; then
-            docker tag habittrove dohsimpson/habittrove:v${{ steps.package-version.outputs.VERSION }}
-            docker push dohsimpson/habittrove:v${{ steps.package-version.outputs.VERSION }}
-            echo "Pushed tag: v${{ steps.package-version.outputs.VERSION }}"
-            docker tag habittrove dohsimpson/habittrove:latest
-            docker push dohsimpson/habittrove:latest
-            echo "Pushed tag: latest"
-          fi
-          docker tag habittrove dohsimpson/habittrove:dev
-          docker push dohsimpson/habittrove:dev
-          echo "Pushed tag: dev"
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ steps.check-version.outputs.EXISTS == 'false' && format('dohsimpson/habittrove:v{0}', steps.package-version.outputs.VERSION) || '' }}
+            ${{ steps.check-version.outputs.EXISTS == 'false' && 'dohsimpson/habittrove:latest' || '' }}
+            dohsimpson/habittrove:dev
 
   deploy-demo:
     runs-on: ubuntu-latest
