@@ -5,6 +5,7 @@
 ### Added
 
 - profile button
+- settings to update profile image
 
 ### Changed
 
