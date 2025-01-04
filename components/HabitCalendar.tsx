@@ -15,17 +15,13 @@ import { DateTime } from 'luxon'
 export default function HabitCalendar() {
   const [settings] = useAtom(settingsAtom)
   const [selectedDate, setSelectedDate] = useState<DateTime>(getNow({ timezone: settings.system.timezone }))
+  console.log("🪚 settings.system.timezone:", settings.system.timezone);
+  console.log("🪚 selectedDate:", selectedDate.toJSDate());
   const [habits, setHabits] = useState<Habit[]>([])
 
   useEffect(() => {
     fetchHabitsData()
   }, [])
-
-  // Update selectedDate when timezone changes
-  useEffect(() => {
-    const now = getNow({ timezone: settings.system.timezone })
-    setSelectedDate(now)
-  }, [settings])
 
   const fetchHabitsData = async () => {
     const data = await loadHabitsData()
@@ -51,7 +47,7 @@ export default function HabitCalendar() {
             <Calendar
               mode="single"
               selected={selectedDate.toJSDate()}
-              onSelect={(e) => e && setSelectedDate(DateTime.fromJSDate(e))}
+              // onSelect={(e) => e && setSelectedDate(DateTime.fromJSDate(e))}
               className="rounded-md border"
               modifiers={{
                 completed: (date) => getHabitsForDate(date).length > 0,
@@ -66,7 +62,7 @@ export default function HabitCalendar() {
           <CardHeader>
             <CardTitle>
               {selectedDate ? (
-                <>Habits for {d2s({ dateTime: selectedDate })}</>
+                <>Habits for {d2s({ dateTime: selectedDate, timezone: settings.system.timezone })}</>
               ) : (
                 'Select a date'
               )}

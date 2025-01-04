@@ -16,7 +16,7 @@ export default function HabitStreak({ habits }: HabitStreakProps) {
   // Get the last 7 days of data
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = getNow({ timezone: settings.system.timezone });
-    return d2s({ dateTime: d.minus({ days: i }), format: 'yyyy-MM-dd' });
+    return d2s({ dateTime: d.minus({ days: i }), format: 'yyyy-MM-dd', timezone: settings.system.timezone });
   }).reverse()
 
   const completions = dates.map(date => {

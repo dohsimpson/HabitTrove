@@ -1,15 +1,16 @@
 'use client'
 
-import { loadSettings } from "@/app/actions/data"
 import { settingsAtom } from "@/lib/atoms"
-import { useAtom } from "jotai"
-import { useEffect } from "react"
+import { useHydrateAtoms } from "jotai/utils"
+import { Settings } from "@/lib/types"
 
-export function JotaiHydrate({ children }: { children: React.ReactNode }) {
-  const [, setSettings] = useAtom(settingsAtom)
-  useEffect(() => {
-    loadSettings().then(setSettings)
-  }, [])
-
+export function JotaiHydrate({ 
+  children,
+  initialSettings
+}: { 
+  children: React.ReactNode
+  initialSettings: Settings 
+}) {
+  useHydrateAtoms([[settingsAtom, initialSettings]])
   return children
 }
