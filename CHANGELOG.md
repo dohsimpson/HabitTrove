@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 0.1.11
+
+### Added
+
+- profile button
+
+### Changed
+
+- Move settings and about to under profile button
+
 ## Version 0.1.10
 
 ### Fixed

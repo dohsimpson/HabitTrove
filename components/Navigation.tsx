@@ -13,7 +13,6 @@ const navItems = [
   { icon: Calendar, label: 'Calendar', href: '/calendar', position: 'main' },
   { icon: Gift, label: 'Wishlist', href: '/wishlist', position: 'main' },
   { icon: Coins, label: 'Coins', href: '/coins', position: 'main' },
-  { icon: Info, label: 'About', href: '#', position: 'bottom', onClick: (setShow: (show: boolean) => void) => setShow(true) },
 ]
 
 interface NavigationProps {
@@ -46,27 +45,16 @@ export default function Navigation({ className, viewPort }: NavigationProps) {
         <div className="pb-16" /> {/* Add padding at the bottom to prevent content from being hidden */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg">
           <div className="flex justify-around">
-            {[...navItems.filter(item => item.position === 'main'), ...navItems.filter(item => item.position === 'bottom')].map((item) =>
-              item.onClick ? (
-                <button
-                  key={item.label}
-                  onClick={() => item.onClick?.(setShowAbout)}
-                  className="flex flex-col items-center py-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400"
-                >
-                  <item.icon className="h-6 w-6" />
-                  <span className="text-xs mt-1">{item.label}</span>
-                </button>
-              ) : (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="flex flex-col items-center py-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400"
-                >
-                  <item.icon className="h-6 w-6" />
-                  <span className="text-xs mt-1">{item.label}</span>
-                </Link>
-              )
-            )}
+            {[...navItems.filter(item => item.position === 'main'), ...navItems.filter(item => item.position === 'bottom')].map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="flex flex-col items-center py-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400"
+              >
+                <item.icon className="h-6 w-6" />
+                <span className="text-xs mt-1">{item.label}</span>
+              </Link>
+            ))}
           </div>
         </nav>
         <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
@@ -92,15 +80,6 @@ export default function Navigation({ className, viewPort }: NavigationProps) {
                   </Link>
                 ))}
               </nav>
-              <div className="px-2 pb-2">
-                <button
-                  onClick={() => setShowAbout(true)}
-                  className="w-full group flex items-center px-2 py-2 text-sm leading-6 font-medium rounded-md text-gray-300 hover:text-white hover:bg-gray-700"
-                >
-                  <Info className="mr-4 flex-shrink-0 h-6 w-6 text-gray-400" aria-hidden="true" />
-                  About
-                </button>
-              </div>
             </div>
           </div>
         </div>
