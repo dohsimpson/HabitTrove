@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { addCoins, removeCoins } from '@/app/actions/data'
 import { t2d, d2s, getNow, isSameDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { formatNumber } from '@/lib/utils/formatNumber'
@@ -9,31 +10,47 @@ import EmptyState from './EmptyState'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from '@/hooks/use-toast'
-import { useCoins } from '@/hooks/useCoins'
+import { settingsAtom, coinsAtom } from '@/lib/atoms'
 import Link from 'next/link'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
 
 export default function CoinsManager() {
-  const { balance, transactions, addAmount, removeAmount } = useCoins()
+  const [coins, setCoins] = useAtom(coinsAtom)
+  const { balance, transactions } = coins
   const [settings] = useAtom(settingsAtom)
   const DEFAULT_AMOUNT = '0'
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
 
   const handleAddCoins = async () => {
-    const data = await addAmount(Number(amount), "Manual addition")
-    if (data) {
-      setAmount(DEFAULT_AMOUNT)
-      toast({ title: "Success", description: `Added ${amount} coins` })
+    const numAmount = Number(amount)
+    if (isNaN(numAmount) || numAmount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid positive number"
+      })
+      return
     }
+
+    const data = await addCoins(numAmount, "Manual addition")
+    setCoins(data)
+    setAmount(DEFAULT_AMOUNT)
+    toast({ title: "Success", description: `Added ${amount} coins` })
   }
 
   const handleRemoveCoins = async () => {
-    const data = await removeAmount(Math.abs(Number(amount)), "Manual removal")
-    if (data) {
-      setAmount(DEFAULT_AMOUNT)
-      toast({ title: "Success", description: `Removed ${amount} coins` })
+    const numAmount = Math.abs(Number(amount))
+    if (isNaN(numAmount) || numAmount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid positive number"
+      })
+      return
     }
+
+    const data = await removeCoins(numAmount, "Manual removal")
+    setCoins(data)
+    setAmount(DEFAULT_AMOUNT)
+    toast({ title: "Success", description: `Removed ${amount} coins` })
   }
 
   return (

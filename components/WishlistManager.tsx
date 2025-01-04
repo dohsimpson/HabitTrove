@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { loadWishlistItems, saveWishlistItems } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
-import { useCoins } from '@/hooks/useCoins'
 import { celebrations } from '@/utils/celebrations'
 import { Plus, Gift } from 'lucide-react'
 import EmptyState from './EmptyState'
@@ -13,12 +12,14 @@ import AddEditWishlistItemModal from './AddEditWishlistItemModal'
 import ConfirmDialog from './ConfirmDialog'
 import { WishlistItemType } from '@/lib/types'
 import { useAtom } from 'jotai'
-import { wishlistAtom } from '@/lib/atoms'
+import { wishlistAtom, coinsAtom } from '@/lib/atoms'
+import { removeCoins } from '@/app/actions/data'
 
 export default function WishlistManager() {
   const [wishlist, setWishlist] = useAtom(wishlistAtom)
   const wishlistItems = wishlist.items
-  const { balance, removeAmount } = useCoins()
+  const [coins, setCoins] = useAtom(coinsAtom)
+  const balance = coins.balance
 
   const addWishlistItem = async (item: Omit<WishlistItemType, 'id'>) => {
     const newItem = { ...item, id: Date.now().toString() }
@@ -43,12 +44,13 @@ export default function WishlistManager() {
 
   const redeemWishlistItem = async (item: WishlistItemType) => {
     if (balance >= item.coinCost) {
-      await removeAmount(
+      const data = await removeCoins(
         item.coinCost,
         `Redeemed reward: ${item.name}`,
         'WISH_REDEMPTION',
         item.id
       )
+      setCoins(data)
 
       // Randomly choose a celebration effect
       const celebrationEffects = [
