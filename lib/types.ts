@@ -88,3 +88,10 @@ export interface Settings {
   ui: UISettings;
   system: SystemSettings;
 }
+
+export interface JotaiHydrateInitialValues {
+  settings: Settings;
+  coins: CoinsData;
+  habits: HabitsData;
+  wishlist: WishlistData;
+}

@@ -1,6 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { loadWishlistItems, saveWishlistItems } from '@/app/actions/data'
+import { toast } from '@/hooks/use-toast'
+import { useCoins } from '@/hooks/useCoins'
+import { celebrations } from '@/utils/celebrations'
 import { Plus, Gift } from 'lucide-react'
 import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
@@ -8,17 +12,68 @@ import WishlistItem from './WishlistItem'
 import AddEditWishlistItemModal from './AddEditWishlistItemModal'
 import ConfirmDialog from './ConfirmDialog'
 import { WishlistItemType } from '@/lib/types'
-import { useWishlist } from '@/hooks/useWishlist'
+import { useAtom } from 'jotai'
+import { wishlistAtom } from '@/lib/atoms'
 
 export default function WishlistManager() {
-  const {
-    wishlistItems,
-    addWishlistItem,
-    editWishlistItem,
-    deleteWishlistItem,
-    redeemWishlistItem,
-    canRedeem
-  } = useWishlist()
+  const [wishlist, setWishlist] = useAtom(wishlistAtom)
+  const wishlistItems = wishlist.items
+  const { balance, removeAmount } = useCoins()
+
+  const addWishlistItem = async (item: Omit<WishlistItemType, 'id'>) => {
+    const newItem = { ...item, id: Date.now().toString() }
+    const newItems = [...wishlistItems, newItem]
+    setWishlist({ items: newItems })
+    await saveWishlistItems(newItems)
+  }
+
+  const editWishlistItem = async (updatedItem: WishlistItemType) => {
+    const newItems = wishlistItems.map(item =>
+      item.id === updatedItem.id ? updatedItem : item
+    )
+    setWishlist({ items: newItems })
+    await saveWishlistItems(newItems)
+  }
+
+  const deleteWishlistItem = async (id: string) => {
+    const newItems = wishlistItems.filter(item => item.id !== id)
+    setWishlist({ items: newItems })
+    await saveWishlistItems(newItems)
+  }
+
+  const redeemWishlistItem = async (item: WishlistItemType) => {
+    if (balance >= item.coinCost) {
+      await removeAmount(
+        item.coinCost,
+        `Redeemed reward: ${item.name}`,
+        'WISH_REDEMPTION',
+        item.id
+      )
+
+      // Randomly choose a celebration effect
+      const celebrationEffects = [
+        celebrations.emojiParty
+      ]
+      const randomEffect = celebrationEffects[Math.floor(Math.random() * celebrationEffects.length)]
+      randomEffect()
+
+      toast({
+        title: "🎉 Reward Redeemed!",
+        description: `You've redeemed "${item.name}" for ${item.coinCost} coins.`,
+      })
+
+      return true
+    } else {
+      toast({
+        title: "Not enough coins",
+        description: `You need ${item.coinCost - balance} more coins to redeem this reward.`,
+        variant: "destructive",
+      })
+      return false
+    }
+  }
+
+  const canRedeem = (cost: number) => balance >= cost
 
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null)
   const [recentlyRedeemedId, setRecentlyRedeemedId] = useState<string | null>(null)

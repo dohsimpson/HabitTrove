@@ -65,8 +65,12 @@ async function saveData<T>(type: DataType, data: T): Promise<void> {
 }
 
 // Wishlist specific functions
+export async function loadWishlistData(): Promise<WishlistData> {
+  return loadData<WishlistData>('wishlist')
+}
+
 export async function loadWishlistItems(): Promise<WishlistItemType[]> {
-  const data = await loadData<WishlistData>('wishlist')
+  const data = await loadWishlistData()
   return data.items
 }
 

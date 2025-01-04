@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { JotaiProvider } from '@/components/jotai-providers'
 import { Suspense } from 'react'
 import { JotaiHydrate } from '@/components/jotai-hydrate'
-import { loadSettings } from './actions/data'
+import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData } from './actions/data'
 // Inter (clean, modern, excellent readability)
 const inter = Inter({
   subsets: ['latin'],
@@ -32,13 +32,26 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const initialSettings = await loadSettings()
+  const [initialSettings, initialHabits, initialCoins, initialWishlist] = await Promise.all([
+    loadSettings(),
+    loadHabitsData(),
+    loadCoinsData(),
+    loadWishlistData()
+  ])
+
   return (
     <html lang="en">
       <body className={activeFont.className}>
         <JotaiProvider>
           <Suspense fallback="loading">
-            <JotaiHydrate initialSettings={initialSettings}>
+            <JotaiHydrate
+              initialValues={{
+                settings: initialSettings,
+                habits: initialHabits,
+                coins: initialCoins,
+                wishlist: initialWishlist
+              }}
+            >
               {children}
             </JotaiHydrate>
           </Suspense>

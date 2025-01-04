@@ -2,7 +2,8 @@
 
 import { loadCoinsData } from '@/app/actions/data'
 import { useHabits } from '@/hooks/useHabits'
-import { useWishlist } from '@/hooks/useWishlist'
+import { useAtom } from 'jotai'
+import { wishlistAtom } from '@/lib/atoms'
 import { useEffect, useState } from 'react'
 import CoinBalance from './CoinBalance'
 import DailyOverview from './DailyOverview'
@@ -12,7 +13,8 @@ import HabitStreak from './HabitStreak'
 export default function Dashboard() {
   const { habits, completeHabit, undoComplete } = useHabits()
   const [coinBalance, setCoinBalance] = useState(0)
-  const { wishlistItems } = useWishlist()
+  const [wishlist] = useAtom(wishlistAtom)
+  const wishlistItems = wishlist.items
 
   useEffect(() => {
     const loadData = async () => {
