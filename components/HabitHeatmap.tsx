@@ -3,7 +3,8 @@
 import HeatMap from '@uiw/react-heat-map'
 import { Habit } from '@/lib/types'
 import { getNow } from '@/lib/utils'
-import { useSettings } from '@/hooks/useSettings'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 
 interface HabitHeatmapProps {
   habits: Habit[]
@@ -26,7 +27,7 @@ export default function HabitHeatmap({ habits }: HabitHeatmapProps) {
     count
   }))
 
-  const { settings } = useSettings()
+  const [settings] = useAtom(settingsAtom)
 
   // Get start date (30 days ago)
   const now = getNow({ timezone: settings.system.timezone })

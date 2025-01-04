@@ -2,20 +2,21 @@
 
 import { Habit } from '@/lib/types'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useSettings } from '@/hooks/useSettings'
 import { d2s, getNow } from '@/lib/utils'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 
 interface HabitStreakProps {
   habits: Habit[]
 }
 
 export default function HabitStreak({ habits }: HabitStreakProps) {
-  const { settings } = useSettings()
+  const [settings] = useAtom(settingsAtom)
   // Get the last 7 days of data
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = getNow({ timezone: settings.system.timezone });
-    return d2s({ dateTime: d.minus({ days: i }), format: 'yyyy-MM-dd' });
+    return d2s({ dateTime: d.minus({ days: i }), format: 'yyyy-MM-dd', timezone: settings.system.timezone });
   }).reverse()
 
   const completions = dates.map(date => {

@@ -6,10 +6,13 @@
 
 - docker-compose.yaml
 - timezone settings
+- use jotai for state management
 
 ### Fixed
 
 - completing habits now respect timezone settings
+- coin and settings display now respect timezone settings
+- performance improvements by caching settings
 
 ## Version 0.1.4
 

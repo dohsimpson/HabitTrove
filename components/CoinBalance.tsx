@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Coins } from 'lucide-react'
 import { formatNumber } from '@/lib/utils/formatNumber'
-import { useSettings } from '@/hooks/useSettings'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 
 export default function CoinBalance({ coinBalance }: { coinBalance: number }) {
-  const { settings } = useSettings()
+  const [settings] = useAtom(settingsAtom)
   return (
     <Card>
       <CardHeader>

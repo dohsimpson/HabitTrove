@@ -2,6 +2,10 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { DM_Sans } from 'next/font/google'
 import { Toaster } from '@/components/ui/toaster'
+import { JotaiProvider } from '@/components/jotai-providers'
+import { Suspense } from 'react'
+import { JotaiHydrate } from '@/components/jotai-hydrate'
+import { loadSettings } from './actions/data'
 // Inter (clean, modern, excellent readability)
 const inter = Inter({
   subsets: ['latin'],
@@ -21,15 +25,22 @@ export const metadata = {
   description: 'Track your habits and get rewarded',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const initialSettings = await loadSettings()
   return (
     <html lang="en">
       <body className={activeFont.className}>
-        {children}
+        <JotaiProvider>
+          <Suspense fallback="loading">
+            <JotaiHydrate initialSettings={initialSettings}>
+              {children}
+            </JotaiHydrate>
+          </Suspense>
+        </JotaiProvider>
         <Toaster />
       </body>
     </html>
