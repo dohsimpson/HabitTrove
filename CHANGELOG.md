@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.7
+
+### Fixed
+
+- fixed settings unable to change
+
 ## Version 0.1.6
 
 ### Added
