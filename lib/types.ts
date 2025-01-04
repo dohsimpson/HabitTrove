@@ -61,7 +61,8 @@ export const getDefaultSettings = (): Settings => ({
   },
   system: {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-  }
+  },
+  profile: {}
 });
 
 // Map of data types to their default values
@@ -84,9 +85,14 @@ export interface SystemSettings {
   timezone: string;
 }
 
+export interface ProfileSettings {
+  avatarPath?: string;
+}
+
 export interface Settings {
   ui: UISettings;
   system: SystemSettings;
+  profile: ProfileSettings;
 }
 
 export interface JotaiHydrateInitialValues {

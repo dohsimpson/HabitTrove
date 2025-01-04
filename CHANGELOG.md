@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.1.11
+
+### Added
+
+- profile button
+- settings to update profile image
+
+### Changed
+
+- Move settings and about to under profile button
+
 ## Version 0.1.10
 
 ### Fixed

@@ -165,6 +165,41 @@ export async function removeCoins(
   return newData
 }
 
+export async function uploadAvatar(formData: FormData) {
+  const file = formData.get('avatar') as File
+  if (!file) throw new Error('No file provided')
+  
+  if (file.size > 5 * 1024 * 1024) { // 5MB
+    throw new Error('File size must be less than 5MB')
+  }
+
+  // Create avatars directory if it doesn't exist
+  const avatarsDir = path.join(process.cwd(), 'data', 'avatars')
+  await fs.mkdir(avatarsDir, { recursive: true })
+
+  // Generate unique filename
+  const ext = file.name.split('.').pop()
+  const filename = `${Date.now()}.${ext}`
+  const filePath = path.join(avatarsDir, filename)
+
+  // Save file
+  const buffer = await file.arrayBuffer()
+  await fs.writeFile(filePath, Buffer.from(buffer))
+
+  // Update settings with new avatar path
+  const settings = await loadSettings()
+  const newSettings = {
+    ...settings,
+    profile: {
+      ...settings.profile,
+      avatarPath: `/data/avatars/${filename}`
+    }
+  }
+
+  await saveSettings(newSettings)
+  return newSettings;
+}
+
 export async function getChangelog(): Promise<string> {
   try {
     const changelogPath = path.join(process.cwd(), 'CHANGELOG.md')

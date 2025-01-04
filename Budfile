@@ -101,3 +101,58 @@ run() {
 build() {
   npm run build
 }
+
+add_changelog() {
+  # Get current version from package.json
+  current_version=$(node -p "require('./package.json').version")
+
+  # Ask if this is for a new version
+  echo "Is this for a new version? (y/n)"
+  read -r is_new_version
+
+  if [[ "$is_new_version" =~ ^[Yy]$ ]]; then
+    new_version=$(node -p "require('./package.json').version")
+
+    # Add new version header
+    sed -i "/^# Changelog/a \\\n## Version $new_version" CHANGELOG.md
+  fi
+
+  while true; do
+    # Get change type
+    echo "What type of change is this? ([A]dded/[C]hanged/[F]ixed/[R]emoved)"
+    read -r change_type
+
+    case $change_type in
+    A | a) change_type="Added" ;;
+    C | c) change_type="Changed" ;;
+    F | f) change_type="Fixed" ;;
+    R | r) change_type="Removed" ;;
+    *)
+      echo "Invalid change type"
+      continue
+      ;;
+    esac
+
+    # Get change description
+    echo "Enter description of the change:"
+    read -r change_desc
+
+    # Add the change to CHANGELOG.md
+    if grep -q "^### $change_type" CHANGELOG.md; then
+      # If type exists, append to it
+      sed -i "/^### $change_type$/a - $change_desc" CHANGELOG.md
+    else
+      # If type doesn't exist, create new section
+      sed -i "/^## Version/ {N; s/\n/\n\n### $change_type\n- $change_desc\n/}" CHANGELOG.md
+    fi
+
+    echo "Change added successfully!"
+
+    # Ask if user wants to add another change
+    echo "Add another change? (y/n)"
+    read -r add_another
+    [[ "$add_another" =~ ^[Yy]$ ]] || break
+  done
+
+  echo "Changelog update complete!"
+}
