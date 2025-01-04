@@ -1,31 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-
-import { loadHabitsData } from '@/app/actions/data'
-import { Habit } from '@/lib/types'
 import { d2s, getNow } from '@/lib/utils'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
+import { habitsAtom, settingsAtom } from '@/lib/atoms'
 import { DateTime } from 'luxon'
 import Linkify from './linkify'
 
 export default function HabitCalendar() {
   const [settings] = useAtom(settingsAtom)
   const [selectedDate, setSelectedDate] = useState<DateTime>(getNow({ timezone: settings.system.timezone }))
-  const [habits, setHabits] = useState<Habit[]>([])
-
-  useEffect(() => {
-    fetchHabitsData()
-  }, [])
-
-  const fetchHabitsData = async () => {
-    const data = await loadHabitsData()
-    setHabits(data.habits)
-  }
+  const [habitsData] = useAtom(habitsAtom)
+  const habits = habitsData.habits
 
   const getHabitsForDate = (date: Date) => {
     const dateString = date.toISOString().split('T')[0]
@@ -46,7 +35,7 @@ export default function HabitCalendar() {
             <Calendar
               mode="single"
               selected={selectedDate.toJSDate()}
-              // onSelect={(e) => e && setSelectedDate(DateTime.fromJSDate(e))}
+              onSelect={(e) => e && setSelectedDate(DateTime.fromJSDate(e))}
               className="rounded-md border"
               modifiers={{
                 completed: (date) => getHabitsForDate(date).length > 0,

@@ -6,16 +6,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button'
 import { Coins, Edit, Trash2, Check, Undo2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useHabits } from '@/hooks/useHabits'
 
 interface HabitItemProps {
   habit: Habit
   onEdit: () => void
   onDelete: () => void
-  onComplete: () => void
-  onUndo: () => void
 }
 
-export default function HabitItem({ habit, onEdit, onDelete, onComplete, onUndo }: HabitItemProps) {
+export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
+  const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
   const today = getTodayInTimezone(settings.system.timezone)
   const isCompletedToday = habit.completions?.includes(today)
@@ -41,7 +41,7 @@ export default function HabitItem({ habit, onEdit, onDelete, onComplete, onUndo 
   }, [habit.id])
 
   return (
-    <Card 
+    <Card
       id={`habit-${habit.id}`}
       className={`transition-all duration-500 ${isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900' : ''}`}
     >
@@ -71,7 +71,7 @@ export default function HabitItem({ habit, onEdit, onDelete, onComplete, onUndo 
           <Button
             variant={isCompletedToday ? "secondary" : "default"}
             size="sm"
-            onClick={onComplete}
+            onClick={async () => await completeHabit(habit)}
             disabled={isCompletedToday}
           >
             <Check className="h-4 w-4 mr-2" />
@@ -81,7 +81,7 @@ export default function HabitItem({ habit, onEdit, onDelete, onComplete, onUndo 
             <Button
               variant="outline"
               size="sm"
-              onClick={onUndo}
+              onClick={async () => await undoComplete(habit)}
             >
               <Undo2 />
             </Button>

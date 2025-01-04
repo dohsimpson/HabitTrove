@@ -14,7 +14,7 @@ import {
   DATA_DEFAULTS,
   getDefaultSettings
 } from '@/lib/types'
-import { d2t, getNow, getNowInMilliseconds } from '@/lib/utils';
+import { d2t, getNow } from '@/lib/utils';
 
 function getDefaultData<T>(type: DataType): T {
   return DATA_DEFAULTS[type]() as T;

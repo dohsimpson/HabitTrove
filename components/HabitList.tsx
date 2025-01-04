@@ -1,21 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { loadHabitsData, saveHabitsData, addCoins, removeCoins } from '@/app/actions/data'
-import { Plus, ListTodo, Undo2 } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, ListTodo } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { habitsAtom, settingsAtom } from '@/lib/atoms'
-import { getTodayInTimezone, getNowInMilliseconds } from '@/lib/utils'
-import { toast } from '@/hooks/use-toast'
-import { ToastAction } from '@/components/ui/toast'
 import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
 import HabitItem from './HabitItem'
 import AddEditHabitModal from './AddEditHabitModal'
 import ConfirmDialog from './ConfirmDialog'
 import { Habit } from '@/lib/types'
+import { useHabits } from '@/hooks/useHabits'
 
 export default function HabitList() {
+  const { saveHabit, deleteHabit } = useHabits()
   const [habitsData, setHabitsData] = useAtom(habitsAtom)
   const habits = habitsData.habits
   const [settings] = useAtom(settingsAtom)
@@ -54,72 +52,6 @@ export default function HabitList() {
                 setIsModalOpen(true)
               }}
               onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
-              onComplete={async () => {
-                const today = getTodayInTimezone(settings.system.timezone)
-                if (!habit.completions.includes(today)) {
-                  const updatedHabit = {
-                    ...habit,
-                    completions: [...habit.completions, today]
-                  }
-                  const updatedHabits = habits.map(h =>
-                    h.id === habit.id ? updatedHabit : h
-                  )
-                  await saveHabitsData({ habits: updatedHabits })
-                  await addCoins(habit.coinReward, `Completed habit: ${habit.name}`, 'HABIT_COMPLETION', habit.id)
-                  setHabitsData({ habits: updatedHabits })
-                  toast({
-                    title: "Habit completed!",
-                    description: `You earned ${habit.coinReward} coins.`,
-                    action: <ToastAction altText="Undo" className="gap-2" onClick={async () => {
-                      const updatedHabit = {
-                        ...habit,
-                        completions: habit.completions.filter(date => date !== today)
-                      }
-                      const updatedHabits = habits.map(h =>
-                        h.id === habit.id ? updatedHabit : h
-                      )
-                      await saveHabitsData({ habits: updatedHabits })
-                      await removeCoins(habit.coinReward, `Undid habit completion: ${habit.name}`, 'HABIT_UNDO', habit.id)
-                      setHabitsData({ habits: updatedHabits })
-                    }}><Undo2 className="h-4 w-4" />Undo</ToastAction>
-                  })
-                } else {
-                  toast({
-                    title: "Habit already completed",
-                    description: "You've already completed this habit today.",
-                    variant: "destructive",
-                  })
-                }
-              }}
-              onUndo={async () => {
-                const today = getTodayInTimezone(settings.system.timezone)
-                const updatedHabit = {
-                  ...habit,
-                  completions: habit.completions.filter(date => date !== today)
-                }
-                const updatedHabits = habits.map(h =>
-                  h.id === habit.id ? updatedHabit : h
-                )
-                await saveHabitsData({ habits: updatedHabits })
-                await removeCoins(habit.coinReward, `Undid habit completion: ${habit.name}`, 'HABIT_UNDO', habit.id)
-                setHabitsData({ habits: updatedHabits })
-                toast({
-                  title: "Completion undone",
-                  description: `${habit.coinReward} coins have been deducted.`,
-                  action: <ToastAction altText="Redo" onClick={async () => {
-                    const updatedHabit = {
-                      ...habit,
-                      completions: [...habit.completions, today]
-                    }
-                    const updatedHabits = habits.map(h =>
-                      h.id === habit.id ? updatedHabit : h
-                    )
-                    await saveHabitsData({ habits: updatedHabits })
-                    await addCoins(habit.coinReward, `Completed habit: ${habit.name}`, 'HABIT_COMPLETION', habit.id)
-                    setHabitsData({ habits: updatedHabits })
-                  }}><Undo2 className="h-4 w-4" />Undo</ToastAction>
-                })
-              }}
             />
           ))
         )}
@@ -131,18 +63,7 @@ export default function HabitList() {
           setEditingHabit(null)
         }}
         onSave={async (habit) => {
-          if (editingHabit) {
-            const updatedHabits = habits.map(h =>
-              h.id === editingHabit.id ? { ...habit, id: editingHabit.id } : h
-            )
-            await saveHabitsData({ habits: updatedHabits })
-            setHabitsData({ habits: updatedHabits })
-          } else {
-            const newHabit = { ...habit, id: getNowInMilliseconds() }
-            const newHabits = [...habits, newHabit]
-            await saveHabitsData({ habits: newHabits })
-            setHabitsData({ habits: newHabits })
-          }
+          await saveHabit({ ...habit, id: editingHabit?.id })
           setIsModalOpen(false)
           setEditingHabit(null)
         }}
@@ -153,9 +74,7 @@ export default function HabitList() {
         onClose={() => setDeleteConfirmation({ isOpen: false, habitId: null })}
         onConfirm={async () => {
           if (deleteConfirmation.habitId) {
-            const newHabits = habits.filter(habit => habit.id !== deleteConfirmation.habitId)
-            await saveHabitsData({ habits: newHabits })
-            setHabitsData({ habits: newHabits })
+            await deleteHabit(deleteConfirmation.habitId)
           }
           setDeleteConfirmation({ isOpen: false, habitId: null })
         }}
