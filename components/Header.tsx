@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
-import { Bell, Menu, Settings, User, Info } from 'lucide-react'
+import { settingsAtom, coinsAtom } from '@/lib/atoms'
+import { Bell, Menu, Settings, User, Info, Coins } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/Logo'
 import {
@@ -23,6 +23,7 @@ interface HeaderProps {
 export default function Header({ className }: HeaderProps) {
   const [showAbout, setShowAbout] = useState(false)
   const [settings] = useAtom(settingsAtom)
+  const [coins] = useAtom(coinsAtom)
   return (
     <>
       <header className={`border-b bg-white dark:bg-gray-800 shadow-sm ${className || ''}`}>
@@ -32,6 +33,12 @@ export default function Header({ className }: HeaderProps) {
               <Logo />
             </Link>
             <div className="flex items-center gap-2">
+              <Link href="/coins" className="flex items-center gap-1 px-2 py-1 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900 dark:hover:bg-amber-800 rounded-full transition-colors">
+                <Coins className="text-amber-500 dark:text-amber-300" />
+                <span className="text-amber-600 dark:text-amber-400 font-medium">
+                  {coins.balance}
+                </span>
+              </Link>
               <Button variant="ghost" size="icon" aria-label="Notifications">
                 <Bell className="h-5 w-5" />
               </Button>
