@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { WishlistItemType } from '@/lib/types'
 import { Habit } from '@/lib/types'
+import Linkify from './linkify'
 
 interface UpcomingItemsProps {
   habits: Habit[]
@@ -91,7 +92,9 @@ export default function DailyOverview({
                           )}
                         </button>
                         <span className={isCompleted ? 'line-through' : ''}>
-                          {habit.name}
+                          <Linkify>
+                            {habit.name}
+                          </Linkify>
                         </span>
                       </span>
                       <span className="flex items-center text-xs text-muted-foreground">
@@ -144,7 +147,11 @@ export default function DailyOverview({
                     .map((item) => (
                       <div key={item.id} className="bg-secondary/20 p-3 rounded-md">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm">{item.name}</span>
+                          <span className="text-sm">
+                            <Linkify>
+                              {item.name}
+                            </Linkify>
+                          </span>
                           <span className="text-xs flex items-center">
                             <Coins className="h-3 w-3 text-yellow-400 mr-1" />
                             {item.coinCost}
