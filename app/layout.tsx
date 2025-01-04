@@ -25,6 +25,8 @@ export const metadata = {
   description: 'Track your habits and get rewarded',
 }
 
+export const dynamic = 'force-dynamic' // needed to prevent nextjs from caching the loadSettings function in Layout component
+
 export default async function RootLayout({
   children,
 }: {
