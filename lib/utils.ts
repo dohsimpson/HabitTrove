@@ -24,7 +24,7 @@ export function getNowInMilliseconds() {
 }
 
 // iso timestamp to datetime object, most for storage read
-export function t2d({ timestamp, timezone }: { timestamp: string; timezone?: string }) {
+export function t2d({ timestamp, timezone }: { timestamp: string; timezone: string }) {
   return DateTime.fromISO(timestamp).setZone(timezone);
 }
 
