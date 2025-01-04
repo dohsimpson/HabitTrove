@@ -133,7 +133,7 @@ export default function CoinsManager() {
                 <div className="text-sm text-blue-800 dark:text-blue-100 mb-1">Today's Transactions</div>
                 <div className="text-2xl font-bold text-blue-900 dark:text-blue-50">
                   {transactions.filter(t =>
-                    isSameDate(getNow({}), t2d({ timestamp: t.timestamp }))
+                    isSameDate(getNow({ timezone: settings.system.timezone }), t2d({ timestamp: t.timestamp, timezone: settings.system.timezone }))
                   ).length} 📊
                 </div>
               </div>
