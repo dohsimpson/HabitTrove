@@ -18,36 +18,6 @@ Want to try HabitTrove before installing? Visit the public [demo instance](https
 - 🌙 Dark mode support (WIP)
 - 📲 Progressive Web App (PWA) support (Planned)
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 20 or later
-- npm package manager
-
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/dohsimpson/habittrove.git
-cd habittrove
-```
-
-2. Install dependencies:
-
-```bash
-npm install --force
-```
-
-3. Start the development server:
-
-```bash
-npm run dev
-```
-
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
-
 ## Usage
 
 1. **Creating Habits**: Click the "Add Habit" button to create a new habit. Set a name, description, and coin reward.
@@ -108,6 +78,73 @@ npm run docker-run
 ```
 
 The application data will be persisted in the `data` directory in both cases.
+
+## Building the Project
+
+To contribute to HabitTrove, you'll need to set up a development environment. Here's how to get started:
+
+### Prerequisites
+
+- Node.js 20 or later
+- npm package manager
+- Git (for version control)
+- bun (for running tests)
+
+### Setting Up the Development Environment
+
+1. Clone the repository and navigate to the project directory:
+
+```bash
+git clone https://github.com/dohsimpson/habittrove.git
+cd habittrove
+```
+
+2. Install project dependencies:
+
+```bash
+npm install --force
+```
+
+3. Set up the development environment:
+
+```bash
+npm run setup:dev
+```
+
+4. Start the development server:
+
+```bash
+npm run dev
+```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to access the development version.
+
+### Running Tests
+
+Before contributing, make sure to run the test suite:
+
+```bash
+npm test
+```
+
+### Building for Production
+
+To build the project for production:
+
+```bash
+npm run build
+```
+
+This will create an optimized production build in the `.next` directory.
+
+### Code Quality Tools
+
+The project uses several tools to maintain code quality:
+
+- ESLint for linting: `npm run lint`
+- TypeScript type checking: `npm run type-check`
+
+Run these commands regularly during development to catch issues early.
 
 ## Contributing
 
