@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.6
+
+### Added
+
+- make links clickable in habit, wishlist and calendar
+
 ## Version 0.1.5
 
 ### Added

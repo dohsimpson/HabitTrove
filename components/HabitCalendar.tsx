@@ -11,6 +11,7 @@ import { d2s, getNow } from '@/lib/utils'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
 import { DateTime } from 'luxon'
+import Linkify from './linkify'
 
 export default function HabitCalendar() {
   const [settings] = useAtom(settingsAtom)
@@ -73,7 +74,9 @@ export default function HabitCalendar() {
                   const isCompleted = getHabitsForDate(selectedDate.toJSDate()).some(h => h.id === habit.id)
                   return (
                     <li key={habit.id} className="flex items-center justify-between">
-                      <span>{habit.name}</span>
+                      <span>
+                        <Linkify>{habit.name}</Linkify>
+                      </span>
                       {isCompleted ? (
                         <Badge variant="default">Completed</Badge>
                       ) : (
