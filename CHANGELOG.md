@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.9
+
+### Fixed
+
+- fix timezone for "today's transactions"
+
 ## Version 0.1.8
 
 ### Changed
