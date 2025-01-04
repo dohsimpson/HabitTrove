@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.8
+
+### Changed
+
+- use jotai for all state management
+
 ## Version 0.1.7
 
 ### Fixed

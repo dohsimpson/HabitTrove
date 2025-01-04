@@ -1,52 +1,45 @@
-import { useState, useEffect } from 'react'
-import { loadWishlistItems, saveWishlistItems } from '@/app/actions/data'
+import { useAtom } from 'jotai'
+import { wishlistAtom, coinsAtom } from '@/lib/atoms'
+import { saveWishlistItems, removeCoins } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
 import { WishlistItemType } from '@/lib/types'
-import { useCoins } from '@/hooks/useCoins'
 import { celebrations } from '@/utils/celebrations'
 
 export function useWishlist() {
-  const [wishlistItems, setWishlistItems] = useState<WishlistItemType[]>([])
-  const { balance, removeAmount } = useCoins()
-
-  useEffect(() => {
-    fetchWishlistItems()
-  }, [])
-
-  const fetchWishlistItems = async () => {
-    const items = await loadWishlistItems()
-    setWishlistItems(items)
-  }
+  const [wishlist, setWishlist] = useAtom(wishlistAtom)
+  const [coins, setCoins] = useAtom(coinsAtom)
+  const balance = coins.balance
 
   const addWishlistItem = async (item: Omit<WishlistItemType, 'id'>) => {
     const newItem = { ...item, id: Date.now().toString() }
-    const newItems = [...wishlistItems, newItem]
-    setWishlistItems(newItems)
+    const newItems = [...wishlist.items, newItem]
+    setWishlist({ items: newItems })
     await saveWishlistItems(newItems)
   }
 
   const editWishlistItem = async (updatedItem: WishlistItemType) => {
-    const newItems = wishlistItems.map(item =>
+    const newItems = wishlist.items.map(item =>
       item.id === updatedItem.id ? updatedItem : item
     )
-    setWishlistItems(newItems)
+    setWishlist({ items: newItems })
     await saveWishlistItems(newItems)
   }
 
   const deleteWishlistItem = async (id: string) => {
-    const newItems = wishlistItems.filter(item => item.id !== id)
-    setWishlistItems(newItems)
+    const newItems = wishlist.items.filter(item => item.id !== id)
+    setWishlist({ items: newItems })
     await saveWishlistItems(newItems)
   }
 
   const redeemWishlistItem = async (item: WishlistItemType) => {
     if (balance >= item.coinCost) {
-      await removeAmount(
+      const data = await removeCoins(
         item.coinCost,
         `Redeemed reward: ${item.name}`,
         'WISH_REDEMPTION',
         item.id
       )
+      setCoins(data)
 
       // Randomly choose a celebration effect
       const celebrationEffects = [
@@ -71,12 +64,14 @@ export function useWishlist() {
     }
   }
 
+  const canRedeem = (cost: number) => balance >= cost
+
   return {
-    wishlistItems,
     addWishlistItem,
     editWishlistItem,
     deleteWishlistItem,
     redeemWishlistItem,
-    canRedeem: (cost: number) => balance >= cost
+    canRedeem,
+    wishlistItems: wishlist.items
   }
 }

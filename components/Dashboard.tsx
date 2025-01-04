@@ -1,26 +1,21 @@
 'use client'
 
-import { loadCoinsData } from '@/app/actions/data'
-import { useHabits } from '@/hooks/useHabits'
-import { useWishlist } from '@/hooks/useWishlist'
-import { useEffect, useState } from 'react'
+import { useAtom } from 'jotai'
+import { wishlistAtom, habitsAtom, settingsAtom, coinsAtom } from '@/lib/atoms'
 import CoinBalance from './CoinBalance'
 import DailyOverview from './DailyOverview'
-import HabitOverview from './HabitOverview'
 import HabitStreak from './HabitStreak'
+import { useHabits } from '@/hooks/useHabits'
 
 export default function Dashboard() {
-  const { habits, completeHabit, undoComplete } = useHabits()
-  const [coinBalance, setCoinBalance] = useState(0)
-  const { wishlistItems } = useWishlist()
-
-  useEffect(() => {
-    const loadData = async () => {
-      const coinsData = await loadCoinsData()
-      setCoinBalance(coinsData.balance)
-    }
-    loadData()
-  }, [])
+  const { completeHabit, undoComplete } = useHabits()
+  const [habitsData] = useAtom(habitsAtom)
+  const habits = habitsData.habits
+  const [settings] = useAtom(settingsAtom)
+  const [coins] = useAtom(coinsAtom)
+  const coinBalance = coins.balance
+  const [wishlist] = useAtom(wishlistAtom)
+  const wishlistItems = wishlist.items
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -33,18 +28,8 @@ export default function Dashboard() {
           wishlistItems={wishlistItems}
           habits={habits}
           coinBalance={coinBalance}
-          onComplete={async (habit) => {
-            const newBalance = await completeHabit(habit)
-            if (newBalance !== null) {
-              setCoinBalance(newBalance)
-            }
-          }}
-          onUndo={async (habit) => {
-            const newBalance = await undoComplete(habit)
-            if (newBalance !== null) {
-              setCoinBalance(newBalance)
-            }
-          }}
+          onComplete={completeHabit}
+          onUndo={undoComplete}
         />
 
         {/* <HabitHeatmap habits={habits} /> */}

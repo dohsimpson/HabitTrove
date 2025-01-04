@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useWishlist } from '@/hooks/useWishlist'
 import { Plus, Gift } from 'lucide-react'
 import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
@@ -8,16 +9,15 @@ import WishlistItem from './WishlistItem'
 import AddEditWishlistItemModal from './AddEditWishlistItemModal'
 import ConfirmDialog from './ConfirmDialog'
 import { WishlistItemType } from '@/lib/types'
-import { useWishlist } from '@/hooks/useWishlist'
 
 export default function WishlistManager() {
   const {
-    wishlistItems,
     addWishlistItem,
     editWishlistItem,
     deleteWishlistItem,
     redeemWishlistItem,
-    canRedeem
+    canRedeem,
+    wishlistItems
   } = useWishlist()
 
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null)

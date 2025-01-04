@@ -1,28 +1,12 @@
-import { useState, useEffect } from 'react'
-import { loadCoinsData, addCoins, removeCoins } from '@/app/actions/data'
+import { useAtom } from 'jotai'
+import { coinsAtom } from '@/lib/atoms'
+import { addCoins, removeCoins } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
-import { CoinTransaction, TransactionType } from '@/lib/types'
 
 export function useCoins() {
-  const [balance, setBalance] = useState(0)
-  const [transactions, setTransactions] = useState<CoinTransaction[]>([])
+  const [coins, setCoins] = useAtom(coinsAtom)
 
-  useEffect(() => {
-    fetchCoins()
-  }, [])
-
-  const fetchCoins = async () => {
-    const data = await loadCoinsData()
-    setBalance(data.balance)
-    setTransactions(data.transactions || [])
-  }
-
-  const addAmount = async (
-    amount: number,
-    description: string,
-    type: TransactionType = 'MANUAL_ADJUSTMENT',
-    relatedItemId?: string
-  ) => {
+  const add = async (amount: number, description: string) => {
     if (isNaN(amount) || amount <= 0) {
       toast({
         title: "Invalid amount",
@@ -31,19 +15,15 @@ export function useCoins() {
       return null
     }
 
-    const data = await addCoins(amount, description, type, relatedItemId)
-    setBalance(data.balance)
-    setTransactions(data.transactions)
+    const data = await addCoins(amount, description)
+    setCoins(data)
+    toast({ title: "Success", description: `Added ${amount} coins` })
     return data
   }
 
-  const removeAmount = async (
-    amount: number,
-    description: string,
-    type: TransactionType = 'MANUAL_ADJUSTMENT',
-    relatedItemId?: string
-  ) => {
-    if (isNaN(amount) || amount <= 0) {
+  const remove = async (amount: number, description: string) => {
+    const numAmount = Math.abs(amount)
+    if (isNaN(numAmount) || numAmount <= 0) {
       toast({
         title: "Invalid amount",
         description: "Please enter a valid positive number"
@@ -51,17 +31,16 @@ export function useCoins() {
       return null
     }
 
-    const data = await removeCoins(amount, description, type, relatedItemId)
-    setBalance(data.balance)
-    setTransactions(data.transactions)
+    const data = await removeCoins(numAmount, description)
+    setCoins(data)
+    toast({ title: "Success", description: `Removed ${numAmount} coins` })
     return data
   }
 
   return {
-    balance,
-    transactions,
-    addAmount,
-    removeAmount,
-    fetchCoins
+    add,
+    remove,
+    balance: coins.balance,
+    transactions: coins.transactions
   }
 }

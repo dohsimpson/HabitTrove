@@ -14,7 +14,7 @@ import {
   DATA_DEFAULTS,
   getDefaultSettings
 } from '@/lib/types'
-import { d2t, getNow, getNowInMilliseconds } from '@/lib/utils';
+import { d2t, getNow } from '@/lib/utils';
 
 function getDefaultData<T>(type: DataType): T {
   return DATA_DEFAULTS[type]() as T;
@@ -65,8 +65,12 @@ async function saveData<T>(type: DataType, data: T): Promise<void> {
 }
 
 // Wishlist specific functions
+export async function loadWishlistData(): Promise<WishlistData> {
+  return loadData<WishlistData>('wishlist')
+}
+
 export async function loadWishlistItems(): Promise<WishlistItemType[]> {
-  const data = await loadData<WishlistData>('wishlist')
+  const data = await loadWishlistData()
   return data.items
 }
 

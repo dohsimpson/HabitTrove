@@ -1,16 +1,18 @@
 'use client'
 
-import { settingsAtom } from "@/lib/atoms"
+import { settingsAtom, habitsAtom, coinsAtom, wishlistAtom } from "@/lib/atoms"
 import { useHydrateAtoms } from "jotai/utils"
-import { Settings } from "@/lib/types"
+import { JotaiHydrateInitialValues } from "@/lib/types"
 
-export function JotaiHydrate({ 
+export function JotaiHydrate({
   children,
-  initialSettings
-}: { 
-  children: React.ReactNode
-  initialSettings: Settings 
-}) {
-  useHydrateAtoms([[settingsAtom, initialSettings]])
+  initialValues
+}: { children: React.ReactNode, initialValues: JotaiHydrateInitialValues }) {
+  useHydrateAtoms([
+    [settingsAtom, initialValues.settings],
+    [habitsAtom, initialValues.habits],
+    [coinsAtom, initialValues.coins],
+    [wishlistAtom, initialValues.wishlist]
+  ])
   return children
 }

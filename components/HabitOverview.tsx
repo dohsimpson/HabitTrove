@@ -1,22 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { getTodayInTimezone } from '@/lib/utils'
-import { loadHabitsData } from '@/app/actions/data'
-import { Habit } from '@/lib/types'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
+import { habitsAtom, settingsAtom } from '@/lib/atoms'
 
 export default function HabitOverview() {
-  const [habits, setHabits] = useState<Habit[]>([])
-
-  useEffect(() => {
-    const fetchHabits = async () => {
-      const data = await loadHabitsData()
-      setHabits(data.habits)
-    }
-    fetchHabits()
-  }, [])
+  const [habitsData] = useAtom(habitsAtom)
+  const habits = habitsData.habits
 
   const [settings] = useAtom(settingsAtom)
   const today = getTodayInTimezone(settings.system.timezone)

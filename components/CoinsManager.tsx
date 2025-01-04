@@ -8,31 +8,25 @@ import { History } from 'lucide-react'
 import EmptyState from './EmptyState'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { toast } from '@/hooks/use-toast'
-import { useCoins } from '@/hooks/useCoins'
+import { settingsAtom } from '@/lib/atoms'
 import Link from 'next/link'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
+import { useCoins } from '@/hooks/useCoins'
 
 export default function CoinsManager() {
-  const { balance, transactions, addAmount, removeAmount } = useCoins()
+  const { add, remove, balance, transactions } = useCoins()
   const [settings] = useAtom(settingsAtom)
   const DEFAULT_AMOUNT = '0'
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
 
-  const handleAddCoins = async () => {
-    const data = await addAmount(Number(amount), "Manual addition")
-    if (data) {
+  const handleAddRemoveCoins = async () => {
+    const numAmount = Number(amount)
+    if (numAmount > 0) {
+      await add(numAmount, "Manual addition")
       setAmount(DEFAULT_AMOUNT)
-      toast({ title: "Success", description: `Added ${amount} coins` })
-    }
-  }
-
-  const handleRemoveCoins = async () => {
-    const data = await removeAmount(Math.abs(Number(amount)), "Manual removal")
-    if (data) {
+    } else if (numAmount < 0) {
+      await remove(Math.abs(numAmount), "Manual removal")
       setAmount(DEFAULT_AMOUNT)
-      toast({ title: "Success", description: `Removed ${amount} coins` })
     }
   }
 
@@ -84,14 +78,7 @@ export default function CoinsManager() {
               </div>
 
               <Button
-                onClick={() => {
-                  const numAmount = Number(amount);
-                  if (numAmount > 0) {
-                    handleAddCoins();
-                  } else if (numAmount < 0) {
-                    handleRemoveCoins();
-                  }
-                }}
+                onClick={handleAddRemoveCoins}
                 className="w-full h-14 transition-colors flex items-center justify-center font-medium"
                 variant="default"
               >

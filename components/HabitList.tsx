@@ -1,17 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { useHabits } from '@/hooks/useHabits'
 import { Plus, ListTodo } from 'lucide-react'
+import { useAtom } from 'jotai'
+import { habitsAtom, settingsAtom } from '@/lib/atoms'
 import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
 import HabitItem from './HabitItem'
 import AddEditHabitModal from './AddEditHabitModal'
 import ConfirmDialog from './ConfirmDialog'
 import { Habit } from '@/lib/types'
+import { useHabits } from '@/hooks/useHabits'
 
 export default function HabitList() {
-  const { habits, addHabit, editHabit, deleteHabit, completeHabit, undoComplete } = useHabits()
+  const { saveHabit, deleteHabit } = useHabits()
+  const [habitsData, setHabitsData] = useAtom(habitsAtom)
+  const habits = habitsData.habits
+  const [settings] = useAtom(settingsAtom)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean, habitId: string | null }>({
@@ -39,17 +44,15 @@ export default function HabitList() {
           </div>
         ) : (
           habits.map((habit) => (
-          <HabitItem
-            key={habit.id}
-            habit={habit}
-            onEdit={() => {
-              setEditingHabit(habit)
-              setIsModalOpen(true)
-            }}
-            onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
-            onComplete={() => completeHabit(habit)}
-            onUndo={() => undoComplete(habit)}
-          />
+            <HabitItem
+              key={habit.id}
+              habit={habit}
+              onEdit={() => {
+                setEditingHabit(habit)
+                setIsModalOpen(true)
+              }}
+              onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
+            />
           ))
         )}
       </div>
@@ -60,11 +63,7 @@ export default function HabitList() {
           setEditingHabit(null)
         }}
         onSave={async (habit) => {
-          if (editingHabit) {
-            await editHabit({ ...habit, id: editingHabit.id })
-          } else {
-            await addHabit(habit)
-          }
+          await saveHabit({ ...habit, id: editingHabit?.id })
           setIsModalOpen(false)
           setEditingHabit(null)
         }}
@@ -73,9 +72,9 @@ export default function HabitList() {
       <ConfirmDialog
         isOpen={deleteConfirmation.isOpen}
         onClose={() => setDeleteConfirmation({ isOpen: false, habitId: null })}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (deleteConfirmation.habitId) {
-            deleteHabit(deleteConfirmation.habitId)
+            await deleteHabit(deleteConfirmation.habitId)
           }
           setDeleteConfirmation({ isOpen: false, habitId: null })
         }}
