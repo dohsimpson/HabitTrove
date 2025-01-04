@@ -11,7 +11,8 @@ import {
   WishlistData,
   Settings,
   DataType,
-  DATA_DEFAULTS
+  DATA_DEFAULTS,
+  getDefaultSettings
 } from '@/lib/types'
 import { d2t, getNow, getNowInMilliseconds } from '@/lib/utils';
 
@@ -121,15 +122,7 @@ export async function addCoins(
 }
 
 export async function loadSettings(): Promise<Settings> {
-  const defaultSettings: Settings = {
-    ui: {
-      useNumberFormatting: true,
-      useGrouping: true,
-    },
-    system: {
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    }
-  }
+  const defaultSettings = getDefaultSettings()
 
   try {
     const data = await loadData<Settings>('settings')

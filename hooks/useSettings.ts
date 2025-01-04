@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react'
 import { getDefaultSettings, Settings } from '@/lib/types'
 import { loadSettings, saveSettings } from '@/app/actions/data'
+import { atom, useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 
 export function useSettings() {
-  const [settings, setSettings] = useState<Settings>(getDefaultSettings()) // TODO: do we need to initialize the settings here?
+  const [settings, setSettings] = useAtom(settingsAtom)
 
   useEffect(() => {
     loadSettings().then(setSettings)

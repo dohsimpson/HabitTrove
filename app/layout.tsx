@@ -2,6 +2,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { DM_Sans } from 'next/font/google'
 import { Toaster } from '@/components/ui/toaster'
+import { JotaiProvider } from '@/components/jotai-providers'
 // Inter (clean, modern, excellent readability)
 const inter = Inter({
   subsets: ['latin'],
@@ -29,7 +30,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={activeFont.className}>
-        {children}
+        <JotaiProvider>
+          {children}
+        </JotaiProvider>
         <Toaster />
       </body>
     </html>
