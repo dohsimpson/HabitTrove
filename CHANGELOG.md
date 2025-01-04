@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.12
+
+### Added
+
+- show total coins in header
+
 ## Version 0.1.11
 
 ### Added
