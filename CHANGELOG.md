@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.10
+
+### Fixed
+
+- fix navigation
+
 ## Version 0.1.9
 
 ### Fixed
