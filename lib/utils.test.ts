@@ -53,7 +53,7 @@ describe('datetime utilities', () => {
     const testDateTime = DateTime.fromISO(testTimestamp);
 
     test('t2d should convert ISO timestamp to DateTime', () => {
-      const result = t2d({ timestamp: testTimestamp });
+      const result = t2d({ timestamp: testTimestamp, timezone: 'utc' });
       // Normalize both timestamps to handle different UTC offset formats (Z vs +00:00)
       expect(DateTime.fromISO(result.toISO()!).toMillis())
         .toBe(DateTime.fromISO(testTimestamp).toMillis())
@@ -65,10 +65,10 @@ describe('datetime utilities', () => {
     })
 
     test('d2s should format DateTime for display', () => {
-      const result = d2s({ dateTime: testDateTime });
+      const result = d2s({ dateTime: testDateTime, timezone: 'utc' });
       expect(result).toBeString()
-      
-      const customFormat = d2s({ dateTime: testDateTime, format: 'yyyy-MM-dd' });
+
+      const customFormat = d2s({ dateTime: testDateTime, format: 'yyyy-MM-dd', timezone: 'utc' });
       expect(customFormat).toBe('2024-01-01')
     })
 
