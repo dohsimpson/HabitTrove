@@ -15,8 +15,6 @@ import { DateTime } from 'luxon'
 export default function HabitCalendar() {
   const [settings] = useAtom(settingsAtom)
   const [selectedDate, setSelectedDate] = useState<DateTime>(getNow({ timezone: settings.system.timezone }))
-  console.log("🪚 settings.system.timezone:", settings.system.timezone);
-  console.log("🪚 selectedDate:", selectedDate.toJSDate());
   const [habits, setHabits] = useState<Habit[]>([])
 
   useEffect(() => {

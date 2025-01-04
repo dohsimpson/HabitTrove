@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 // get today's date string for timezone
 export function getTodayInTimezone(timezone: string): string {
   const now = getNow({ timezone });
-  return d2s({ dateTime: now, format: 'yyyy-MM-dd' });
+  return d2s({ dateTime: now, format: 'yyyy-MM-dd', timezone });
 }
 
 // get datetime object of now
@@ -34,7 +34,7 @@ export function d2t({ dateTime, timezone = 'utc' }: { dateTime: DateTime, timezo
 }
 
 // convert datetime object to string, mostly for display
-export function d2s({ dateTime, format, timezone = 'utc' }: { dateTime: DateTime, format?: string, timezone?: string }) {
+export function d2s({ dateTime, format, timezone }: { dateTime: DateTime, format?: string, timezone: string }) {
   if (format) {
     return dateTime.setZone(timezone).toFormat(format);
   }

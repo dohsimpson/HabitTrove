@@ -17,7 +17,6 @@ export default function ChangelogModal({ isOpen, onClose }: ChangelogModalProps)
     if (isOpen) {
       const loadChangelog = async () => {
         const content = await getChangelog()
-        console.log(content)
         setChangelog(content)
       }
       loadChangelog()
