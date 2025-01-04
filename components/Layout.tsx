@@ -1,8 +1,5 @@
-import { getDefaultSettings } from '@/lib/types'
 import Header from './Header'
 import Navigation from './Navigation'
-
-const defaultSettings = getDefaultSettings()
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

@@ -8,11 +8,12 @@ import { Badge } from '@/components/ui/badge'
 import { loadHabitsData } from '@/app/actions/data'
 import { Habit } from '@/lib/types'
 import { d2s, getNow } from '@/lib/utils'
-import { useSettings } from '@/hooks/useSettings'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 import { DateTime } from 'luxon'
 
 export default function HabitCalendar() {
-  const { settings } = useSettings()
+  const [settings] = useAtom(settingsAtom)
   const [selectedDate, setSelectedDate] = useState<DateTime>(getNow({ timezone: settings.system.timezone }))
   const [habits, setHabits] = useState<Habit[]>([])
 

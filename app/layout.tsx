@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import { DM_Sans } from 'next/font/google'
 import { Toaster } from '@/components/ui/toaster'
 import { JotaiProvider } from '@/components/jotai-providers'
+import { Suspense } from 'react'
+import { JotaiHydrate } from '@/components/jotai-hydrate'
 // Inter (clean, modern, excellent readability)
 const inter = Inter({
   subsets: ['latin'],
@@ -31,7 +33,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={activeFont.className}>
         <JotaiProvider>
-          {children}
+          <Suspense fallback="loading">
+            <JotaiHydrate>
+              {children}
+            </JotaiHydrate>
+          </Suspense>
         </JotaiProvider>
         <Toaster />
       </body>

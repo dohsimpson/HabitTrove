@@ -34,11 +34,11 @@ export function d2t({ dateTime, timezone = 'utc' }: { dateTime: DateTime, timezo
 }
 
 // convert datetime object to string, mostly for display
-export function d2s({ dateTime, format }: { dateTime: DateTime, format?: string }) {
+export function d2s({ dateTime, format, timezone = 'utc' }: { dateTime: DateTime, format?: string, timezone?: string }) {
   if (format) {
-    return dateTime.toFormat(format);
+    return dateTime.setZone(timezone).toFormat(format);
   }
-  return dateTime.toLocaleString(DateTime.DATETIME_MED);
+  return dateTime.setZone(timezone).toLocaleString(DateTime.DATETIME_MED);
 }
 
 // convert datetime object to date string, mostly for display

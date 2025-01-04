@@ -1,5 +1,6 @@
 import { Habit } from '@/lib/types'
-import { useSettings } from '@/hooks/useSettings'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 import { getTodayInTimezone } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,7 +16,7 @@ interface HabitItemProps {
 }
 
 export default function HabitItem({ habit, onEdit, onDelete, onComplete, onUndo }: HabitItemProps) {
-  const { settings } = useSettings()
+  const [settings] = useAtom(settingsAtom)
   const today = getTodayInTimezone(settings.system.timezone)
   const isCompletedToday = habit.completions?.includes(today)
   const [isHighlighted, setIsHighlighted] = useState(false)

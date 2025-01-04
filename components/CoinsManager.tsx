@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useSettings } from '@/hooks/useSettings'
 import { t2d, d2s, getNow, isSameDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { formatNumber } from '@/lib/utils/formatNumber'
@@ -12,10 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from '@/hooks/use-toast'
 import { useCoins } from '@/hooks/useCoins'
 import Link from 'next/link'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 
 export default function CoinsManager() {
   const { balance, transactions, addAmount, removeAmount } = useCoins()
-  const { settings } = useSettings()
+  const [settings] = useAtom(settingsAtom)
   const DEFAULT_AMOUNT = '0'
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
 
@@ -212,7 +213,7 @@ export default function CoinsManager() {
                           </span>
                         </div>
                         <p className="text-sm text-gray-500">
-                          {d2s({ dateTime: t2d({ timestamp: transaction.timestamp, timezone: settings.system.timezone }) })}
+                          {d2s({ dateTime: t2d({ timestamp: transaction.timestamp, timezone: settings.system.timezone }), timezone: settings.system.timezone })}
                         </p>
                       </div>
                       <span

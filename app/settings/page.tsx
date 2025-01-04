@@ -3,11 +3,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { useSettings } from '@/hooks/useSettings'
 import { DynamicTimeNoSSR } from '@/components/DynamicTimeNoSSR'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
+import { Settings } from '@/lib/types'
+import { saveSettings } from '../actions/data'
 
 export default function SettingsPage() {
-  const { settings, updateSettings } = useSettings()
+  const [settings, setSettings] = useAtom(settingsAtom)
+
+  const updateSettings = async (newSettings: Settings) => {
+    await saveSettings(newSettings)
+    setSettings(newSettings)
+  }
+
 
   if (!settings) return null
 
@@ -89,7 +98,7 @@ export default function SettingsPage() {
                   </option>
                 ))}
               </select>
-              <DynamicTimeNoSSR timezone={settings.system.timezone} />
+              <DynamicTimeNoSSR />
             </div>
           </div>
         </CardContent>

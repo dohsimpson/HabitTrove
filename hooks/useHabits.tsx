@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
-import { useSettings } from '@/hooks/useSettings'
 import { loadHabitsData, saveHabitsData, addCoins, removeCoins } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 import { Undo2 } from 'lucide-react'
 import { Habit } from '@/lib/types'
 import { getNowInMilliseconds, getTodayInTimezone } from '@/lib/utils'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([])
-  const { settings } = useSettings()
+  const [settings] = useAtom(settingsAtom)
 
   useEffect(() => {
     fetchHabits()
