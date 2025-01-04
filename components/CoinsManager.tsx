@@ -18,6 +18,8 @@ export default function CoinsManager() {
   const [settings] = useAtom(settingsAtom)
   const DEFAULT_AMOUNT = '0'
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
+  const [pageSize, setPageSize] = useState(50)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const handleAddRemoveCoins = async () => {
     const numAmount = Number(amount)
@@ -143,15 +145,32 @@ export default function CoinsManager() {
 
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle className="flex justify-between items-center">
-              <span>Transaction History</span>
-              <span className="text-sm font-normal text-muted-foreground">
-                Total: {transactions.length} transactions
-              </span>
-            </CardTitle>
+            <CardTitle>Transaction History</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Show:</span>
+                  <select
+                    className="border rounded p-1"
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value))
+                      setCurrentPage(1) // Reset to first page when changing page size
+                    }}
+                  >
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                    <option value={500}>500</option>
+                  </select>
+                  <span className="text-sm text-muted-foreground">entries</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Showing {Math.min((currentPage - 1) * pageSize + 1, transactions.length)} to {Math.min(currentPage * pageSize, transactions.length)} of {transactions.length} entries
+                </div>
+              </div>
+
               {transactions.length === 0 ? (
                 <EmptyState
                   icon={History}
@@ -159,61 +178,108 @@ export default function CoinsManager() {
                   description="Your transaction history will appear here once you start earning or spending coins"
                 />
               ) : (
-                transactions.map((transaction) => {
-                  const getBadgeStyles = () => {
-                    switch (transaction.type) {
-                      case 'HABIT_COMPLETION':
-                        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
-                      case 'HABIT_UNDO':
-                        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
-                      case 'WISH_REDEMPTION':
-                        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100'
-                      case 'MANUAL_ADJUSTMENT':
-                        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
-                      default:
-                        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
-                    }
-                  }
+                <>
+                  {transactions
+                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                    .map((transaction) => {
+                      const getBadgeStyles = () => {
+                        switch (transaction.type) {
+                          case 'HABIT_COMPLETION':
+                            return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+                          case 'HABIT_UNDO':
+                            return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+                          case 'WISH_REDEMPTION':
+                            return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100'
+                          case 'MANUAL_ADJUSTMENT':
+                            return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+                          default:
+                            return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
+                        }
+                      }
 
-                  return (
-                    <div
-                      key={transaction.id}
-                      className="flex justify-between items-center p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          {transaction.relatedItemId ? (
-                            <Link
-                              href={`${transaction.type === 'WISH_REDEMPTION' ? '/wishlist' : '/habits'}?highlight=${transaction.relatedItemId}`}
-                              className="font-medium hover:underline"
-                              scroll={true}
-                            >
-                              {transaction.description}
-                            </Link>
-                          ) : (
-                            <p className="font-medium">{transaction.description}</p>
-                          )}
+                      return (
+                        <div
+                          key={transaction.id}
+                          className="flex justify-between items-center p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              {transaction.relatedItemId ? (
+                                <Link
+                                  href={`${transaction.type === 'WISH_REDEMPTION' ? '/wishlist' : '/habits'}?highlight=${transaction.relatedItemId}`}
+                                  className="font-medium hover:underline"
+                                  scroll={true}
+                                >
+                                  {transaction.description}
+                                </Link>
+                              ) : (
+                                <p className="font-medium">{transaction.description}</p>
+                              )}
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full ${getBadgeStyles()}`}
+                              >
+                                {transaction.type.split('_').join(' ')}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-500">
+                              {d2s({ dateTime: t2d({ timestamp: transaction.timestamp, timezone: settings.system.timezone }), timezone: settings.system.timezone })}
+                            </p>
+                          </div>
                           <span
-                            className={`text-xs px-2 py-1 rounded-full ${getBadgeStyles()}`}
+                            className={`font-mono ${transaction.amount >= 0
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-red-600 dark:text-red-400'
+                              }`}
                           >
-                            {transaction.type.split('_').join(' ')}
+                            {transaction.amount >= 0 ? '+' : ''}{transaction.amount}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-500">
-                          {d2s({ dateTime: t2d({ timestamp: transaction.timestamp, timezone: settings.system.timezone }), timezone: settings.system.timezone })}
-                        </p>
-                      </div>
-                      <span
-                        className={`font-mono ${transaction.amount >= 0
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400'
-                          }`}
+                      )
+                    })}
+
+                  <div className="flex justify-center items-center gap-4 mt-6">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(1)}
+                        disabled={currentPage === 1}
                       >
-                        {transaction.amount >= 0 ? '+' : ''}{transaction.amount}
-                      </span>
+                        «
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        ‹
+                      </Button>
+                      <div className="flex items-center gap-1 px-4 py-2 rounded-md bg-muted">
+                        <span className="text-sm font-medium">Page</span>
+                        <span className="text-sm font-bold">{currentPage}</span>
+                        <span className="text-sm font-medium">of</span>
+                        <span className="text-sm font-bold">{Math.ceil(transactions.length / pageSize)}</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(Math.ceil(transactions.length / pageSize), prev + 1))}
+                        disabled={currentPage >= Math.ceil(transactions.length / pageSize)}
+                      >
+                        ›
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.ceil(transactions.length / pageSize))}
+                        disabled={currentPage >= Math.ceil(transactions.length / pageSize)}
+                      >
+                        »
+                      </Button>
                     </div>
-                  )
-                })
+                  </div>
+                </>
               )}
             </div>
           </CardContent>

@@ -5,6 +5,7 @@
 ### Added
 
 - show total coins in header
+- pagination for coin transactions history
 
 ## Version 0.1.11
 
