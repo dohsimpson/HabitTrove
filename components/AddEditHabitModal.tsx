@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
@@ -89,7 +89,7 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
                   <PopoverContent className="w-[300px] p-0">
                     <Picker
                       data={data}
-                      onEmojiSelect={(emoji: any) => {
+                      onEmojiSelect={(emoji: { native: string }) => {
                         setName(prev => `${prev}${emoji.native}`)
                         // Focus back on input after selection
                         const input = document.getElementById('name') as HTMLInputElement

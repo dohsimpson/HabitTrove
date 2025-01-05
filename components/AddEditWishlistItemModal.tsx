@@ -73,7 +73,7 @@ export default function AddEditWishlistItemModal({ isOpen, onClose, onSave, item
                   <PopoverContent className="w-[300px] p-0">
                     <Picker
                       data={data}
-                      onEmojiSelect={(emoji: any) => {
+                      onEmojiSelect={(emoji: { native: string }) => {
                         setName(prev => `${prev}${emoji.native}`)
                         // Focus back on input after selection
                         const input = document.getElementById('name') as HTMLInputElement
