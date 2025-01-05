@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart } from 'lucide-react'
-import { getTodayInTimezone } from '@/lib/utils'
+import { getTodayInTimezone, getCompletedHabitsForDate } from '@/lib/utils'
 import { useAtom } from 'jotai'
 import { habitsAtom, settingsAtom } from '@/lib/atoms'
 
@@ -11,9 +11,11 @@ export default function HabitOverview() {
   const [settings] = useAtom(settingsAtom)
   const today = getTodayInTimezone(settings.system.timezone)
 
-  const completedToday = habits.filter(habit =>
-    habit.completions.includes(today)
-  ).length
+  const completedToday = getCompletedHabitsForDate({
+    habits,
+    date: today,
+    timezone: settings.system.timezone
+  }).length
 
   const habitsByFrequency = habits.reduce((acc, habit) => ({
     ...acc,

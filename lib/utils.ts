@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DateTime } from "luxon"
+import { Habit } from '@/lib/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -54,4 +55,69 @@ export function d2n({ dateTime }: { dateTime: DateTime }) {
 // compare the date portion of two datetime objects (i.e. same year, month, day)
 export function isSameDate(a: DateTime, b: DateTime) {
   return a.hasSame(b, 'day');
+}
+
+export function normalizeCompletionDate(date: string, timezone: string): string {
+  // If already in ISO format, return as is
+  if (date.includes('T')) {
+    return date;
+  }
+  // Convert from yyyy-MM-dd to ISO format
+  return DateTime.fromFormat(date, 'yyyy-MM-dd', { zone: timezone }).toUTC().toISO()!;
+}
+
+export function getCompletionsForDate({ 
+  habit, 
+  date, 
+  timezone 
+}: { 
+  habit: Habit, 
+  date: DateTime | string, 
+  timezone: string 
+}): number {
+  const dateObj = typeof date === 'string' ? DateTime.fromISO(date) : date
+  return habit.completions.filter((completion: string) => 
+    isSameDate(t2d({ timestamp: completion, timezone }), dateObj)
+  ).length
+}
+
+export function getCompletedHabitsForDate({
+  habits,
+  date,
+  timezone
+}: {
+  habits: Habit[],
+  date: DateTime | string,
+  timezone: string
+}): Habit[] {
+  return habits.filter(habit => {
+    const completionsToday = getCompletionsForDate({ habit, date, timezone })
+    const target = habit.targetCompletions || 1
+    return completionsToday >= target
+  })
+}
+
+export function isHabitCompletedToday({ 
+  habit, 
+  timezone 
+}: { 
+  habit: Habit, 
+  timezone: string 
+}): boolean {
+  const today = getTodayInTimezone(timezone)
+  const completionsToday = getCompletionsForDate({ habit, date: today, timezone })
+  return completionsToday >= (habit.targetCompletions || 1)
+}
+
+export function getHabitProgress({ 
+  habit, 
+  timezone 
+}: { 
+  habit: Habit, 
+  timezone: string 
+}): number {
+  const today = getTodayInTimezone(timezone)
+  const completionsToday = getCompletionsForDate({ habit, date: today, timezone })
+  const target = habit.targetCompletions || 1
+  return Math.min(100, (completionsToday / target) * 100)
 }

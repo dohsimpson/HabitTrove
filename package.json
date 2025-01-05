@@ -1,6 +1,6 @@
 {
   "name": "habittrove",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -15,16 +15,20 @@
     "setup:dev": "if ! command -v bun > /dev/null; then echo 'Installing bun...'; curl -fsSL https://bun.sh/install | bash; fi && npm install --force && npm run typecheck && npm run lint"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@next/font": "^14.2.15",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.4",
     "@radix-ui/react-dropdown-menu": "^2.1.4",
     "@radix-ui/react-label": "^2.1.1",
+    "@radix-ui/react-popover": "^1.1.4",
     "@radix-ui/react-progress": "^1.1.1",
     "@radix-ui/react-select": "^2.1.4",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-switch": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.4",
+    "@radix-ui/react-tooltip": "^1.1.6",
     "@types/canvas-confetti": "^1.9.0",
     "@uiw/react-heat-map": "^2.3.2",
     "canvas-confetti": "^1.9.3",

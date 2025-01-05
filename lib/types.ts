@@ -4,7 +4,8 @@ export type Habit = {
   description: string
   frequency: 'daily' | 'weekly' | 'monthly'
   coinReward: number
-  completions: string[] // Array of ISO date strings
+  targetCompletions?: number // Optional field, default to 1
+  completions: string[] // Array of UTC ISO date strings
 }
 
 export type WishlistItemType = {

@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.1.13
+
+### Added
+
+- habits now support daily completion target (e.g. 7 cups of water)
+- Added emoji picker for habit and wishlist names
+
+### Changed
+
+- habit completion now stores as ISO format
+
 ## Version 0.1.12
 
 ### Added

@@ -4,6 +4,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { SmilePlus } from 'lucide-react'
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 import { WishlistItemType } from '@/lib/types'
 
 interface AddEditWishlistItemModalProps {
@@ -47,13 +51,38 @@ export default function AddEditWishlistItemModal({ isOpen, onClose, onSave, item
               <Label htmlFor="name" className="text-right">
                 Name
               </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
-                required
-              />
+              <div className="col-span-3 flex gap-2">
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="flex-1"
+                  required
+                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                    >
+                      <SmilePlus className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0">
+                    <Picker
+                      data={data}
+                      onEmojiSelect={(emoji: any) => {
+                        setName(prev => `${prev}${emoji.native}`)
+                        // Focus back on input after selection
+                        const input = document.getElementById('name') as HTMLInputElement
+                        input?.focus()
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="description" className="text-right">

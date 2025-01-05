@@ -1,10 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Info, SmilePlus } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 import { Habit } from '@/lib/types'
 
 interface AddEditHabitModalProps {
@@ -15,10 +22,12 @@ interface AddEditHabitModalProps {
 }
 
 export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: AddEditHabitModalProps) {
+  const [settings] = useAtom(settingsAtom)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [coinReward, setCoinReward] = useState(1)
+  const [targetCompletions, setTargetCompletions] = useState(1)
 
   useEffect(() => {
     if (habit) {
@@ -26,6 +35,7 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
       setDescription(habit.description)
       setFrequency(habit.frequency)
       setCoinReward(habit.coinReward)
+      setTargetCompletions(habit.targetCompletions || 1)
     } else {
       setName('')
       setDescription('')
@@ -36,7 +46,14 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({ name, description, frequency, coinReward, completions: habit?.completions || [] })
+    onSave({
+      name,
+      description,
+      frequency,
+      coinReward,
+      targetCompletions: targetCompletions > 1 ? targetCompletions : undefined,
+      completions: habit?.completions || []
+    })
   }
 
   return (
@@ -51,13 +68,37 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
               <Label htmlFor="name" className="text-right">
                 Name
               </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
-                required
-              />
+              <div className='flex col-span-3 gap-2'>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                    >
+                      <SmilePlus className="h-8 w-8" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0">
+                    <Picker
+                      data={data}
+                      onEmojiSelect={(emoji: any) => {
+                        setName(prev => `${prev}${emoji.native}`)
+                        // Focus back on input after selection
+                        const input = document.getElementById('name') as HTMLInputElement
+                        input?.focus()
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="description" className="text-right">
@@ -84,6 +125,42 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
                   <SelectItem value="monthly">Monthly</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <div className="flex items-center gap-2 justify-end">
+                <Label htmlFor="targetCompletions">
+                  Daily Target
+                </Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4" />
+                    </TooltipTrigger>
+                    <TooltipContent className='text-sm'>
+                      <p>How many times you want to complete this habit each day.<br />For example: drink 7 glasses of water or take 3 walks<br /><br />You'll only receive the coin reward after reaching the daily target.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="col-span-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="targetCompletions"
+                    type="number"
+                    value={targetCompletions}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      setTargetCompletions(isNaN(value) ? 1 : Math.max(1, value))
+                    }}
+                    min={1}
+                    max={10}
+                    className="w-20"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    times per day
+                  </span>
+                </div>
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="coinReward" className="text-right">
