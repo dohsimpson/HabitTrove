@@ -3,36 +3,34 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, getCompletedHabitsForDate } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { WishlistItemType } from '@/lib/types'
 import { Habit } from '@/lib/types'
 import Linkify from './linkify'
+import { useHabits } from '@/hooks/useHabits'
 
 interface UpcomingItemsProps {
   habits: Habit[]
   wishlistItems: WishlistItemType[]
   coinBalance: number
-  onComplete: (habit: Habit) => void
-  onUndo: (habit: Habit) => void
 }
 
 export default function DailyOverview({
   habits,
   wishlistItems,
   coinBalance,
-  onComplete,
-  onUndo
 }: UpcomingItemsProps) {
+  const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
   const today = getTodayInTimezone(settings.system.timezone)
-  const todayCompletions = habits.filter(habit =>
-    habit.completions.some(completion => 
-      isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
-    )
-  )
+  const todayCompletions = getCompletedHabitsForDate({
+    habits,
+    date: getNow({ timezone: settings.system.timezone }),
+    timezone: settings.system.timezone
+  })
 
   // Filter daily habits
   const dailyHabits = habits.filter(habit => habit.frequency === 'daily')
@@ -68,7 +66,11 @@ export default function DailyOverview({
                 })
                 .slice(0, expandedHabits ? undefined : 3)
                 .map((habit) => {
-                  const isCompleted = todayCompletions.includes(habit)
+                  const completionsToday = habit.completions.filter(completion =>
+                    isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
+                  ).length
+                  const target = habit.targetCompletions || 1
+                  const isCompleted = completionsToday >= target
                   return (
                     <li
                       key={habit.id}
@@ -80,9 +82,9 @@ export default function DailyOverview({
                           onClick={(e) => {
                             e.preventDefault();
                             if (isCompleted) {
-                              onUndo(habit);
+                              undoComplete(habit);
                             } else {
-                              onComplete(habit);
+                              completeHabit(habit);
                             }
                           }}
                           className="hover:opacity-70 transition-opacity"

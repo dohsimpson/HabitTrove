@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { d2s, getNow, t2d } from '@/lib/utils'
+import { d2s, getNow, t2d, getCompletedHabitsForDate } from '@/lib/utils'
 import { useAtom } from 'jotai'
 import { habitsAtom, settingsAtom } from '@/lib/atoms'
 import { DateTime } from 'luxon'
 import Linkify from './linkify'
+import { Habit } from '@/lib/types'
 
 export default function HabitCalendar() {
   const [settings] = useAtom(settingsAtom)
@@ -17,12 +18,11 @@ export default function HabitCalendar() {
   const habits = habitsData.habits
 
   const getHabitsForDate = (date: Date) => {
-    const dateString = d2s({ dateTime: DateTime.fromJSDate(date), format: 'yyyy-MM-dd', timezone: settings.system.timezone });
-    return habits.filter(habit =>
-      habit.completions.some(completion =>
-        d2s({ dateTime: t2d({ timestamp: completion, timezone: settings.system.timezone }), format: 'yyyy-MM-dd', timezone: settings.system.timezone }) === dateString
-      )
-    )
+    return getCompletedHabitsForDate({
+      habits,
+      date: DateTime.fromJSDate(date),
+      timezone: settings.system.timezone
+    })
   }
 
   return (
@@ -62,7 +62,7 @@ export default function HabitCalendar() {
             {selectedDate && (
               <ul className="space-y-2">
                 {habits.map((habit) => {
-                  const isCompleted = getHabitsForDate(selectedDate.toJSDate()).some(h => h.id === habit.id)
+                  const isCompleted = getHabitsForDate(selectedDate.toJSDate()).some((h: Habit) => h.id === habit.id)
                   return (
                     <li key={habit.id} className="flex items-center justify-between">
                       <span>

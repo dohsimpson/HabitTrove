@@ -2,7 +2,7 @@
 
 import { Habit } from '@/lib/types'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { d2s, getNow, t2d } from '@/lib/utils'
+import { d2s, getNow, t2d, getCompletedHabitsForDate } from '@/lib/utils'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
@@ -20,11 +20,11 @@ export default function HabitStreak({ habits }: HabitStreakProps) {
   }).reverse()
 
   const completions = dates.map(date => {
-    const completedCount = habits.reduce((count, habit) => {
-      return count + (habit.completions.some(completion => 
-        d2s({ dateTime: t2d({ timestamp: completion, timezone: settings.system.timezone }), format: 'yyyy-MM-dd', timezone: settings.system.timezone }) === date
-      ) ? 1 : 0);
-    }, 0);
+    const completedCount = getCompletedHabitsForDate({
+      habits,
+      date: t2d({ timestamp: date, timezone: settings.system.timezone }),
+      timezone: settings.system.timezone
+    }).length;
     return {
       date,
       completed: completedCount

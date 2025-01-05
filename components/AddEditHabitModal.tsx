@@ -22,6 +22,7 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
   const [description, setDescription] = useState('')
   const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [coinReward, setCoinReward] = useState(1)
+  const [targetCompletions, setTargetCompletions] = useState(1)
 
   useEffect(() => {
     if (habit) {
@@ -39,7 +40,14 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({ name, description, frequency, coinReward, completions: habit?.completions || [] })
+    onSave({ 
+      name, 
+      description, 
+      frequency, 
+      coinReward, 
+      targetCompletions: targetCompletions > 1 ? targetCompletions : undefined,
+      completions: habit?.completions || [] 
+    })
   }
 
   return (
@@ -100,6 +108,22 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
                 className="col-span-3"
                 min={1}
                 required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="targetCompletions" className="text-right">
+                Daily Target
+              </Label>
+              <Input
+                id="targetCompletions"
+                type="number"
+                value={targetCompletions || ''}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value)
+                  setTargetCompletions(isNaN(value) ? 1 : Math.max(1, value))
+                }}
+                className="col-span-3"
+                min={1}
               />
             </div>
           </div>

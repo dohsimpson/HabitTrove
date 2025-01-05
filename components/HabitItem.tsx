@@ -18,9 +18,11 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
   const today = getTodayInTimezone(settings.system.timezone)
-  const isCompletedToday = habit.completions?.some(completion => 
+  const completionsToday = habit.completions?.filter(completion => 
     isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
-  )
+  ).length || 0
+  const target = habit.targetCompletions || 1
+  const isCompletedToday = completionsToday >= target
   const [isHighlighted, setIsHighlighted] = useState(false)
 
   useEffect(() => {
@@ -74,12 +76,12 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
             variant={isCompletedToday ? "secondary" : "default"}
             size="sm"
             onClick={async () => await completeHabit(habit)}
-            disabled={isCompletedToday}
+            disabled={isCompletedToday && completionsToday >= target}
           >
             <Check className="h-4 w-4 mr-2" />
-            {isCompletedToday ? "Completed" : "Complete"}
+            {isCompletedToday ? `Completed (${completionsToday}/${target})` : `Complete (${completionsToday}/${target})`}
           </Button>
-          {isCompletedToday && (
+          {completionsToday > 0 && (
             <Button
               variant="outline"
               size="sm"

@@ -8,7 +8,6 @@ import HabitStreak from './HabitStreak'
 import { useHabits } from '@/hooks/useHabits'
 
 export default function Dashboard() {
-  const { completeHabit, undoComplete } = useHabits()
   const [habitsData] = useAtom(habitsAtom)
   const habits = habitsData.habits
   const [settings] = useAtom(settingsAtom)
@@ -28,8 +27,6 @@ export default function Dashboard() {
           wishlistItems={wishlistItems}
           habits={habits}
           coinBalance={coinBalance}
-          onComplete={completeHabit}
-          onUndo={undoComplete}
         />
 
         {/* <HabitHeatmap habits={habits} /> */}
