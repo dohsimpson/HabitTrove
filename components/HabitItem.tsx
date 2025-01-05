@@ -18,7 +18,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
   const today = getTodayInTimezone(settings.system.timezone)
-  const completionsToday = habit.completions?.filter(completion => 
+  const completionsToday = habit.completions?.filter(completion =>
     isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
   ).length || 0
   const target = habit.targetCompletions || 1
@@ -72,15 +72,30 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
           </Button>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant={isCompletedToday ? "secondary" : "default"}
-            size="sm"
-            onClick={async () => await completeHabit(habit)}
-            disabled={isCompletedToday && completionsToday >= target}
-          >
-            <Check className="h-4 w-4 mr-2" />
-            {isCompletedToday ? `Completed (${completionsToday}/${target})` : `Complete (${completionsToday}/${target})`}
-          </Button>
+          <div className="relative">
+            <Button
+              variant={isCompletedToday ? "secondary" : "default"}
+              size="sm"
+              onClick={async () => await completeHabit(habit)}
+              disabled={isCompletedToday && completionsToday >= target}
+              className="overflow-hidden"
+            >
+              <Check className="h-4 w-4 mr-2" />
+              {isCompletedToday ? (
+                target > 1 ? `Completed (${completionsToday}/${target})` : 'Completed'
+              ) : (
+                target > 1 ? `Complete (${completionsToday}/${target})` : 'Complete'
+              )}
+              {habit.targetCompletions && habit.targetCompletions > 1 && (
+                <div 
+                  className="absolute bottom-0 left-0 h-1 bg-white/50"
+                  style={{
+                    width: `${(completionsToday / target) * 100}%`
+                  }}
+                />
+              )}
+            </Button>
+          </div>
           {completionsToday > 0 && (
             <Button
               variant="outline"
