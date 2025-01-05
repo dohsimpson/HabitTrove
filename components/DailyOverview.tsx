@@ -1,9 +1,10 @@
 import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, getCompletedHabitsForDate } from '@/lib/utils'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, getCompletedHabitsForDate, getCompletionsForDate } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -54,7 +55,12 @@ export default function DailyOverview({
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-semibold">Daily Habits</h3>
               <Badge variant="secondary">
-                {todayCompletions.length}/{dailyHabits.length} Complete
+                {dailyHabits.reduce((sum, habit) => sum + getCompletionsForDate({
+                  habit,
+                  date: today,
+                  timezone: settings.system.timezone
+                }), 0)}/
+                {dailyHabits.reduce((sum, habit) => sum + (habit.targetCompletions || 1), 0)} Completions
               </Badge>
             </div>
             <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedHabits ? 'max-h-[500px] opacity-100' : 'max-h-[200px] opacity-100'} overflow-hidden`}>
@@ -87,12 +93,25 @@ export default function DailyOverview({
                               completeHabit(habit);
                             }
                           }}
-                          className="hover:opacity-70 transition-opacity"
+                          className="relative hover:opacity-70 transition-opacity w-4 h-4"
                         >
                           {isCompleted ? (
                             <CircleCheck className="h-4 w-4 text-green-500" />
                           ) : (
-                            <Circle className="h-4 w-4" />
+                            <div className="relative h-4 w-4">
+                              <Circle className="absolute h-4 w-4 text-muted-foreground" />
+                              <div
+                                className="absolute h-4 w-4 rounded-full overflow-hidden"
+                                style={{
+                                  background: `conic-gradient(
+                                    currentColor ${(completionsToday / target) * 360}deg,
+                                    transparent ${(completionsToday / target) * 360}deg 360deg
+                                  )`,
+                                  mask: 'radial-gradient(transparent 50%, black 51%)',
+                                  WebkitMask: 'radial-gradient(transparent 50%, black 51%)'
+                                }}
+                              />
+                            </div>
                           )}
                         </button>
                         <span className={isCompleted ? 'line-through' : ''}>
@@ -101,9 +120,16 @@ export default function DailyOverview({
                           </Linkify>
                         </span>
                       </span>
-                      <span className="flex items-center text-xs text-muted-foreground">
-                        <Coins className="h-3 w-3 text-yellow-400 mr-1" />
-                        {habit.coinReward}
+                      <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {habit.targetCompletions && (
+                          <span className="bg-secondary px-1.5 py-0.5 rounded-full">
+                            {completionsToday}/{target}
+                          </span>
+                        )}
+                        <span className="flex items-center">
+                          <Coins className="h-3 w-3 text-yellow-400 mr-1" />
+                          {habit.coinReward}
+                        </span>
                       </span>
                     </li>
                   )

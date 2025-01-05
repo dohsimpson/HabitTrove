@@ -27,7 +27,7 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
   const [description, setDescription] = useState('')
   const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [coinReward, setCoinReward] = useState(1)
-  const [targetCompletions, setTargetCompletions] = useState(habit?.targetCompletions || 1)
+  const [targetCompletions, setTargetCompletions] = useState(1)
 
   useEffect(() => {
     if (habit) {
@@ -35,6 +35,7 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
       setDescription(habit.description)
       setFrequency(habit.frequency)
       setCoinReward(habit.coinReward)
+      setTargetCompletions(habit.targetCompletions || 1)
     } else {
       setName('')
       setDescription('')
