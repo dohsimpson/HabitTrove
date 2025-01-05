@@ -54,7 +54,7 @@ export function useHabits() {
       description: isTargetReached
         ? `You earned ${habit.coinReward} coins.`
         : `You've completed ${completionsToday + 1}/${target} times today.`,
-      action: <ToastAction altText="Undo" className="gap-2" onClick={() => undoComplete(habit)}>
+      action: <ToastAction altText="Undo" className="gap-2" onClick={() => undoComplete(updatedHabit)}>
         <Undo2 className="h-4 w-4" />Undo
       </ToastAction>
     })
@@ -110,7 +110,7 @@ export function useHabits() {
           date: today,
           timezone
         })}/${target} completions today.`,
-        action: <ToastAction altText="Redo" onClick={() => completeHabit(habit)}>
+        action: <ToastAction altText="Redo" onClick={() => completeHabit(updatedHabit)}>
           <Undo2 className="h-4 w-4" />Redo
         </ToastAction>
       })
