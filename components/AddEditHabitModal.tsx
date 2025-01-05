@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useAtom } from 'jotai'
+import { settingsAtom } from '@/lib/atoms'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +17,7 @@ interface AddEditHabitModalProps {
 }
 
 export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: AddEditHabitModalProps) {
+  const [settings] = useAtom(settingsAtom)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('daily')

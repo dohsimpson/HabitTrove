@@ -142,24 +142,13 @@ This will create an optimized production build in the `.next` directory.
 The project uses several tools to maintain code quality:
 
 - ESLint for linting: `npm run lint`
-- TypeScript type checking: `npm run type-check`
+- TypeScript type checking: `npm run typecheck`
 
 Run these commands regularly during development to catch issues early.
 
 ## Contributing
 
-Contributions are welcome! We appreciate both:
-
-- Issue submissions for bug reports and feature requests
-- Pull Requests for code contributions
-
-For major changes, please open an issue first to discuss what you would like to change.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+We welcome feature requests and bug reports! Please [open an issue](https://github.com/dohsimpson/habittrove/issues/new). We do not accept pull request at the moment.
 
 ## License
 

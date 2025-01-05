@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { d2s, getNow } from '@/lib/utils'
+import { d2s, getNow, t2d } from '@/lib/utils'
 import { useAtom } from 'jotai'
 import { habitsAtom, settingsAtom } from '@/lib/atoms'
 import { DateTime } from 'luxon'
@@ -17,9 +17,11 @@ export default function HabitCalendar() {
   const habits = habitsData.habits
 
   const getHabitsForDate = (date: Date) => {
-    const dateString = date.toISOString().split('T')[0]
+    const dateString = d2s({ dateTime: DateTime.fromJSDate(date), format: 'yyyy-MM-dd', timezone: settings.system.timezone });
     return habits.filter(habit =>
-      habit.completions.includes(dateString)
+      habit.completions.some(completion =>
+        d2s({ dateTime: t2d({ timestamp: completion, timezone: settings.system.timezone }), format: 'yyyy-MM-dd', timezone: settings.system.timezone }) === dateString
+      )
     )
   }
 
@@ -50,7 +52,7 @@ export default function HabitCalendar() {
           <CardHeader>
             <CardTitle>
               {selectedDate ? (
-                <>Habits for {d2s({ dateTime: selectedDate, timezone: settings.system.timezone })}</>
+                <>Habits for {d2s({ dateTime: selectedDate, timezone: settings.system.timezone, format: "yyyy-MM-dd" })}</>
               ) : (
                 'Select a date'
               )}

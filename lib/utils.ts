@@ -55,3 +55,12 @@ export function d2n({ dateTime }: { dateTime: DateTime }) {
 export function isSameDate(a: DateTime, b: DateTime) {
   return a.hasSame(b, 'day');
 }
+
+export function normalizeCompletionDate(date: string, timezone: string): string {
+  // If already in ISO format, return as is
+  if (date.includes('T')) {
+    return date;
+  }
+  // Convert from yyyy-MM-dd to ISO format
+  return DateTime.fromFormat(date, 'yyyy-MM-dd', { zone: timezone }).toUTC().toISO()!;
+}

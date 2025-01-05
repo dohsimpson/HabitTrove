@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
-import { getTodayInTimezone } from '@/lib/utils'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -29,7 +29,9 @@ export default function DailyOverview({
   const [settings] = useAtom(settingsAtom)
   const today = getTodayInTimezone(settings.system.timezone)
   const todayCompletions = habits.filter(habit =>
-    habit.completions.includes(today)
+    habit.completions.some(completion => 
+      isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
+    )
   )
 
   // Filter daily habits

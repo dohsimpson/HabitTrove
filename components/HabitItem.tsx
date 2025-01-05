@@ -1,7 +1,7 @@
 import { Habit } from '@/lib/types'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
-import { getTodayInTimezone } from '@/lib/utils'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Coins, Edit, Trash2, Check, Undo2 } from 'lucide-react'
@@ -18,7 +18,9 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
   const today = getTodayInTimezone(settings.system.timezone)
-  const isCompletedToday = habit.completions?.includes(today)
+  const isCompletedToday = habit.completions?.some(completion => 
+    isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
+  )
   const [isHighlighted, setIsHighlighted] = useState(false)
 
   useEffect(() => {

@@ -2,7 +2,7 @@ import { useAtom } from 'jotai'
 import { habitsAtom, coinsAtom, settingsAtom } from '@/lib/atoms'
 import { addCoins, removeCoins, saveHabitsData } from '@/app/actions/data'
 import { Habit } from '@/lib/types'
-import { getNowInMilliseconds, getTodayInTimezone } from '@/lib/utils'
+import { getNowInMilliseconds, getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 import { Undo2 } from 'lucide-react'
@@ -15,10 +15,12 @@ export function useHabits() {
   const completeHabit = async (habit: Habit) => {
     const timezone = settings.system.timezone
     const today = getTodayInTimezone(timezone)
-    if (!habit.completions.includes(today)) {
+    if (!habit.completions.some(completion => 
+      isSameDate(t2d({ timestamp: completion, timezone: timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone }) }), timezone: timezone }))
+    )) {
       const updatedHabit = {
         ...habit,
-        completions: [...habit.completions, today]
+        completions: [...habit.completions, d2t({ dateTime: getNow({ timezone }) })]
       }
       const updatedHabits = habitsData.habits.map(h =>
         h.id === habit.id ? updatedHabit : h
@@ -57,7 +59,9 @@ export function useHabits() {
     const today = getTodayInTimezone(timezone)
     const updatedHabit = {
       ...habit,
-      completions: habit.completions.filter(date => date !== today)
+      completions: habit.completions.filter(completion => 
+        !isSameDate(t2d({ timestamp: completion, timezone: timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone }) }), timezone: timezone }))
+      )
     }
     const updatedHabits = habitsData.habits.map(h =>
       h.id === habit.id ? updatedHabit : h
