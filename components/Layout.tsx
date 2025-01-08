@@ -4,7 +4,7 @@ import Navigation from './Navigation'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
       <Header className="sticky top-0 z-50" />
       <div className="flex flex-1 overflow-hidden">
         <Navigation viewPort='main' />

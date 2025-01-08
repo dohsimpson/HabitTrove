@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.15
+
+### Fixed
+
+- fix responsive layout for header and coins page in small viewport
+
 ## Version 0.1.14
 
 ### Added

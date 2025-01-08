@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Coins } from 'lucide-react'
-import { formatNumber } from '@/lib/utils/formatNumber'
+import { FormattedNumber } from '@/components/FormattedNumber'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
 import { useCoins } from '@/hooks/useCoins'
@@ -18,12 +18,12 @@ export default function CoinBalance({ coinBalance }: { coinBalance: number }) {
           <Coins className="h-12 w-12 text-yellow-400 mr-4" />
           <div className="flex flex-col">
             <span className="text-4xl font-bold">
-              {formatNumber({ amount: coinBalance, settings })}
+              <FormattedNumber amount={coinBalance} settings={settings} />
             </span>
             {coinsEarnedToday > 0 && (
               <div className="flex items-center gap-1 mt-1">
                 <span className="text-md text-green-600 dark:text-green-400 font-medium">
-                  +{formatNumber({ amount: coinsEarnedToday, settings })}
+                  +<FormattedNumber amount={coinsEarnedToday} settings={settings} />
                 </span>
                 <span className="text-md text-muted-foreground">
                   today

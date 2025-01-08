@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { t2d, d2s, getNow, isSameDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { formatNumber } from '@/lib/utils/formatNumber'
+import { FormattedNumber } from '@/components/FormattedNumber'
 import { History } from 'lucide-react'
 import EmptyState from './EmptyState'
 import { Input } from '@/components/ui/input'
@@ -53,7 +53,7 @@ export default function CoinsManager() {
               <span className="text-2xl animate-bounce hover:animate-none cursor-default">💰</span>
               <div>
                 <div className="text-sm font-normal text-muted-foreground">Current Balance</div>
-                <div className="text-3xl font-bold">{formatNumber({ amount: balance, settings })} coins</div>
+                <div className="text-3xl font-bold"><FormattedNumber amount={balance} settings={settings} /> coins</div>
               </div>
             </CardTitle>
           </CardHeader>
@@ -107,19 +107,19 @@ export default function CoinsManager() {
             <CardTitle>Statistics</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
               {/* Top Row - Totals */}
               <div className="p-4 rounded-lg bg-green-100 dark:bg-green-900">
                 <div className="text-sm text-green-800 dark:text-green-100 mb-1">Total Earned</div>
                 <div className="text-2xl font-bold text-green-900 dark:text-green-50">
-                  {formatNumber({ amount: totalEarned, settings })} 🪙
+                  <FormattedNumber amount={totalEarned} settings={settings} /> 🪙
                 </div>
               </div>
 
               <div className="p-4 rounded-lg bg-red-100 dark:bg-red-900">
                 <div className="text-sm text-red-800 dark:text-red-100 mb-1">Total Spent</div>
                 <div className="text-2xl font-bold text-red-900 dark:text-red-50">
-                  {formatNumber({ amount: totalSpent, settings })} 💸
+                  <FormattedNumber amount={totalSpent} settings={settings} /> 💸
                 </div>
               </div>
 
@@ -134,14 +134,14 @@ export default function CoinsManager() {
               <div className="p-4 rounded-lg bg-blue-100 dark:bg-blue-900">
                 <div className="text-sm text-blue-800 dark:text-blue-100 mb-1">Today's Earned</div>
                 <div className="text-2xl font-bold text-blue-900 dark:text-blue-50">
-                  {formatNumber({ amount: coinsEarnedToday, settings })} 🪙
+                  <FormattedNumber amount={coinsEarnedToday} settings={settings} /> 🪙
                 </div>
               </div>
 
               <div className="p-4 rounded-lg bg-purple-100 dark:bg-purple-900">
                 <div className="text-sm text-purple-800 dark:text-purple-100 mb-1">Today's Spent</div>
                 <div className="text-2xl font-bold text-purple-900 dark:text-purple-50">
-                  {formatNumber({ amount: coinsSpentToday, settings })} 💸
+                  <FormattedNumber amount={coinsSpentToday} settings={settings} /> 💸
                 </div>
               </div>
 
