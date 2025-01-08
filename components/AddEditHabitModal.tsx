@@ -1,4 +1,7 @@
+'use client'
+
 import { useState, useEffect } from 'react'
+import { RRule, RRuleSet, rrulestr } from 'rrule'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
@@ -13,51 +16,40 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { Habit } from '@/lib/types'
+import { parseNaturalLanguageRRule, parseRRule, serializeRRule } from '@/lib/utils'
+import { INITIAL_RECURRENCE_RULE } from '@/lib/constants'
 
 interface AddEditHabitModalProps {
-  isOpen: boolean
   onClose: () => void
-  onSave: (habit: Omit<Habit, 'id'>) => void
+  onSave: (habit: Omit<Habit, 'id'>) => Promise<void>
   habit?: Habit | null
 }
 
-export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: AddEditHabitModalProps) {
+export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHabitModalProps) {
   const [settings] = useAtom(settingsAtom)
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('daily')
-  const [coinReward, setCoinReward] = useState(1)
-  const [targetCompletions, setTargetCompletions] = useState(1)
+  const [name, setName] = useState(habit?.name || '')
+  const [description, setDescription] = useState(habit?.description || '')
+  const [coinReward, setCoinReward] = useState(habit?.coinReward || 1)
+  const [targetCompletions, setTargetCompletions] = useState(habit?.targetCompletions || 1)
+  const origRuleText = parseRRule(habit?.frequency || INITIAL_RECURRENCE_RULE).toText()
+  const [ruleText, setRuleText] = useState<string>(origRuleText)
 
-  useEffect(() => {
-    if (habit) {
-      setName(habit.name)
-      setDescription(habit.description)
-      setFrequency(habit.frequency)
-      setCoinReward(habit.coinReward)
-      setTargetCompletions(habit.targetCompletions || 1)
-    } else {
-      setName('')
-      setDescription('')
-      setFrequency('daily')
-      setCoinReward(1)
-    }
-  }, [habit])
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({
+    await onSave({
       name,
       description,
-      frequency,
       coinReward,
       targetCompletions: targetCompletions > 1 ? targetCompletions : undefined,
-      completions: habit?.completions || []
+      completions: habit?.completions || [],
+      frequency: habit ? (
+        origRuleText === ruleText ? habit.frequency : serializeRRule(parseNaturalLanguageRRule(ruleText))
+      ) : serializeRRule(parseNaturalLanguageRRule(ruleText)),
     })
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{habit ? 'Edit Habit' : 'Add New Habit'}</DialogTitle>
@@ -90,7 +82,11 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
                     <Picker
                       data={data}
                       onEmojiSelect={(emoji: { native: string }) => {
-                        setName(prev => `${prev}${emoji.native}`)
+                        setName(prev => {
+                          // Add space before emoji if there isn't one already
+                          const space = prev.length > 0 && !prev.endsWith(' ') ? ' ' : '';
+                          return `${prev}${space}${emoji.native}`;
+                        })
                         // Focus back on input after selection
                         const input = document.getElementById('name') as HTMLInputElement
                         input?.focus()
@@ -112,69 +108,109 @@ export default function AddEditHabitModal({ isOpen, onClose, onSave, habit }: Ad
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="frequency" className="text-right">
+              <Label htmlFor="recurrence" className="text-right">
                 Frequency
               </Label>
-              <Select value={frequency} onValueChange={(value: 'daily' | 'weekly' | 'monthly') => setFrequency(value)}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select frequency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily">Daily</SelectItem>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="col-span-3 space-y-2">
+                <Input
+                  id="recurrence"
+                  value={ruleText}
+                  onChange={(e) => setRuleText(e.target.value)}
+                // placeholder="e.g. 'every weekday' or 'every 2 weeks on Monday, Wednesday'"
+                />
+              </div>
+              <div className="col-start-2 col-span-3 text-sm text-muted-foreground">
+                <span>
+                  {(() => {
+                    try {
+                      return parseNaturalLanguageRRule(ruleText).toText()
+                    } catch (e: any) {
+                      return `Invalid rule: ${e.message}`
+                    }
+                  })()}
+                </span>
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="flex items-center gap-2 justify-end">
                 <Label htmlFor="targetCompletions">
-                  Daily Target
+                  Repetitions
                 </Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4" />
-                    </TooltipTrigger>
-                    <TooltipContent className='text-sm'>
-                      <p>How many times you want to complete this habit each day.<br />For example: drink 7 glasses of water or take 3 walks<br /><br />You'll only receive the coin reward after reaching the daily target.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
               </div>
-              <div className="col-span-3 space-y-2">
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="targetCompletions"
-                    type="number"
-                    value={targetCompletions}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value)
-                      setTargetCompletions(isNaN(value) ? 1 : Math.max(1, value))
-                    }}
-                    min={1}
-                    max={10}
-                    className="w-20"
-                  />
+              <div className="col-span-3">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center border rounded-lg overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setTargetCompletions(prev => Math.max(1, prev - 1))}
+                      className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      -
+                    </button>
+                    <Input
+                      id="targetCompletions"
+                      type="number"
+                      value={targetCompletions}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value)
+                        setTargetCompletions(isNaN(value) ? 1 : Math.max(1, value))
+                      }}
+                      min={1}
+                      max={10}
+                      className="w-20 text-center border-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setTargetCompletions(prev => Math.min(10, prev + 1))}
+                      className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
                   <span className="text-sm text-muted-foreground">
-                    times per day
+                    times per occurrence
                   </span>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="coinReward" className="text-right">
-                Coin Reward
-              </Label>
-              <Input
-                id="coinReward"
-                type="number"
-                value={coinReward}
-                onChange={(e) => setCoinReward(parseInt(e.target.value === "" ? "0" : e.target.value))}
-                className="col-span-3"
-                min={1}
-                required
-              />
+              <div className="flex items-center gap-2 justify-end">
+                <Label htmlFor="coinReward">
+                  Coin Reward
+                </Label>
+              </div>
+              <div className="col-span-3">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center border rounded-lg overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setCoinReward(prev => Math.max(0, prev - 1))}
+                      className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      -
+                    </button>
+                    <Input
+                      id="coinReward"
+                      type="number"
+                      value={coinReward}
+                      onChange={(e) => setCoinReward(parseInt(e.target.value === "" ? "0" : e.target.value))}
+                      min={0}
+                      required
+                      className="w-20 text-center border-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setCoinReward(prev => prev + 1)}
+                      className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    coins per completion
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter>

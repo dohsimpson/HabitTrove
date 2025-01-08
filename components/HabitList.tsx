@@ -56,19 +56,20 @@ export default function HabitList() {
           ))
         )}
       </div>
-      <AddEditHabitModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false)
-          setEditingHabit(null)
-        }}
-        onSave={async (habit) => {
-          await saveHabit({ ...habit, id: editingHabit?.id })
-          setIsModalOpen(false)
-          setEditingHabit(null)
-        }}
-        habit={editingHabit}
-      />
+      {isModalOpen &&
+        <AddEditHabitModal
+          onClose={() => {
+            setIsModalOpen(false)
+            setEditingHabit(null)
+          }}
+          onSave={async (habit) => {
+            await saveHabit({ ...habit, id: editingHabit?.id })
+            setIsModalOpen(false)
+            setEditingHabit(null)
+          }}
+          habit={editingHabit}
+        />
+      }
       <ConfirmDialog
         isOpen={deleteConfirmation.isOpen}
         onClose={() => setDeleteConfirmation({ isOpen: false, habitId: null })}
