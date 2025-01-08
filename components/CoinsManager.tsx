@@ -14,7 +14,17 @@ import { useAtom } from 'jotai'
 import { useCoins } from '@/hooks/useCoins'
 
 export default function CoinsManager() {
-  const { add, remove, balance, transactions } = useCoins()
+  const {
+    add,
+    remove,
+    balance,
+    transactions,
+    coinsEarnedToday,
+    totalEarned,
+    totalSpent,
+    coinsSpentToday,
+    transactionsToday
+  } = useCoins()
   const [settings] = useAtom(settingsAtom)
   const DEFAULT_AMOUNT = '0'
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
@@ -40,7 +50,7 @@ export default function CoinsManager() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="text-2xl animate-bounce hover:animate-none cursor-default">🪙</span>
+              <span className="text-2xl animate-bounce hover:animate-none cursor-default">💰</span>
               <div>
                 <div className="text-sm font-normal text-muted-foreground">Current Balance</div>
                 <div className="text-3xl font-bold">{formatNumber({ amount: balance, settings })} coins</div>
@@ -98,45 +108,47 @@ export default function CoinsManager() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Top Row - Totals */}
               <div className="p-4 rounded-lg bg-green-100 dark:bg-green-900">
                 <div className="text-sm text-green-800 dark:text-green-100 mb-1">Total Earned</div>
                 <div className="text-2xl font-bold text-green-900 dark:text-green-50">
-                  {formatNumber({
-                    amount: transactions
-                      .filter(t => {
-                        if (t.type === 'HABIT_COMPLETION' && t.relatedItemId) {
-                          return !transactions.some(undoT =>
-                            undoT.type === 'HABIT_UNDO' &&
-                            undoT.relatedItemId === t.relatedItemId
-                          )
-                        }
-                        return t.amount > 0 && t.type !== 'HABIT_UNDO'
-                      })
-                      .reduce((sum, t) => sum + t.amount, 0)
-                    , settings
-                  })} 🪙
+                  {formatNumber({ amount: totalEarned, settings })} 🪙
                 </div>
               </div>
 
               <div className="p-4 rounded-lg bg-red-100 dark:bg-red-900">
                 <div className="text-sm text-red-800 dark:text-red-100 mb-1">Total Spent</div>
                 <div className="text-2xl font-bold text-red-900 dark:text-red-50">
-                  {formatNumber({
-                    amount: Math.abs(
-                      transactions
-                        .filter(t => t.type === 'WISH_REDEMPTION' || t.type === 'MANUAL_ADJUSTMENT')
-                        .reduce((sum, t) => sum + (t.amount < 0 ? t.amount : 0), 0)
-                    ), settings
-                  })} 🪙
+                  {formatNumber({ amount: totalSpent, settings })} 💸
                 </div>
               </div>
 
+              <div className="p-4 rounded-lg bg-pink-100 dark:bg-pink-900">
+                <div className="text-sm text-pink-800 dark:text-pink-100 mb-1">Total Transactions</div>
+                <div className="text-2xl font-bold text-pink-900 dark:text-pink-50">
+                  {transactions.length} 📈
+                </div>
+              </div>
+
+              {/* Bottom Row - Today */}
               <div className="p-4 rounded-lg bg-blue-100 dark:bg-blue-900">
-                <div className="text-sm text-blue-800 dark:text-blue-100 mb-1">Today's Transactions</div>
+                <div className="text-sm text-blue-800 dark:text-blue-100 mb-1">Today's Earned</div>
                 <div className="text-2xl font-bold text-blue-900 dark:text-blue-50">
-                  {transactions.filter(t =>
-                    isSameDate(getNow({ timezone: settings.system.timezone }), t2d({ timestamp: t.timestamp, timezone: settings.system.timezone }))
-                  ).length} 📊
+                  {formatNumber({ amount: coinsEarnedToday, settings })} 🪙
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-purple-100 dark:bg-purple-900">
+                <div className="text-sm text-purple-800 dark:text-purple-100 mb-1">Today's Spent</div>
+                <div className="text-2xl font-bold text-purple-900 dark:text-purple-50">
+                  {formatNumber({ amount: coinsSpentToday, settings })} 💸
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-orange-100 dark:bg-orange-900">
+                <div className="text-sm text-orange-800 dark:text-orange-100 mb-1">Today's Transactions</div>
+                <div className="text-2xl font-bold text-orange-900 dark:text-orange-50">
+                  {transactionsToday} 📊
                 </div>
               </div>
             </div>

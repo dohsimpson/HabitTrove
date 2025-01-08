@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.14
+
+### Added
+
+- show today earned coins in balance and header
+
 ## Version 0.1.13
 
 ### Added
