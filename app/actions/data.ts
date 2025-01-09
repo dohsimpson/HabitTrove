@@ -104,7 +104,8 @@ export async function addCoins(
   amount: number,
   description: string,
   type: TransactionType = 'MANUAL_ADJUSTMENT',
-  relatedItemId?: string
+  relatedItemId?: string,
+  note?: string
 ): Promise<CoinsData> {
   const data = await loadCoinsData()
   const newTransaction: CoinTransaction = {
@@ -113,7 +114,8 @@ export async function addCoins(
     type,
     description,
     timestamp: d2t({ dateTime: getNow({}) }),
-    ...(relatedItemId && { relatedItemId })
+    ...(relatedItemId && { relatedItemId }),
+    ...(note && note.trim() !== '' && { note })
   }
 
   const newData: CoinsData = {
@@ -144,7 +146,8 @@ export async function removeCoins(
   amount: number,
   description: string,
   type: TransactionType = 'MANUAL_ADJUSTMENT',
-  relatedItemId?: string
+  relatedItemId?: string,
+  note?: string
 ): Promise<CoinsData> {
   const data = await loadCoinsData()
   const newTransaction: CoinTransaction = {
@@ -153,7 +156,8 @@ export async function removeCoins(
     type,
     description,
     timestamp: d2t({ dateTime: getNow({}) }),
-    ...(relatedItemId && { relatedItemId })
+    ...(relatedItemId && { relatedItemId }),
+    ...(note && note.trim() !== '' && { note })
   }
 
   const newData: CoinsData = {

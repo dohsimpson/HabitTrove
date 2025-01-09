@@ -2,9 +2,13 @@
 
 ## Version 0.1.17
 
+### Added
+
+- transactions note
+
 ### Fixed
 
-- fix coin statistics
+- coin statistics
 
 ## Version 0.1.16
 

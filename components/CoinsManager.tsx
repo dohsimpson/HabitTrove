@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { t2d, d2s, getNow, isSameDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { FormattedNumber } from '@/components/FormattedNumber'
-import { History } from 'lucide-react'
+import { History, Pencil } from 'lucide-react'
 import EmptyState from './EmptyState'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,11 +12,13 @@ import { settingsAtom } from '@/lib/atoms'
 import Link from 'next/link'
 import { useAtom } from 'jotai'
 import { useCoins } from '@/hooks/useCoins'
+import { TransactionNoteEditor } from './TransactionNoteEditor'
 
 export default function CoinsManager() {
   const {
     add,
     remove,
+    updateNote,
     balance,
     transactions,
     coinsEarnedToday,
@@ -31,14 +33,26 @@ export default function CoinsManager() {
   const [pageSize, setPageSize] = useState(50)
   const [currentPage, setCurrentPage] = useState(1)
 
+  const [note, setNote] = useState('')
+
+  const handleSaveNote = async (transactionId: string, note: string) => {
+    await updateNote(transactionId, note)
+  }
+
+  const handleDeleteNote = async (transactionId: string) => {
+    await updateNote(transactionId, '')
+  }
+
   const handleAddRemoveCoins = async () => {
     const numAmount = Number(amount)
     if (numAmount > 0) {
-      await add(numAmount, "Manual addition")
+      await add(numAmount, "Manual addition", note)
       setAmount(DEFAULT_AMOUNT)
+      setNote('')
     } else if (numAmount < 0) {
-      await remove(Math.abs(numAmount), "Manual removal")
+      await remove(Math.abs(numAmount), "Manual removal", note)
       setAmount(DEFAULT_AMOUNT)
+      setNote('')
     }
   }
 
@@ -59,45 +73,51 @@ export default function CoinsManager() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              <div className="flex items-center justify-center gap-4">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-10 w-10 text-lg"
-                  onClick={() => setAmount(prev => (Number(prev) - 1).toString())}
-                >
-                  -
-                </Button>
-                <div className="relative w-32">
-                  <Input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="text-center text-xl font-medium h-12"
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    🪙
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10 text-lg"
+                    onClick={() => setAmount(prev => (Number(prev) - 1).toString())}
+                  >
+                    -
+                  </Button>
+                  <div className="relative w-32">
+                    <Input
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className="text-center text-xl font-medium h-12"
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      🪙
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10 text-lg"
+                    onClick={() => setAmount(prev => (Number(prev) + 1).toString())}
+                  >
+                    +
+                  </Button>
+                </div>
+
+                <div className="w-full space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={handleAddRemoveCoins}
+                      className="flex-1 h-14 transition-colors flex items-center justify-center font-medium"
+                      variant="default"
+                    >
+                      <div className="flex items-center gap-2">
+                        {Number(amount) >= 0 ? 'Add Coins' : 'Remove Coins'}
+                      </div>
+                    </Button>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-10 w-10 text-lg"
-                  onClick={() => setAmount(prev => (Number(prev) + 1).toString())}
-                >
-                  +
-                </Button>
               </div>
-
-              <Button
-                onClick={handleAddRemoveCoins}
-                className="w-full h-14 transition-colors flex items-center justify-center font-medium"
-                variant="default"
-              >
-                <div className="flex items-center gap-2">
-                  {Number(amount) >= 0 ? 'Add Coins' : 'Remove Coins'}
-                </div>
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -236,6 +256,12 @@ export default function CoinsManager() {
                             <p className="text-sm text-gray-500">
                               {d2s({ dateTime: t2d({ timestamp: transaction.timestamp, timezone: settings.system.timezone }), timezone: settings.system.timezone })}
                             </p>
+                            <TransactionNoteEditor
+                              transactionId={transaction.id}
+                              initialNote={transaction.note}
+                              onSave={handleSaveNote}
+                              onDelete={handleDeleteNote}
+                            />
                           </div>
                           <span
                             className={`font-mono ${transaction.amount >= 0
