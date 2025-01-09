@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai'
-import { 
-  coinsAtom, 
+import {
+  coinsAtom,
   settingsAtom,
   coinsEarnedTodayAtom,
   totalEarnedAtom,
