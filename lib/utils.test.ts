@@ -1,5 +1,21 @@
 import { expect, test, describe, beforeAll, afterAll } from "bun:test";
-import { cn, getTodayInTimezone, getNow, getNowInMilliseconds, t2d, d2t, d2s, d2sDate, d2n, isSameDate } from './utils'
+import {
+  cn,
+  getTodayInTimezone,
+  getNow,
+  getNowInMilliseconds,
+  t2d,
+  d2t,
+  d2s,
+  d2sDate,
+  d2n,
+  isSameDate,
+  calculateCoinsEarnedToday,
+  calculateTotalEarned,
+  calculateTotalSpent,
+  calculateCoinsSpentToday,
+} from './utils'
+import { CoinTransaction } from './types'
 import { DateTime } from "luxon";
 
 describe('cn utility', () => {
@@ -92,5 +108,67 @@ describe('datetime utilities', () => {
       expect(isSameDate(date1, date2)).toBe(true)
       expect(isSameDate(date1, date3)).toBe(false)
     })
+  })
+
+  describe('transaction calculations', () => {
+    const testTransactions: CoinTransaction[] = [
+      {
+        id: '1',
+        amount: 10,
+        type: 'HABIT_COMPLETION',
+        description: 'Test habit',
+        timestamp: '2024-01-01T12:00:00Z'
+      },
+      {
+        id: '2',
+        amount: -5,
+        type: 'HABIT_UNDO',
+        description: 'Undo test habit',
+        timestamp: '2024-01-01T13:00:00Z',
+        relatedItemId: '1'
+      },
+      {
+        id: '3',
+        amount: 20,
+        type: 'HABIT_COMPLETION',
+        description: 'Another habit',
+        timestamp: '2024-01-01T14:00:00Z'
+      },
+      {
+        id: '4',
+        amount: -15,
+        type: 'WISH_REDEMPTION',
+        description: 'Redeemed wish',
+        timestamp: '2024-01-01T15:00:00Z'
+      },
+      {
+        id: '5',
+        amount: 5,
+        type: 'HABIT_COMPLETION',
+        description: 'Yesterday habit',
+        timestamp: '2023-12-31T23:00:00Z'
+      }
+    ]
+
+    test('calculateCoinsEarnedToday should calculate today\'s earnings including undos', () => {
+      const result = calculateCoinsEarnedToday(testTransactions, 'UTC')
+      expect(result).toBe(25) // 10 + 20 - 5 (including the -5 undo)
+    })
+
+    test('calculateTotalEarned should calculate lifetime earnings including undos', () => {
+      const result = calculateTotalEarned(testTransactions)
+      expect(result).toBe(30) // 10 + 20 + 5 - 5 (including the -5 undo)
+    })
+
+    test('calculateTotalSpent should calculate total spent excluding undos', () => {
+      const result = calculateTotalSpent(testTransactions)
+      expect(result).toBe(15) // Only the 15 wish redemption (excluding the 5 undo)
+    })
+
+    test('calculateCoinsSpentToday should calculate today\'s spending excluding undos', () => {
+      const result = calculateCoinsSpentToday(testTransactions, 'UTC')
+      expect(result).toBe(15) // Only the 15 wish redemption (excluding the 5 undo)
+    })
+
   })
 })

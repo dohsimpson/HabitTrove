@@ -38,17 +38,17 @@ export default function Header({ className }: HeaderProps) {
               <Link href="/coins" className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-full transition-colors border border-gray-200 dark:border-gray-600">
                 <Coins className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
                 <div className="flex items-baseline gap-1 sm:gap-2">
-                  <FormattedNumber 
-                    amount={balance} 
-                    settings={settings} 
-                    className="text-gray-800 dark:text-gray-100 font-medium text-lg" 
+                  <FormattedNumber
+                    amount={balance}
+                    settings={settings}
+                    className="text-gray-800 dark:text-gray-100 font-medium text-lg"
                   />
                   {coinsEarnedToday > 0 && (
                     <span className="text-sm bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full border border-green-100 dark:border-green-800">
-                      <FormattedNumber 
-                        amount={coinsEarnedToday} 
-                        settings={settings} 
-                        className="inline" 
+                      <FormattedNumber
+                        amount={coinsEarnedToday}
+                        settings={settings}
+                        className="inline"
                       />
                     </span>
                   )}

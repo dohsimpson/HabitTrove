@@ -24,6 +24,7 @@ export interface CoinTransaction {
   description: string;
   timestamp: string;
   relatedItemId?: string;
+  note?: string;
 }
 
 export interface HabitsData {

@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DateTime } from "luxon"
-import { Habit } from '@/lib/types'
+import { Habit, CoinTransaction } from '@/lib/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -66,17 +66,17 @@ export function normalizeCompletionDate(date: string, timezone: string): string 
   return DateTime.fromFormat(date, 'yyyy-MM-dd', { zone: timezone }).toUTC().toISO()!;
 }
 
-export function getCompletionsForDate({ 
-  habit, 
-  date, 
-  timezone 
-}: { 
-  habit: Habit, 
-  date: DateTime | string, 
-  timezone: string 
+export function getCompletionsForDate({
+  habit,
+  date,
+  timezone
+}: {
+  habit: Habit,
+  date: DateTime | string,
+  timezone: string
 }): number {
   const dateObj = typeof date === 'string' ? DateTime.fromISO(date) : date
-  return habit.completions.filter((completion: string) => 
+  return habit.completions.filter((completion: string) =>
     isSameDate(t2d({ timestamp: completion, timezone }), dateObj)
   ).length
 }
@@ -97,27 +97,79 @@ export function getCompletedHabitsForDate({
   })
 }
 
-export function isHabitCompletedToday({ 
-  habit, 
-  timezone 
-}: { 
-  habit: Habit, 
-  timezone: string 
+export function isHabitCompletedToday({
+  habit,
+  timezone
+}: {
+  habit: Habit,
+  timezone: string
 }): boolean {
   const today = getTodayInTimezone(timezone)
   const completionsToday = getCompletionsForDate({ habit, date: today, timezone })
   return completionsToday >= (habit.targetCompletions || 1)
 }
 
-export function getHabitProgress({ 
-  habit, 
-  timezone 
-}: { 
-  habit: Habit, 
-  timezone: string 
+export function getHabitProgress({
+  habit,
+  timezone
+}: {
+  habit: Habit,
+  timezone: string
 }): number {
   const today = getTodayInTimezone(timezone)
   const completionsToday = getCompletionsForDate({ habit, date: today, timezone })
   const target = habit.targetCompletions || 1
   return Math.min(100, (completionsToday / target) * 100)
+}
+
+export function calculateCoinsEarnedToday(transactions: CoinTransaction[], timezone: string): number {
+  const today = getTodayInTimezone(timezone);
+  return transactions
+    .filter(transaction =>
+      isSameDate(t2d({ timestamp: transaction.timestamp, timezone }),
+        t2d({ timestamp: today, timezone })) &&
+      (transaction.amount > 0 || transaction.type === 'HABIT_UNDO')
+    )
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
+}
+
+export function calculateTotalEarned(transactions: CoinTransaction[]): number {
+  return transactions
+    .filter(transaction => 
+      transaction.amount > 0 || transaction.type === 'HABIT_UNDO'
+    )
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
+}
+
+export function calculateTotalSpent(transactions: CoinTransaction[]): number {
+  return Math.abs(
+    transactions
+      .filter(transaction => 
+        transaction.amount < 0 &&
+        transaction.type !== 'HABIT_UNDO'
+      )
+      .reduce((sum, transaction) => sum + transaction.amount, 0)
+  );
+}
+
+export function calculateCoinsSpentToday(transactions: CoinTransaction[], timezone: string): number {
+  const today = getTodayInTimezone(timezone);
+  return Math.abs(
+    transactions
+      .filter(transaction =>
+        isSameDate(t2d({ timestamp: transaction.timestamp, timezone }),
+          t2d({ timestamp: today, timezone })) &&
+        transaction.amount < 0 &&
+        transaction.type !== 'HABIT_UNDO'
+      )
+      .reduce((sum, transaction) => sum + transaction.amount, 0)
+  );
+}
+
+export function calculateTransactionsToday(transactions: CoinTransaction[], timezone: string): number {
+  const today = getTodayInTimezone(timezone);
+  return transactions.filter(t =>
+    isSameDate(t2d({ timestamp: t.timestamp, timezone }),
+      t2d({ timestamp: today, timezone }))
+  ).length;
 }

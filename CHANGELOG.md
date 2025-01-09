@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 0.1.17
+
+### Added
+
+- transactions note
+
+### Fixed
+
+- coin statistics
+
 ## Version 0.1.16
 
 ### Fixed
