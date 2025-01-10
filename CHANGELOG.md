@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.18
+
+### Fixed
+
+- daily overview habit count should not show target completions
+
 ## Version 0.1.17
 
 ### Added

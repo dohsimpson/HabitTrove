@@ -55,12 +55,14 @@ export default function DailyOverview({
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-semibold">Daily Habits</h3>
               <Badge variant="secondary">
-                {dailyHabits.reduce((sum, habit) => sum + getCompletionsForDate({
-                  habit,
-                  date: today,
-                  timezone: settings.system.timezone
-                }), 0)}/
-                {dailyHabits.reduce((sum, habit) => sum + (habit.targetCompletions || 1), 0)} Completions
+                {dailyHabits.filter(habit => {
+                  const completions = getCompletionsForDate({
+                    habit,
+                    date: today,
+                    timezone: settings.system.timezone
+                  });
+                  return completions >= (habit.targetCompletions || 1);
+                }).length}/{dailyHabits.length} Completed
               </Badge>
             </div>
             <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedHabits ? 'max-h-[500px] opacity-100' : 'max-h-[200px] opacity-100'} overflow-hidden`}>
