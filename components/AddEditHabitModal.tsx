@@ -124,8 +124,8 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
                   {(() => {
                     try {
                       return parseNaturalLanguageRRule(ruleText).toText()
-                    } catch (e: any) {
-                      return `Invalid rule: ${e.message}`
+                    } catch (e: unknown) {
+                      return `Invalid rule: ${e instanceof Error ? e.message : 'Invalid recurrence rule'}`
                     }
                   })()}
                 </span>
