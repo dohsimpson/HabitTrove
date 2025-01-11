@@ -2,9 +2,18 @@
 
 ## Version 0.1.18
 
+### Added
+
+- flexible recurrence rule using natural language (#1)
+
 ### Fixed
 
+- add modal state not cleared after adding habit (#34)
 - daily overview habit count should not show target completions
+
+### Improved
+
+- habits and wishlist presentation in daily overview
 
 ## Version 0.1.17
 

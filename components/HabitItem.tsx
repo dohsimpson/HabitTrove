@@ -1,12 +1,14 @@
 import { Habit } from '@/lib/types'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Coins, Edit, Trash2, Check, Undo2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useHabits } from '@/hooks/useHabits'
+import { RRule } from 'rrule'
+import { INITIAL_RECURRENCE_RULE } from '@/lib/constants'
 
 interface HabitItemProps {
   habit: Habit
@@ -54,7 +56,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
         <CardDescription>{habit.description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-gray-500">Frequency: {habit.frequency}</p>
+        <p className="text-sm text-gray-500">Frequency: {parseRRule(habit.frequency || INITIAL_RECURRENCE_RULE).toText()}</p>
         <div className="flex items-center mt-2">
           <Coins className="h-4 w-4 text-yellow-400 mr-1" />
           <span className="text-sm font-medium">{habit.coinReward} coins per completion</span>
@@ -87,7 +89,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
                 target > 1 ? `Complete (${completionsToday}/${target})` : 'Complete'
               )}
               {habit.targetCompletions && habit.targetCompletions > 1 && (
-                <div 
+                <div
                   className="absolute bottom-0 left-0 h-1 bg-white/50"
                   style={{
                     width: `${(completionsToday / target) * 100}%`
