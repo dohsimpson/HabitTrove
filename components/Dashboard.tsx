@@ -2,9 +2,9 @@
 
 import { useAtom } from 'jotai'
 import { wishlistAtom, habitsAtom, settingsAtom, coinsAtom } from '@/lib/atoms'
-import CoinBalance from './CoinBalance'
 import DailyOverview from './DailyOverview'
 import HabitStreak from './HabitStreak'
+import CoinBalance from './CoinBalance'
 import { useHabits } from '@/hooks/useHabits'
 
 export default function Dashboard() {

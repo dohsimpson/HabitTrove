@@ -42,6 +42,23 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={activeFont.className}>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                      console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                      console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+              }
+            `,
+          }}
+        />
         <JotaiProvider>
           <Suspense fallback="loading">
             <JotaiHydrate

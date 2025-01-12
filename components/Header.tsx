@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
+import { coinsAtom, settingsAtom } from '@/lib/atoms'
 import { useCoins } from '@/hooks/useCoins'
 import { FormattedNumber } from '@/components/FormattedNumber'
 import { Bell, Menu, Settings, User, Info, Coins } from 'lucide-react'
@@ -17,15 +17,18 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import AboutModal from './AboutModal'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 
 interface HeaderProps {
   className?: string
 }
 
+const TodayEarnedCoins = dynamic(() => import('./TodayEarnedCoins'), { ssr: false })
+
 export default function Header({ className }: HeaderProps) {
   const [showAbout, setShowAbout] = useState(false)
   const [settings] = useAtom(settingsAtom)
-  const { balance, coinsEarnedToday } = useCoins()
+  const [coins] = useAtom(coinsAtom)
   return (
     <>
       <header className={`border-b bg-white dark:bg-gray-800 shadow-sm ${className || ''}`}>
@@ -39,19 +42,11 @@ export default function Header({ className }: HeaderProps) {
                 <Coins className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
                 <div className="flex items-baseline gap-1 sm:gap-2">
                   <FormattedNumber
-                    amount={balance}
+                    amount={coins.balance}
                     settings={settings}
                     className="text-gray-800 dark:text-gray-100 font-medium text-lg"
                   />
-                  {coinsEarnedToday > 0 && (
-                    <span className="text-sm bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full border border-green-100 dark:border-green-800">
-                      <FormattedNumber
-                        amount={coinsEarnedToday}
-                        settings={settings}
-                        className="inline"
-                      />
-                    </span>
-                  )}
+                  <TodayEarnedCoins />
                 </div>
               </Link>
               <Button variant="ghost" size="icon" aria-label="Notifications">
