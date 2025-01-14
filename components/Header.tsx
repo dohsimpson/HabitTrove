@@ -46,7 +46,9 @@ export default function Header({ className }: HeaderProps) {
                     settings={settings}
                     className="text-gray-800 dark:text-gray-100 font-medium text-lg"
                   />
-                  <TodayEarnedCoins />
+                  <div className="hidden sm:block">
+                    <TodayEarnedCoins />
+                  </div>
                 </div>
               </Link>
               <Button variant="ghost" size="icon" aria-label="Notifications">

@@ -18,10 +18,14 @@ export default function CoinBalance({ coinBalance }: { coinBalance: number }) {
         <div className="flex items-center justify-center">
           <Coins className="h-12 w-12 text-yellow-400 mr-4" />
           <div className="flex flex-col">
-            <span className="text-4xl font-bold">
-              <FormattedNumber amount={coinBalance} settings={settings} />
-            </span>
-            <TodayEarnedCoins />
+            <div className="flex flex-col">
+              <span className="text-4xl font-bold">
+                <FormattedNumber amount={coinBalance} settings={settings} />
+              </span>
+              <div className="flex items-center gap-1">
+                <TodayEarnedCoins longFormat={true} />
+              </div>
+            </div>
           </div>
         </div>
       </CardContent>
