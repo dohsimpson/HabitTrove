@@ -1,5 +1,4 @@
-import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Edit, Trash2, Star, Flag, Timer } from 'lucide-react'
-import PomodoroTimer, { POMODOROS_PER_SET } from './PomodoroTimer'
+import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer } from 'lucide-react'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -10,7 +9,7 @@ import { cn, isHabitDueToday, getHabitFreq } from '@/lib/utils'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
+import { pomodoroAtom, settingsAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, getCompletedHabitsForDate, getCompletionsForDate } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -64,8 +63,7 @@ export default function DailyOverview({
 
   const [expandedHabits, setExpandedHabits] = useState(false)
   const [expandedWishlist, setExpandedWishlist] = useState(false)
-  const [showPomodoro, setShowPomodoro] = useState(false)
-  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null)
+  const [_, setPomo] = useAtom(pomodoroAtom)
 
   return (
     <>
@@ -89,7 +87,7 @@ export default function DailyOverview({
                   }).length}/{dailyHabits.length} Completed
                 </Badge>
               </div>
-              <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedHabits ? 'max-h-[500px] opacity-100' : 'max-h-[200px] opacity-100'} overflow-hidden`}>
+              <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedHabits ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
                 {dailyHabits
                   .sort((a, b) => {
                     // First by completion status
@@ -133,36 +131,38 @@ export default function DailyOverview({
                         <span className="flex items-center gap-2">
                           <ContextMenu>
                             <ContextMenuTrigger asChild>
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  if (isCompleted) {
-                                    undoComplete(habit);
-                                  } else {
-                                    completeHabit(habit);
-                                  }
-                                }}
-                                className="relative hover:opacity-70 transition-opacity w-4 h-4"
-                              >
-                                {isCompleted ? (
-                                  <CircleCheck className="h-4 w-4 text-green-500" />
-                                ) : (
-                                  <div className="relative h-4 w-4">
-                                    <Circle className="absolute h-4 w-4 text-muted-foreground" />
-                                    <div
-                                      className="absolute h-4 w-4 rounded-full overflow-hidden"
-                                      style={{
-                                        background: `conic-gradient(
-                                      currentColor ${(completionsToday / target) * 360}deg,
-                                      transparent ${(completionsToday / target) * 360}deg 360deg
-                                    )`,
-                                        mask: 'radial-gradient(transparent 50%, black 51%)',
-                                        WebkitMask: 'radial-gradient(transparent 50%, black 51%)'
-                                      }}
-                                    />
-                                  </div>
-                                )}
-                              </button>
+                              <div className="flex-none">
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    if (isCompleted) {
+                                      undoComplete(habit);
+                                    } else {
+                                      completeHabit(habit);
+                                    }
+                                  }}
+                                  className="relative hover:opacity-70 transition-opacity w-4 h-4"
+                                >
+                                  {isCompleted ? (
+                                    <CircleCheck className="h-4 w-4 text-green-500" />
+                                  ) : (
+                                    <div className="relative h-4 w-4">
+                                      <Circle className="absolute h-4 w-4 text-muted-foreground" />
+                                      <div
+                                        className="absolute h-4 w-4 rounded-full overflow-hidden"
+                                        style={{
+                                          background: `conic-gradient(
+                                        currentColor ${(completionsToday / target) * 360}deg,
+                                        transparent ${(completionsToday / target) * 360}deg 360deg
+                                      )`,
+                                          mask: 'radial-gradient(transparent 50%, black 51%)',
+                                          WebkitMask: 'radial-gradient(transparent 50%, black 51%)'
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                                </button>
+                              </div>
                             </ContextMenuTrigger>
                             <span className={isCompleted ? 'line-through' : ''}>
                               <Linkify>
@@ -170,25 +170,12 @@ export default function DailyOverview({
                               </Linkify>
                             </span>
                             <ContextMenuContent className="w-64">
-                              <ContextMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                <span>Edit</span>
-                              </ContextMenuItem>
-                              <ContextMenuItem>
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Delete</span>
-                              </ContextMenuItem>
-                              <ContextMenuItem>
-                                <Star className="mr-2 h-4 w-4" />
-                                <span>Mark as Favorite</span>
-                              </ContextMenuItem>
-                              <ContextMenuItem>
-                                <Flag className="mr-2 h-4 w-4" />
-                                <span>Report Issue</span>
-                              </ContextMenuItem>
                               <ContextMenuItem onClick={() => {
-                                setSelectedHabit(habit);
-                                setShowPomodoro(true);
+                                setPomo((prev) => ({
+                                  ...prev,
+                                  show: true,
+                                  selectedHabitId: habit.id
+                                }))
                               }}>
                                 <Timer className="mr-2 h-4 w-4" />
                                 <span>Start Pomodoro</span>
@@ -263,7 +250,7 @@ export default function DailyOverview({
                 </Badge>
               </div>
               <div>
-                <div className={`space-y-3 transition-all duration-300 ease-in-out ${expandedWishlist ? 'max-h-[500px]' : 'max-h-[200px]'} overflow-hidden`}>
+                <div className={`space-y-3 transition-all duration-300 ease-in-out ${expandedWishlist ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
                   {sortedWishlistItems.length === 0 ? (
                     <div className="text-center text-muted-foreground text-sm py-4">
                       No wishlist items yet. Add some goals to work towards!
@@ -353,25 +340,6 @@ export default function DailyOverview({
           </div>
         </CardContent>
       </Card>
-      {
-        showPomodoro && (
-          <div className="fixed bottom-20 right-4 lg:bottom-4 bg-background border rounded-lg shadow-lg">
-            <PomodoroTimer
-              onClose={() => {
-                setShowPomodoro(false);
-                setSelectedHabit(null);
-              }}
-              habit={selectedHabit || undefined}
-              autoStart={true}
-              onComplete={() => {
-                if (selectedHabit) {
-                  completeHabit(selectedHabit)
-                }
-              }}
-            />
-          </div>
-        )
-      }
     </>
   )
 }

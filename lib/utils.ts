@@ -83,6 +83,16 @@ export function getCompletionsForDate({
   ).length
 }
 
+export function getCompletionsForToday({
+  habit,
+  timezone
+}: {
+  habit: Habit,
+  timezone: string
+}): number {
+  return getCompletionsForDate({ habit, date: getTodayInTimezone(timezone), timezone })
+}
+
 export function getCompletedHabitsForDate({
   habits,
   date,
