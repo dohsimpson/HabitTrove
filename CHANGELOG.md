@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.1.20
+
+### Fixed
+
+- fix pomodoro break timer from triggering completions
+- don't show progress on pomodoro for single completion habit
+
 ## Version 0.1.19
 
 ### Added

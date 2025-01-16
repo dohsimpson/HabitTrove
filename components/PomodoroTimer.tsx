@@ -167,13 +167,10 @@ export default function PomodoroTimer() {
     // Play sound
     playSound()
 
-    // update habits
-    if (selectedHabit) {
-      const ret = await completeHabit(selectedHabit)
-      if (ret) {
-        const updatedHabit = ret.updatedHabits.find(h => h.id === selectedHabit.id)
-        // The atom will automatically update with the new completions
-      }
+    // update habits only after focus sessions
+    if (selectedHabit && currentTimer.current.type === 'focus') {
+      await completeHabit(selectedHabit)
+      // The atom will automatically update with the new completions
     }
   }
 
@@ -258,14 +255,13 @@ export default function PomodoroTimer() {
                 </div>
               )}
               <span>{currentTimer.current.type.charAt(0).toUpperCase() + currentTimer.current.type.slice(1)}: {currentLabel}</span>
-              {selectedHabit && (
+              {selectedHabit && selectedHabit.targetCompletions && selectedHabit.targetCompletions > 1 && (
                 <div className="flex justify-center gap-1 mt-2">
                   {(() => {
-                    const total = selectedHabit.targetCompletions || 1
                     // Show up to 7 items, but no more than the target completions
-                    const maxItems = Math.min(7, total)
+                    const maxItems = Math.min(7, selectedHabit.targetCompletions)
                     // Calculate start position to center current completion
-                    const start = Math.max(0, Math.min(todayCompletions - Math.floor(maxItems / 2), total - maxItems))
+                    const start = Math.max(0, Math.min(todayCompletions - Math.floor(maxItems / 2), selectedHabit.targetCompletions - maxItems))
 
                     return Array.from({ length: maxItems }).map((_, i) => {
                       const cycle = start + i
