@@ -4,7 +4,7 @@
 
 ### Added
 
-- PWA support to allow installing app to mobile
+- PWA support to allow installing app to mobile (#39)
 - right click context menu for habits
 - Pomodoro clock
 
