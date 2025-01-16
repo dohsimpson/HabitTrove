@@ -24,6 +24,16 @@ export function useHabits() {
     })
     const target = habit.targetCompletions || 1
 
+    // Check if already completed
+    if (completionsToday >= target) {
+      toast({
+        title: "Already completed",
+        description: `You've already completed this habit today.`,
+        variant: "destructive",
+      })
+      return null
+    }
+
     // Add new completion
     const updatedHabit = {
       ...habit,

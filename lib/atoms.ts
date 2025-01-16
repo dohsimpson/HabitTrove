@@ -1,19 +1,21 @@
 import { atom } from "jotai";
-import { 
+import {
   getDefaultSettings,
   getDefaultHabitsData,
   getDefaultCoinsData,
-  getDefaultWishlistData
+  getDefaultWishlistData,
+  Habit
 } from "./types";
-import { 
-  getTodayInTimezone, 
-  isSameDate, 
+import {
+  getTodayInTimezone,
+  isSameDate,
   t2d,
   calculateCoinsEarnedToday,
   calculateTotalEarned,
   calculateTotalSpent,
   calculateCoinsSpentToday,
-  calculateTransactionsToday
+  calculateTransactionsToday,
+  getCompletionsForToday
 } from "@/lib/utils";
 
 export const settingsAtom = atom(getDefaultSettings());
@@ -53,3 +55,35 @@ export const transactionsTodayAtom = atom((get) => {
   const settings = get(settingsAtom);
   return calculateTransactionsToday(coins.transactions, settings.system.timezone);
 });
+
+/* transient atoms */
+interface PomodoroAtom {
+  show: boolean
+  selectedHabitId: string | null
+  autoStart: boolean
+  minimized: boolean
+}
+
+export const pomodoroAtom = atom<PomodoroAtom>({
+  show: false,
+  selectedHabitId: null,
+  autoStart: true,
+  minimized: false,
+})
+
+// Derived atom for today's completions of selected habit
+export const pomodoroTodayCompletionsAtom = atom((get) => {
+  const pomo = get(pomodoroAtom)
+  const habits = get(habitsAtom)
+  const settings = get(settingsAtom)
+
+  if (!pomo.selectedHabitId) return 0
+
+  const selectedHabit = habits.habits.find(h => h.id === pomo.selectedHabitId)
+  if (!selectedHabit) return 0
+
+  return getCompletionsForToday({
+    habit: selectedHabit,
+    timezone: settings.system.timezone
+  })
+})

@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.1.19
+
+### Added
+
+- PWA support to allow installing app to mobile (#39)
+- right click context menu for habits
+- Pomodoro clock
+
+### Fixed
+
+- disable today's earned SSR (#38)
+
 ## Version 0.1.18
 
 ### Added

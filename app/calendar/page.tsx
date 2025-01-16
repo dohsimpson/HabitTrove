@@ -3,9 +3,7 @@ import HabitCalendar from '@/components/HabitCalendar'
 
 export default function CalendarPage() {
   return (
-    <Layout>
-      <HabitCalendar />
-    </Layout>
+    <HabitCalendar />
   )
 }
 
