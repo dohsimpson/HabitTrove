@@ -74,6 +74,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
