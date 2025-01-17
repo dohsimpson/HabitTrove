@@ -80,16 +80,15 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          tag: v${{ steps.package-version.outputs.VERSION }}
+          VERSION: ${{ steps.package-version.outputs.VERSION }}
         run: |
           # Extract release notes from CHANGELOG.md
-          version=${{ steps.package-version.outputs.VERSION }}
-          notes=$(awk -v version="$version" '
+          notes=$(awk -v version="$VERSION" '
             $0 ~ "## Version " version {flag=1;next}
             $0 ~ "## Version " && flag {exit}
             flag' CHANGELOG.md)
 
-          gh release create "test-release-$tag" \
+          gh release create "test-release-v$VERSION" \
               --repo="$GITHUB_REPOSITORY" \
-              --title="HabitTrove $tag" \
+              --title="HabitTrove v$VERSION" \
               --notes="$notes"
