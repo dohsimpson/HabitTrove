@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       EXISTS: ${{ steps.check-version.outputs.EXISTS }}
+      VERSION: ${{ steps.package-version.outputs.VERSION }}
 
     steps:
       - name: Checkout code
@@ -80,7 +81,7 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          VERSION: ${{ steps.package-version.outputs.VERSION }}
+          VERSION: ${{ needs.build-and-push.outputs.VERSION }}
         run: |
           # Extract release notes from CHANGELOG.md
           notes=$(awk -v version="$VERSION" '
