@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.21
+
+### Added
+
+- auto cut github release for new version
+
 ## Version 0.1.20
 
 ### Changed
