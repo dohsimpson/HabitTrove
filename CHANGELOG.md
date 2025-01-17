@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.1.20
+
+### Changed
+
+- improved UI for habits and wishlist on mobile
+
+### Fixed
+
+- fix pomodoro break timer from triggering completions
+- don't show progress on pomodoro for single completion habit
+
 ## Version 0.1.19
 
 ### Added

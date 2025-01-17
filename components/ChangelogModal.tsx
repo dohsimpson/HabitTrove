@@ -27,7 +27,7 @@ export default function ChangelogModal({ isOpen, onClose }: ChangelogModalProps)
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Changelog</DialogTitle>
+          <DialogTitle></DialogTitle>
         </DialogHeader>
         <div className="prose dark:prose-invert prose-sm max-w-none">
           <ReactMarkdown>{changelog}</ReactMarkdown>

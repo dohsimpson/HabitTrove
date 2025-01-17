@@ -33,7 +33,7 @@ export default function HabitList() {
           <Plus className="mr-2 h-4 w-4" /> Add Habit
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
         {habits.length === 0 ? (
           <div className="col-span-2">
             <EmptyState
