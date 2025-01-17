@@ -158,7 +158,8 @@ export default function PomodoroTimer() {
 
   const handleTimerEnd = async () => {
     setState("stopped")
-    currentTimer.current = currentTimer.current.type === 'focus' ? PomoConfigs.break : PomoConfigs.focus
+    const currentTimerType = currentTimer.current.type
+    currentTimer.current = currentTimerType === 'focus' ? PomoConfigs.break : PomoConfigs.focus
     setTimeLeft(currentTimer.current.duration)
     setCurrentLabel(
       currentTimer.current.labels[Math.floor(Math.random() * currentTimer.current.labels.length)]
@@ -168,7 +169,7 @@ export default function PomodoroTimer() {
     playSound()
 
     // update habits only after focus sessions
-    if (selectedHabit && currentTimer.current.type === 'focus') {
+    if (selectedHabit && currentTimerType === 'focus') {
       await completeHabit(selectedHabit)
       // The atom will automatically update with the new completions
     }
