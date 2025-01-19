@@ -9,8 +9,8 @@ import { cn, isHabitDueToday, getHabitFreq } from '@/lib/utils'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
-import { pomodoroAtom, settingsAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, getCompletedHabitsForDate, getCompletionsForDate } from '@/lib/utils'
+import { pomodoroAtom, settingsAtom, completedHabitsMapAtom } from '@/lib/atoms'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -33,16 +33,13 @@ export default function DailyOverview({
   const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
   const [dailyHabits, setDailyHabits] = useState<Habit[]>([])
+  const [completedHabitsMap] = useAtom(completedHabitsMapAtom)
   const today = getTodayInTimezone(settings.system.timezone)
-  const todayCompletions = getCompletedHabitsForDate({
-    habits,
-    date: getNow({ timezone: settings.system.timezone }),
-    timezone: settings.system.timezone
-  })
+  const todayCompletions = completedHabitsMap.get(today) || []
 
   useEffect(() => {
     // Filter habits that are due today based on their recurrence rule
-    const filteredHabits = habits.filter(habit => isHabitDueToday(habit, settings.system.timezone))
+    const filteredHabits = habits.filter(habit => isHabitDueToday({ habit, timezone: settings.system.timezone }))
     setDailyHabits(filteredHabits)
   }, [habits])
 
@@ -78,11 +75,8 @@ export default function DailyOverview({
                 <h3 className="font-semibold">Daily Habits</h3>
                 <Badge variant="secondary">
                   {dailyHabits.filter(habit => {
-                    const completions = getCompletionsForDate({
-                      habit,
-                      date: today,
-                      timezone: settings.system.timezone
-                    });
+                    const completions = (completedHabitsMap.get(today) || [])
+                      .filter(h => h.id === habit.id).length;
                     return completions >= (habit.targetCompletions || 1);
                   }).length}/{dailyHabits.length} Completed
                 </Badge>

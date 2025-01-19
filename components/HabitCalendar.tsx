@@ -1,29 +1,42 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { d2s, getNow, t2d, getCompletedHabitsForDate } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Check, Circle, CircleCheck } from 'lucide-react'
+import { d2s, getNow, t2d, getCompletedHabitsForDate, isHabitDue, getISODate } from '@/lib/utils'
 import { useAtom } from 'jotai'
-import { habitsAtom, settingsAtom } from '@/lib/atoms'
+import { useHabits } from '@/hooks/useHabits'
+import { habitsAtom, settingsAtom, completedHabitsMapAtom } from '@/lib/atoms'
 import { DateTime } from 'luxon'
 import Linkify from './linkify'
 import { Habit } from '@/lib/types'
 
 export default function HabitCalendar() {
+  const { completePastHabit } = useHabits()
+
+  const handleCompletePastHabit = useCallback(async (habit: Habit, date: DateTime) => {
+    try {
+      await completePastHabit(habit, date)
+    } catch (error) {
+      console.error('Error completing past habit:', error)
+    }
+  }, [completePastHabit])
   const [settings] = useAtom(settingsAtom)
   const [selectedDate, setSelectedDate] = useState<DateTime>(getNow({ timezone: settings.system.timezone }))
   const [habitsData] = useAtom(habitsAtom)
   const habits = habitsData.habits
 
-  const getHabitsForDate = (date: Date) => {
-    return getCompletedHabitsForDate({
-      habits,
-      date: DateTime.fromJSDate(date),
-      timezone: settings.system.timezone
-    })
-  }
+  const [completedHabitsMap] = useAtom(completedHabitsMapAtom)
+
+  // Get completed dates for calendar modifiers
+  const completedDates = useMemo(() => {
+    return new Set(Array.from(completedHabitsMap.keys()).map(date =>
+      getISODate({ dateTime: DateTime.fromISO(date), timezone: settings.system.timezone })
+    ))
+  }, [completedHabitsMap, settings.system.timezone])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -40,7 +53,12 @@ export default function HabitCalendar() {
               onSelect={(e) => e && setSelectedDate(DateTime.fromJSDate(e))}
               className="rounded-md border"
               modifiers={{
-                completed: (date) => getHabitsForDate(date).length > 0,
+                completed: (date) => completedDates.has(
+                  getISODate({
+                    dateTime: DateTime.fromJSDate(date),
+                    timezone: settings.system.timezone
+                  })!
+                )
               }}
               modifiersClassNames={{
                 completed: 'bg-green-100 text-green-800 font-bold',
@@ -61,21 +79,57 @@ export default function HabitCalendar() {
           <CardContent>
             {selectedDate && (
               <ul className="space-y-2">
-                {habits.map((habit) => {
-                  const isCompleted = getHabitsForDate(selectedDate.toJSDate()).some((h: Habit) => h.id === habit.id)
-                  return (
-                    <li key={habit.id} className="flex items-center justify-between">
-                      <span>
-                        <Linkify>{habit.name}</Linkify>
-                      </span>
-                      {isCompleted ? (
-                        <Badge variant="default">Completed</Badge>
-                      ) : (
-                        <Badge variant="secondary">Not Completed</Badge>
-                      )}
-                    </li>
-                  )
-                })}
+                {habits
+                  .filter(habit => isHabitDue({
+                    habit,
+                    timezone: settings.system.timezone,
+                    date: selectedDate
+                  }))
+                  .map((habit) => {
+                    const habitsForDate = completedHabitsMap.get(getISODate({ dateTime: selectedDate, timezone: settings.system.timezone })) || []
+                    const completionsToday = habitsForDate.filter((h: Habit) => h.id === habit.id).length
+                    const isCompleted = completionsToday >= (habit.targetCompletions || 1)
+                    return (
+                      <li key={habit.id} className="flex items-center justify-between gap-2">
+                        <span>
+                          <Linkify>{habit.name}</Linkify>
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2">
+                            {habit.targetCompletions && (
+                              <span className="text-sm text-muted-foreground">
+                                {completionsToday}/{habit.targetCompletions}
+                              </span>
+                            )}
+                            <button
+                              onClick={() => handleCompletePastHabit(habit, selectedDate)}
+                              disabled={isCompleted}
+                              className="relative h-4 w-4 hover:opacity-70 transition-opacity disabled:opacity-100"
+                            >
+                              {isCompleted ? (
+                                <CircleCheck className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <div className="relative h-4 w-4">
+                                  <Circle className="absolute h-4 w-4 text-muted-foreground" />
+                                  <div
+                                    className="absolute h-4 w-4 rounded-full overflow-hidden"
+                                    style={{
+                                      background: `conic-gradient(
+                                        currentColor ${(completionsToday / (habit.targetCompletions ?? 1)) * 360}deg,
+                                        transparent ${(completionsToday / (habit.targetCompletions ?? 1)) * 360}deg 360deg
+                                      )`,
+                                      mask: 'radial-gradient(transparent 50%, black 51%)',
+                                      WebkitMask: 'radial-gradient(transparent 50%, black 51%)'
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    )
+                  })}
               </ul>
             )}
           </CardContent>

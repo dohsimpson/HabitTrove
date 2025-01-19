@@ -1,11 +1,10 @@
 import { Habit } from '@/lib/types'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
+import { settingsAtom, pomodoroAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
-import { Coins, Edit, Trash2, Check, Undo2, MoreVertical } from 'lucide-react'
+import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +14,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useEffect, useState } from 'react'
 import { useHabits } from '@/hooks/useHabits'
-import { RRule } from 'rrule'
 import { INITIAL_RECURRENCE_RULE } from '@/lib/constants'
 
 interface HabitItemProps {
@@ -27,7 +25,7 @@ interface HabitItemProps {
 export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
-  const today = getTodayInTimezone(settings.system.timezone)
+  const [_, setPomo] = useAtom(pomodoroAtom)
   const completionsToday = habit.completions?.filter(completion =>
     isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
   ).length || 0
@@ -143,6 +141,16 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => {
+                setPomo((prev) => ({
+                  ...prev,
+                  show: true,
+                  selectedHabitId: habit.id
+                }))
+              }}>
+                <Timer className="mr-2 h-4 w-4" />
+                <span>Start Pomodoro</span>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={onEdit} className="sm:hidden">
                 <Edit className="mr-2 h-4 w-4" />
                 Edit

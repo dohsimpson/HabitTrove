@@ -12,7 +12,11 @@ export function cn(...inputs: ClassValue[]) {
 // get today's date string for timezone
 export function getTodayInTimezone(timezone: string): string {
   const now = getNow({ timezone });
-  return d2s({ dateTime: now, format: 'yyyy-MM-dd', timezone });
+  return getISODate({ dateTime: now, timezone });
+}
+
+export function getISODate({ dateTime, timezone }: { dateTime: DateTime, timezone: string }): string {
+  return dateTime.setZone(timezone).toISODate()!;
 }
 
 // get datetime object of now
@@ -200,24 +204,43 @@ export function serializeRRule(rrule: RRule) {
   return rrule.toString()
 }
 
-export function isHabitDueToday(habit: Habit, timezone: string): boolean {
-  const startOfDay = DateTime.now().setZone(timezone).startOf('day')
-  const endOfDay = DateTime.now().setZone(timezone).endOf('day')
+export function isHabitDue({
+  habit,
+  timezone,
+  date
+}: {
+  habit: Habit
+  timezone: string
+  date: DateTime
+}): boolean {
+  const startOfDay = date.setZone(timezone).startOf('day')
+  const endOfDay = date.setZone(timezone).endOf('day')
 
   const ruleText = habit.frequency
   const rrule = parseRRule(ruleText)
 
-  rrule.origOptions.tzid = timezone // set the target timezone, rrule will do calculation in this timezone
+  rrule.origOptions.tzid = timezone
   rrule.options.tzid = rrule.origOptions.tzid
-  rrule.origOptions.dtstart = datetime(startOfDay.year, startOfDay.month, startOfDay.day, startOfDay.hour, startOfDay.minute, startOfDay.second) // set the start time to 00:00:00 of timezone's today
+  rrule.origOptions.dtstart = datetime(startOfDay.year, startOfDay.month, startOfDay.day, startOfDay.hour, startOfDay.minute, startOfDay.second)
   rrule.options.dtstart = rrule.origOptions.dtstart
   rrule.origOptions.count = 1
   rrule.options.count = rrule.origOptions.count
 
-  const matches = rrule.all() // this is given as local time, we need to convert back to timezone time
+  const matches = rrule.all()
   if (!matches.length) return false
-  const t = DateTime.fromJSDate(matches[0]).toUTC().setZone('local', { keepLocalTime: true }).setZone(timezone) // this is the formula to convert local time matches[0] to tz time
+  const t = DateTime.fromJSDate(matches[0]).toUTC().setZone('local', { keepLocalTime: true }).setZone(timezone)
   return startOfDay <= t && t <= endOfDay
+}
+
+export function isHabitDueToday({
+  habit,
+  timezone
+}: {
+  habit: Habit
+  timezone: string
+}): boolean {
+  const today = getNow({ timezone })
+  return isHabitDue({ habit, timezone, date: today })
 }
 
 export function getHabitFreq(habit: Habit): Freq {

@@ -15,7 +15,8 @@ import {
   calculateTotalSpent,
   calculateCoinsSpentToday,
   calculateTransactionsToday,
-  getCompletionsForToday
+  getCompletionsForToday,
+  getISODate
 } from "@/lib/utils";
 
 export const settingsAtom = atom(getDefaultSettings());
@@ -72,6 +73,23 @@ export const pomodoroAtom = atom<PomodoroAtom>({
 })
 
 // Derived atom for today's completions of selected habit
+export const completedHabitsMapAtom = atom((get) => {
+  const habits = get(habitsAtom).habits
+  const timezone = get(settingsAtom).system.timezone
+
+  const map = new Map<string, Habit[]>()
+  habits.forEach(habit => {
+    habit.completions.forEach(completion => {
+      const dateKey = getISODate({ dateTime: t2d({ timestamp: completion, timezone }), timezone })
+      if (!map.has(dateKey)) {
+        map.set(dateKey, [])
+      }
+      map.get(dateKey)!.push(habit)
+    })
+  })
+  return map
+})
+
 export const pomodoroTodayCompletionsAtom = atom((get) => {
   const pomo = get(pomodoroAtom)
   const habits = get(habitsAtom)
@@ -79,7 +97,7 @@ export const pomodoroTodayCompletionsAtom = atom((get) => {
 
   if (!pomo.selectedHabitId) return 0
 
-  const selectedHabit = habits.habits.find(h => h.id === pomo.selectedHabitId)
+  const selectedHabit = habits.habits.find(h => h.id === pomo.selectedHabitId!)
   if (!selectedHabit) return 0
 
   return getCompletionsForToday({

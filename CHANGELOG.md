@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.1.22
+
+### Added
+
+- start pomodoro from habit view
+- complete past habit in calendar view (#32)
+
 ## Version 0.1.21
 
 ### Added

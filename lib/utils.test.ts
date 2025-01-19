@@ -14,7 +14,8 @@ import {
   calculateTotalEarned,
   calculateTotalSpent,
   calculateCoinsSpentToday,
-  isHabitDueToday
+  isHabitDueToday,
+  isHabitDue
 } from './utils'
 import { CoinTransaction } from './types'
 import { DateTime } from "luxon";
@@ -277,21 +278,21 @@ describe('isHabitDueToday', () => {
     DateTime.now = () => mockDate
 
     const habit = testHabit('FREQ=DAILY')
-    expect(isHabitDueToday(habit, 'UTC')).toBe(true)
+    expect(isHabitDueToday({ habit, timezone: 'UTC' })).toBe(true)
   })
 
   test('should return true for weekly habit on correct day', () => {
     const habit = testHabit('FREQ=WEEKLY;BYDAY=MO') // Monday
     const mockDate = DateTime.fromISO('2024-01-01T00:00:00Z') as DateTime<true> // Monday
     DateTime.now = () => mockDate
-    expect(isHabitDueToday(habit, 'UTC')).toBe(true)
+    expect(isHabitDueToday({ habit, timezone: 'UTC' })).toBe(true)
   })
 
   test('should return false for weekly habit on wrong day', () => {
     const habit = testHabit('FREQ=WEEKLY;BYDAY=MO') // Monday
     const mockDate = DateTime.fromISO('2024-01-02T00:00:00Z') as DateTime<true> // Tuesday
     DateTime.now = () => mockDate
-    expect(isHabitDueToday(habit, 'UTC')).toBe(false)
+    expect(isHabitDueToday({ habit, timezone: 'UTC' })).toBe(false)
   })
 
   test('should handle timezones correctly', () => {
@@ -339,7 +340,7 @@ describe('isHabitDueToday', () => {
     testCases.forEach(({ time, timezone, expected }) => {
       const mockDate = DateTime.fromISO(time) as DateTime<true>
       DateTime.now = () => mockDate
-      expect(isHabitDueToday(habit, timezone)).toBe(expected)
+      expect(isHabitDueToday({ habit, timezone })).toBe(expected)
     })
   })
 
@@ -368,7 +369,7 @@ describe('isHabitDueToday', () => {
     testCases.forEach(({ time, timezone, expected }) => {
       const mockDate = DateTime.fromISO(time) as DateTime<true>
       DateTime.now = () => mockDate
-      expect(isHabitDueToday(habit, timezone)).toBe(expected)
+      expect(isHabitDueToday({ habit, timezone })).toBe(expected)
     })
   })
 
@@ -396,7 +397,7 @@ describe('isHabitDueToday', () => {
     testCases.forEach(({ time, timezone, expected }) => {
       const mockDate = DateTime.fromISO(time) as DateTime<true>
       DateTime.now = () => mockDate
-      expect(isHabitDueToday(habit, timezone)).toBe(expected)
+      expect(isHabitDueToday({ habit, timezone })).toBe(expected)
     })
   })
 
@@ -424,7 +425,7 @@ describe('isHabitDueToday', () => {
     testCases.forEach(({ time, timezone, expected }) => {
       const mockDate = DateTime.fromISO(time) as DateTime<true>
       DateTime.now = () => mockDate
-      expect(isHabitDueToday(habit, timezone)).toBe(expected)
+      expect(isHabitDueToday({ habit, timezone })).toBe(expected)
     })
   })
 
@@ -432,21 +433,21 @@ describe('isHabitDueToday', () => {
     const habit = testHabit('FREQ=MONTHLY;BYMONTHDAY=1')
     const mockDate = DateTime.fromISO('2024-01-01T00:00:00Z') as DateTime<true> // 1st of month
     DateTime.now = () => mockDate
-    expect(isHabitDueToday(habit, 'UTC')).toBe(true)
+    expect(isHabitDueToday({ habit, timezone: 'UTC' })).toBe(true)
   })
 
   test('should handle yearly recurrence', () => {
     const habit = testHabit('FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=1')
     const mockDate = DateTime.fromISO('2024-01-01T00:00:00Z') as DateTime<true> // Jan 1st
     DateTime.now = () => mockDate
-    expect(isHabitDueToday(habit, 'UTC')).toBe(true)
+    expect(isHabitDueToday({ habit, timezone: 'UTC' })).toBe(true)
   })
 
   test('should handle complex recurrence rules', () => {
     const habit = testHabit('FREQ=WEEKLY;BYDAY=MO,WE,FR')
     const mockDate = DateTime.fromISO('2024-01-01T00:00:00Z') as DateTime<true> // Monday
     DateTime.now = () => mockDate
-    expect(isHabitDueToday(habit, 'UTC')).toBe(true)
+    expect(isHabitDueToday({ habit, timezone: 'UTC' })).toBe(true)
   })
 
   test('should return false for invalid recurrence rule', () => {
@@ -455,8 +456,122 @@ describe('isHabitDueToday', () => {
     const consoleSpy = spyOn(console, 'error').mockImplementation(() => { })
 
     // Expect the function to throw an error
-    expect(() => isHabitDueToday(habit, 'UTC')).toThrow()
+    expect(() => isHabitDueToday({ habit, timezone: 'UTC' })).toThrow()
 
+    consoleSpy.mockRestore()
+  })
+})
+
+describe('isHabitDue', () => {
+  const testHabit = (frequency: string): Habit => ({
+    id: 'test-habit',
+    name: 'Test Habit',
+    description: '',
+    frequency,
+    coinReward: 10,
+    completions: []
+  })
+
+  test('should return true for daily habit on any date', () => {
+    const habit = testHabit('FREQ=DAILY')
+    const date = DateTime.fromISO('2024-01-01T12:34:56Z')
+    expect(isHabitDue({ habit, timezone: 'UTC', date })).toBe(true)
+  })
+
+  test('should return true for weekly habit on correct day', () => {
+    const habit = testHabit('FREQ=WEEKLY;BYDAY=MO') // Monday
+    const date = DateTime.fromISO('2024-01-01T00:00:00Z') // Monday
+    expect(isHabitDue({ habit, timezone: 'UTC', date })).toBe(true)
+  })
+
+  test('should return false for weekly habit on wrong day', () => {
+    const habit = testHabit('FREQ=WEEKLY;BYDAY=MO') // Monday
+    const date = DateTime.fromISO('2024-01-02T00:00:00Z') // Tuesday
+    expect(isHabitDue({ habit, timezone: 'UTC', date })).toBe(false)
+  })
+
+  test('should handle past dates correctly', () => {
+    const habit = testHabit('FREQ=WEEKLY;BYDAY=MO') // Monday
+    const pastDate = DateTime.fromISO('2023-12-25T00:00:00Z') // Christmas (Monday)
+    expect(isHabitDue({ habit, timezone: 'UTC', date: pastDate })).toBe(true)
+  })
+
+  test('should handle future dates correctly', () => {
+    const habit = testHabit('FREQ=WEEKLY;BYDAY=MO') // Monday
+    const futureDate = DateTime.fromISO('2024-12-30T00:00:00Z') // Monday
+    expect(isHabitDue({ habit, timezone: 'UTC', date: futureDate })).toBe(true)
+  })
+
+  test('should handle timezone transitions correctly', () => {
+    const habit = testHabit('FREQ=DAILY')
+    const testCases = [
+      {
+        date: '2024-01-01T04:00:00Z', // UTC time that's still previous day in New York
+        timezone: 'America/New_York',
+        expected: true
+      },
+      {
+        date: '2024-01-01T23:00:00Z', // Just before midnight in UTC
+        timezone: 'Asia/Tokyo', // Already next day in Tokyo
+        expected: true
+      },
+      {
+        date: '2024-01-01T01:00:00Z', // Just after midnight in UTC
+        timezone: 'Pacific/Honolulu', // Still previous day in Hawaii
+        expected: true
+      }
+    ]
+
+    testCases.forEach(({ date, timezone, expected }) => {
+      const dateObj = DateTime.fromISO(date)
+      expect(isHabitDue({ habit, timezone, date: dateObj })).toBe(expected)
+    })
+  })
+
+  test('should handle daylight saving time transitions', () => {
+    const habit = testHabit('FREQ=DAILY')
+    const testCases = [
+      {
+        date: '2024-03-10T02:30:00Z', // During DST transition in US
+        timezone: 'America/New_York',
+        expected: true
+      },
+      {
+        date: '2024-10-27T01:30:00Z', // During DST transition in Europe
+        timezone: 'Europe/London',
+        expected: true
+      }
+    ]
+
+    testCases.forEach(({ date, timezone, expected }) => {
+      const dateObj = DateTime.fromISO(date)
+      expect(isHabitDue({ habit, timezone, date: dateObj })).toBe(expected)
+    })
+  })
+
+  test('should handle monthly recurrence', () => {
+    const habit = testHabit('FREQ=MONTHLY;BYMONTHDAY=1')
+    const date = DateTime.fromISO('2024-01-01T00:00:00Z') // 1st of month
+    expect(isHabitDue({ habit, timezone: 'UTC', date })).toBe(true)
+  })
+
+  test('should handle yearly recurrence', () => {
+    const habit = testHabit('FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=1')
+    const date = DateTime.fromISO('2024-01-01T00:00:00Z') // Jan 1st
+    expect(isHabitDue({ habit, timezone: 'UTC', date })).toBe(true)
+  })
+
+  test('should handle complex recurrence rules', () => {
+    const habit = testHabit('FREQ=WEEKLY;BYDAY=MO,WE,FR')
+    const date = DateTime.fromISO('2024-01-01T00:00:00Z') // Monday
+    expect(isHabitDue({ habit, timezone: 'UTC', date })).toBe(true)
+  })
+
+  test('should return false for invalid recurrence rule', () => {
+    const habit = testHabit('INVALID_RRULE')
+    const date = DateTime.fromISO('2024-01-01T00:00:00Z')
+    const consoleSpy = spyOn(console, 'error').mockImplementation(() => { })
+    expect(() => isHabitDue({ habit, timezone: 'UTC', date })).toThrow()
     consoleSpy.mockRestore()
   })
 })
