@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { DynamicTimeNoSSR } from '@/components/DynamicTimeNoSSR'
 import { useAtom } from 'jotai'
 import { settingsAtom } from '@/lib/atoms'
-import { Settings } from '@/lib/types'
+import { Settings, WeekDay } from '@/lib/types'
 import { saveSettings, uploadAvatar } from '../actions/data'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -94,7 +94,7 @@ export default function SettingsPage() {
                       system: { ...settings.system, timezone: e.target.value }
                     })
                   }
-                  className="w-[200px] rounded-md border border-input bg-background px-3 py-2"
+                  className="w-[200px] rounded-md border border-input bg-background px-3 py-2 mb-4"
                 >
                   {Intl.supportedValuesOf('timeZone').map((tz) => (
                     <option key={tz} value={tz}>
@@ -103,6 +103,41 @@ export default function SettingsPage() {
                   ))}
                 </select>
                 <DynamicTimeNoSSR />
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="timezone">Week Start Day</Label>
+                <div className="text-sm text-muted-foreground">
+                  Select your preferred first day of the week
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <select
+                  id="weekStartDay"
+                  value={settings.system.weekStartDay}
+                  onChange={(e) =>
+                    updateSettings({
+                      ...settings,
+                      system: { ...settings.system, weekStartDay: Number(e.target.value) as WeekDay }
+                    })
+                  }
+                  className="w-[200px] rounded-md border border-input bg-background px-3 py-2"
+                >
+                  {([
+                    ['sunday', 0],
+                    ['monday', 1],
+                    ['tuesday', 2],
+                    ['wednesday', 3],
+                    ['thursday', 4],
+                    ['friday', 5],
+                    ['saturday', 6]
+                  ] as Array<[string, WeekDay]>).map(([dayName, dayNumber]) => (
+                    <option key={dayNumber} value={dayNumber}>
+                      {dayName.charAt(0).toUpperCase() + dayName.slice(1)}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </CardContent>
@@ -161,7 +196,7 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div >
     </>
   )
 }

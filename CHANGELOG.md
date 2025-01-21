@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.23
+
+### Added
+
+- settings to adjust week start day for calendar (#45)
+
 ## Version 0.1.22
 
 ### Added

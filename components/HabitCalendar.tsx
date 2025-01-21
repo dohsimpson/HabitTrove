@@ -51,6 +51,7 @@ export default function HabitCalendar() {
               mode="single"
               selected={selectedDate.toJSDate()}
               onSelect={(e) => e && setSelectedDate(DateTime.fromJSDate(e))}
+              weekStartsOn={settings.system.weekStartDay}
               className="rounded-md border"
               modifiers={{
                 completed: (date) => completedDates.has(

@@ -64,7 +64,8 @@ export const getDefaultSettings = (): Settings => ({
     useGrouping: true,
   },
   system: {
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    weekStartDay: 1 // Monday
   },
   profile: {}
 });
@@ -85,8 +86,11 @@ export interface UISettings {
   useGrouping: boolean;
 }
 
+export type WeekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday, 6 = Saturday
+
 export interface SystemSettings {
   timezone: string;
+  weekStartDay: WeekDay;
 }
 
 export interface ProfileSettings {
