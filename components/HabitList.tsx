@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus, ListTodo } from 'lucide-react'
 import { useAtom } from 'jotai'
-import { habitsAtom, settingsAtom } from '@/lib/atoms'
+import { habitsAtom, settingsAtom, browserSettingsAtom } from '@/lib/atoms'
 import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
 import HabitItem from './HabitItem'
@@ -11,11 +11,16 @@ import AddEditHabitModal from './AddEditHabitModal'
 import ConfirmDialog from './ConfirmDialog'
 import { Habit } from '@/lib/types'
 import { useHabits } from '@/hooks/useHabits'
+import { HabitIcon, TaskIcon } from '@/lib/constants'
 
 export default function HabitList() {
   const { saveHabit, deleteHabit } = useHabits()
   const [habitsData, setHabitsData] = useAtom(habitsAtom)
-  const habits = habitsData.habits
+  const [browserSettings] = useAtom(browserSettingsAtom)
+  const isTasksView = browserSettings.viewType === 'tasks'
+  const habits = habitsData.habits.filter(habit =>
+    isTasksView ? habit.isTask : !habit.isTask
+  )
   const [settings] = useAtom(settingsAtom)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
@@ -28,18 +33,20 @@ export default function HabitList() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">My Habits</h1>
+        <h1 className="text-3xl font-bold">
+          {isTasksView ? 'My Tasks' : 'My Habits'}
+        </h1>
         <Button onClick={() => setIsModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Habit
+          <Plus className="mr-2 h-4 w-4" /> {isTasksView ? 'Add Task' : 'Add Habit'}
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
         {habits.length === 0 ? (
           <div className="col-span-2">
             <EmptyState
-              icon={ListTodo}
-              title="No habits yet"
-              description="Create your first habit to start tracking your progress"
+              icon={isTasksView ? TaskIcon : HabitIcon}
+              title={isTasksView ? "No tasks yet" : "No habits yet"}
+              description={isTasksView ? "Create your first task to start tracking your progress" : "Create your first habit to start tracking your progress"}
             />
           </div>
         ) : (
@@ -79,8 +86,8 @@ export default function HabitList() {
           }
           setDeleteConfirmation({ isOpen: false, habitId: null })
         }}
-        title="Delete Habit"
-        message="Are you sure you want to delete this habit? This action cannot be undone."
+        title={isTasksView ? "Delete Task" : "Delete Habit"}
+        message={isTasksView ? "Are you sure you want to delete this task? This action cannot be undone." : "Are you sure you want to delete this habit? This action cannot be undone."}
         confirmText="Delete"
       />
     </div>

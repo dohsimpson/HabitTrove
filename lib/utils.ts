@@ -1,9 +1,10 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { DateTime } from "luxon"
+import { DateTime, DateTimeFormatOptions } from "luxon"
 import { datetime, RRule } from 'rrule'
 import { Freq, Habit, CoinTransaction } from '@/lib/types'
-import { INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from "./constants"
+import { DUE_MAP, INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from "./constants"
+import * as chrono from 'chrono-node';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -41,9 +42,13 @@ export function d2t({ dateTime, timezone = 'utc' }: { dateTime: DateTime, timezo
 }
 
 // convert datetime object to string, mostly for display
-export function d2s({ dateTime, format, timezone }: { dateTime: DateTime, format?: string, timezone: string }) {
+export function d2s({ dateTime, format, timezone }: { dateTime: DateTime, format?: string | DateTimeFormatOptions, timezone: string }) {
   if (format) {
-    return dateTime.setZone(timezone).toFormat(format);
+    if (typeof format === 'string') {
+      return dateTime.setZone(timezone).toFormat(format);
+    } else {
+      return dateTime.setZone(timezone).toLocaleString(format);
+    }
   }
   return dateTime.setZone(timezone).toLocaleString(DateTime.DATETIME_MED);
 }
@@ -204,6 +209,17 @@ export function serializeRRule(rrule: RRule) {
   return rrule.toString()
 }
 
+export function parseNaturalLanguageDate({ text, timezone }: { text: string, timezone: string }) {
+  if (DUE_MAP[text]) {
+    text = DUE_MAP[text]
+  }
+  const now = getNow({ timezone })
+  const due = chrono.parseDate(text, { instant: now.toJSDate(), timezone })
+  if (!due) throw Error('invalid rule')
+  // return d2s({ dateTime: DateTime.fromJSDate(due), timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })
+  return DateTime.fromJSDate(due).setZone(timezone)
+}
+
 export function isHabitDue({
   habit,
   timezone,
@@ -213,6 +229,11 @@ export function isHabitDue({
   timezone: string
   date: DateTime
 }): boolean {
+  if (habit.isTask) {
+    // For tasks, frequency is stored as a UTC ISO timestamp
+    const taskDueDate = t2d({ timestamp: habit.frequency, timezone })
+    return isSameDate(taskDueDate, date);
+  }
   const startOfDay = date.setZone(timezone).startOf('day')
   const endOfDay = date.setZone(timezone).endOf('day')
 
@@ -244,6 +265,10 @@ export function isHabitDueToday({
 }
 
 export function getHabitFreq(habit: Habit): Freq {
+  if (habit.isTask) {
+    // don't support recurring task yet
+    return 'daily'
+  }
   const rrule = parseRRule(habit.frequency)
   const freq = rrule.origOptions.freq
   switch (freq) {

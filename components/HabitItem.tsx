@@ -1,7 +1,7 @@
 import { Habit } from '@/lib/types'
 import { useAtom } from 'jotai'
-import { settingsAtom, pomodoroAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule } from '@/lib/utils'
+import { settingsAtom, pomodoroAtom, browserSettingsAtom } from '@/lib/atoms'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule, d2s } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer } from 'lucide-react'
@@ -15,6 +15,7 @@ import {
 import { useEffect, useState } from 'react'
 import { useHabits } from '@/hooks/useHabits'
 import { INITIAL_RECURRENCE_RULE } from '@/lib/constants'
+import { DateTime } from 'luxon'
 
 interface HabitItemProps {
   habit: Habit
@@ -32,6 +33,9 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const target = habit.targetCompletions || 1
   const isCompletedToday = completionsToday >= target
   const [isHighlighted, setIsHighlighted] = useState(false)
+  const [browserSettings] = useAtom(browserSettingsAtom)
+  const isTasksView = browserSettings.viewType === 'tasks'
+  const isRecurRule = !isTasksView
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -66,7 +70,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
         )}
       </CardHeader>
       <CardContent className="flex-1">
-        <p className="text-sm text-gray-500">Frequency: {parseRRule(habit.frequency || INITIAL_RECURRENCE_RULE).toText()}</p>
+        <p className="text-sm text-gray-500">When: {isRecurRule ? parseRRule(habit.frequency || INITIAL_RECURRENCE_RULE).toText() : d2s({ dateTime: t2d({ timestamp: habit.frequency, timezone: settings.system.timezone }), timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })}</p>
         <div className="flex items-center mt-2">
           <Coins className="h-4 w-4 text-yellow-400 mr-1" />
           <span className="text-sm font-medium">{habit.coinReward} coins per completion</span>

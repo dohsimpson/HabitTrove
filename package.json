@@ -1,6 +1,6 @@
 {
   "name": "habittrove",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -33,6 +33,7 @@
     "@types/canvas-confetti": "^1.9.0",
     "@uiw/react-heat-map": "^2.3.2",
     "canvas-confetti": "^1.9.3",
+    "chrono-node": "^2.7.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",

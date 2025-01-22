@@ -51,12 +51,12 @@ export function useHabits() {
     // Check if we've now reached the target
     const isTargetReached = completionsToday + 1 === target
     if (isTargetReached) {
-      const updatedCoins = await addCoins(
-        habit.coinReward,
-        `Completed habit: ${habit.name}`,
-        'HABIT_COMPLETION',
-        habit.id
-      )
+      const updatedCoins = await addCoins({
+        amount: habit.coinReward,
+        description: `Completed habit: ${habit.name}`,
+        type: habit.isTask ? 'TASK_COMPLETION' : 'HABIT_COMPLETION',
+        relatedItemId: habit.id,
+      })
       setCoins(updatedCoins)
     }
 
@@ -105,12 +105,12 @@ export function useHabits() {
       // If we were at the target, remove the coins
       const target = habit.targetCompletions || 1
       if (todayCompletions.length === target) {
-        const updatedCoins = await removeCoins(
-          habit.coinReward,
-          `Undid habit completion: ${habit.name}`,
-          'HABIT_UNDO',
-          habit.id
-        )
+        const updatedCoins = await removeCoins({
+          amount: habit.coinReward,
+          description: `Undid habit completion: ${habit.name}`,
+          type: habit.isTask ? 'TASK_UNDO' : 'HABIT_UNDO',
+          relatedItemId: habit.id,
+        })
         setCoins(updatedCoins)
       }
 
@@ -205,12 +205,12 @@ export function useHabits() {
     // Check if we've now reached the target
     const isTargetReached = completionsOnDate + 1 === target
     if (isTargetReached) {
-      const updatedCoins = await addCoins(
-        habit.coinReward,
-        `Completed habit: ${habit.name} on ${d2s({ dateTime: date, timezone, format: 'yyyy-MM-dd' })}`,
-        'HABIT_COMPLETION',
-        habit.id
-      )
+      const updatedCoins = await addCoins({
+        amount: habit.coinReward,
+        description: `Completed habit: ${habit.name} on ${d2s({ dateTime: date, timezone, format: 'yyyy-MM-dd' })}`,
+        type: habit.isTask ? 'TASK_COMPLETION' : 'HABIT_COMPLETION',
+        relatedItemId: habit.id,
+      })
       setCoins(updatedCoins)
     }
 

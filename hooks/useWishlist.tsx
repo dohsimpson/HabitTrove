@@ -33,12 +33,12 @@ export function useWishlist() {
 
   const redeemWishlistItem = async (item: WishlistItemType) => {
     if (balance >= item.coinCost) {
-      const data = await removeCoins(
-        item.coinCost,
-        `Redeemed reward: ${item.name}`,
-        'WISH_REDEMPTION',
-        item.id
-      )
+      const data = await removeCoins({
+        amount: item.coinCost,
+        description: `Redeemed reward: ${item.name}`,
+        type: 'WISH_REDEMPTION',
+        relatedItemId: item.id
+      })
       setCoins(data)
 
       // Randomly choose a celebration effect

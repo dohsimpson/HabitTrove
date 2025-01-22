@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAtom } from 'jotai'
-import { coinsAtom, settingsAtom } from '@/lib/atoms'
+import { coinsAtom, settingsAtom, browserSettingsAtom } from '@/lib/atoms'
 import { useCoins } from '@/hooks/useCoins'
 import { FormattedNumber } from '@/components/FormattedNumber'
 import { Bell, Menu, Settings, User, Info, Coins } from 'lucide-react'
@@ -29,6 +29,8 @@ export default function Header({ className }: HeaderProps) {
   const [showAbout, setShowAbout] = useState(false)
   const [settings] = useAtom(settingsAtom)
   const [coins] = useAtom(coinsAtom)
+  const [browserSettings] = useAtom(browserSettingsAtom)
+  const isTasksView = browserSettings.viewType === 'tasks'
   return (
     <>
       <header className={`border-b bg-white dark:bg-gray-800 shadow-sm ${className || ''}`}>

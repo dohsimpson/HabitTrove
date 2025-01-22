@@ -6,6 +6,7 @@ export type Habit = {
   coinReward: number
   targetCompletions?: number // Optional field, default to 1
   completions: string[] // Array of UTC ISO date strings
+  isTask?: boolean // mark the habit as a task
 }
 
 
@@ -18,7 +19,7 @@ export type WishlistItemType = {
   coinCost: number
 }
 
-export type TransactionType = 'HABIT_COMPLETION' | 'HABIT_UNDO' | 'WISH_REDEMPTION' | 'MANUAL_ADJUSTMENT';
+export type TransactionType = 'HABIT_COMPLETION' | 'HABIT_UNDO' | 'WISH_REDEMPTION' | 'MANUAL_ADJUSTMENT' | 'TASK_COMPLETION' | 'TASK_UNDO';
 
 export interface CoinTransaction {
   id: string;

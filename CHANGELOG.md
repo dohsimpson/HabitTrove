@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.25
+
+### Added
+
+- added support for tasks (#41)
+
 ## Version 0.1.24
 
 ### Fixed

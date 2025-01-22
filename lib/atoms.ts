@@ -19,6 +19,15 @@ import {
   getCompletionsForToday,
   getISODate
 } from "@/lib/utils";
+import { atomWithStorage } from "jotai/utils";
+
+export interface BrowserSettings {
+  viewType: ViewType
+}
+
+export const browserSettingsAtom = atomWithStorage('browserSettings', {
+  viewType: 'habits'
+} as BrowserSettings)
 
 export const settingsAtom = atom(getDefaultSettings());
 export const habitsAtom = atom(getDefaultHabitsData());
@@ -119,12 +128,4 @@ export const pomodoroTodayCompletionsAtom = atom((get) => {
     habit: selectedHabit,
     timezone: settings.system.timezone
   })
-})
-
-export interface TransientSettings {
-  viewType: ViewType
-}
-
-export const transientSettingsAtom = atom<TransientSettings>({
-  viewType: 'habits'
 })

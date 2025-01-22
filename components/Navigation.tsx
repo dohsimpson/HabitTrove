@@ -1,15 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { Home, Calendar, List, Gift, Coins, Settings, Info } from 'lucide-react'
+import { Home, Calendar, List, Gift, Coins, Settings, Info, CheckSquare } from 'lucide-react'
+import { useAtom } from 'jotai'
+import { browserSettingsAtom } from '@/lib/atoms'
 import { useEffect, useState } from 'react'
 import AboutModal from './AboutModal'
+import { HabitIcon, TaskIcon } from '@/lib/constants'
 
 type ViewPort = 'main' | 'mobile'
 
-const navItems = [
+const navItems = (isTasksView: boolean) => [
   { icon: Home, label: 'Dashboard', href: '/', position: 'main' },
-  { icon: List, label: 'Habits', href: '/habits', position: 'main' },
+  {
+    icon: isTasksView ? TaskIcon : HabitIcon,
+    label: isTasksView ? 'Tasks' : 'Habits',
+    href: '/habits',
+    position: 'main'
+  },
   { icon: Calendar, label: 'Calendar', href: '/calendar', position: 'main' },
   { icon: Gift, label: 'Wishlist', href: '/wishlist', position: 'main' },
   { icon: Coins, label: 'Coins', href: '/coins', position: 'main' },
@@ -23,6 +31,8 @@ interface NavigationProps {
 export default function Navigation({ className, viewPort }: NavigationProps) {
   const [showAbout, setShowAbout] = useState(false)
   const [isMobileView, setIsMobileView] = useState(false)
+  const [browserSettings] = useAtom(browserSettingsAtom)
+  const isTasksView = browserSettings.viewType === 'tasks'
 
   useEffect(() => {
     const handleResize = () => {
@@ -45,7 +55,7 @@ export default function Navigation({ className, viewPort }: NavigationProps) {
         <div className="pb-16" /> {/* Add padding at the bottom to prevent content from being hidden */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg">
           <div className="flex justify-around">
-            {[...navItems.filter(item => item.position === 'main'), ...navItems.filter(item => item.position === 'bottom')].map((item) => (
+            {[...navItems(isTasksView).filter(item => item.position === 'main'), ...navItems(isTasksView).filter(item => item.position === 'bottom')].map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -69,7 +79,7 @@ export default function Navigation({ className, viewPort }: NavigationProps) {
           <div className="flex flex-col h-0 flex-1 bg-gray-800">
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
               <nav className="mt-5 flex-1 px-2 space-y-1">
-                {navItems.filter(item => item.position === 'main').map((item) => (
+                {navItems(isTasksView).filter(item => item.position === 'main').map((item) => (
                   <Link
                     key={item.label}
                     href={item.href}

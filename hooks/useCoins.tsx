@@ -28,7 +28,12 @@ export function useCoins() {
       return null
     }
 
-    const data = await addCoins(amount, description, 'MANUAL_ADJUSTMENT', undefined, note)
+    const data = await addCoins({
+      amount,
+      description,
+      type: 'MANUAL_ADJUSTMENT',
+      note
+    })
     setCoins(data)
     toast({ title: "Success", description: `Added ${amount} coins` })
     return data
@@ -44,7 +49,12 @@ export function useCoins() {
       return null
     }
 
-    const data = await removeCoins(numAmount, description, 'MANUAL_ADJUSTMENT', undefined, note)
+    const data = await removeCoins({
+      amount: numAmount,
+      description,
+      type: 'MANUAL_ADJUSTMENT',
+      note
+    })
     setCoins(data)
     toast({ title: "Success", description: `Removed ${numAmount} coins` })
     return data

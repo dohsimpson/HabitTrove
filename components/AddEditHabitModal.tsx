@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { RRule, RRuleSet, rrulestr } from 'rrule'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
+import { settingsAtom, browserSettingsAtom } from '@/lib/atoms'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,8 +16,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { Habit } from '@/lib/types'
-import { parseNaturalLanguageRRule, parseRRule, serializeRRule } from '@/lib/utils'
-import { INITIAL_RECURRENCE_RULE } from '@/lib/constants'
+import { d2s, d2t, getISODate, getNow, parseNaturalLanguageDate, parseNaturalLanguageRRule, parseRRule, serializeRRule } from '@/lib/utils'
+import { INITIAL_DUE, INITIAL_RECURRENCE_RULE } from '@/lib/constants'
+import * as chrono from 'chrono-node';
+import { DateTime } from 'luxon'
 
 interface AddEditHabitModalProps {
   onClose: () => void
@@ -27,12 +29,16 @@ interface AddEditHabitModalProps {
 
 export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHabitModalProps) {
   const [settings] = useAtom(settingsAtom)
+  const [browserSettings] = useAtom(browserSettingsAtom)
+  const isTasksView = browserSettings.viewType === 'tasks'
   const [name, setName] = useState(habit?.name || '')
   const [description, setDescription] = useState(habit?.description || '')
   const [coinReward, setCoinReward] = useState(habit?.coinReward || 1)
   const [targetCompletions, setTargetCompletions] = useState(habit?.targetCompletions || 1)
-  const origRuleText = parseRRule(habit?.frequency || INITIAL_RECURRENCE_RULE).toText()
+  const isRecurRule = !isTasksView
+  const origRuleText = isRecurRule ? parseRRule(habit?.frequency || INITIAL_RECURRENCE_RULE).toText() : habit?.frequency || INITIAL_DUE
   const [ruleText, setRuleText] = useState<string>(origRuleText)
+  const now = getNow({ timezone: settings.system.timezone })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -42,9 +48,8 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
       coinReward,
       targetCompletions: targetCompletions > 1 ? targetCompletions : undefined,
       completions: habit?.completions || [],
-      frequency: habit ? (
-        origRuleText === ruleText ? habit.frequency : serializeRRule(parseNaturalLanguageRRule(ruleText))
-      ) : serializeRRule(parseNaturalLanguageRRule(ruleText)),
+      frequency: isRecurRule ? serializeRRule(parseNaturalLanguageRRule(ruleText)) : d2t({ dateTime: parseNaturalLanguageDate({ text: ruleText, timezone: settings.system.timezone }) }),
+      isTask: isTasksView ? true : undefined
     })
   }
 
@@ -52,7 +57,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{habit ? 'Edit Habit' : 'Add New Habit'}</DialogTitle>
+          <DialogTitle>{habit ? `Edit ${isTasksView ? 'Task' : 'Habit'}` : `Add New ${isTasksView ? 'Task' : 'Habit'}`}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
@@ -109,7 +114,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="recurrence" className="text-right">
-                Frequency
+                When
               </Label>
               <div className="col-span-3 space-y-2">
                 <Input
@@ -123,7 +128,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
                 <span>
                   {(() => {
                     try {
-                      return parseNaturalLanguageRRule(ruleText).toText()
+                      return isRecurRule ? parseNaturalLanguageRRule(ruleText).toText() : d2s({ dateTime: parseNaturalLanguageDate({ text: ruleText, timezone: settings.system.timezone }), timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })
                     } catch (e: unknown) {
                       return `Invalid rule: ${e instanceof Error ? e.message : 'Invalid recurrence rule'}`
                     }
@@ -134,7 +139,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="flex items-center gap-2 justify-end">
                 <Label htmlFor="targetCompletions">
-                  Repetitions
+                  Complete
                 </Label>
               </div>
               <div className="col-span-3">
@@ -168,7 +173,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
                     </button>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    times per occurrence
+                    times
                   </span>
                 </div>
               </div>
@@ -176,7 +181,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="flex items-center gap-2 justify-end">
                 <Label htmlFor="coinReward">
-                  Coin Reward
+                  Reward
                 </Label>
               </div>
               <div className="col-span-3">
@@ -207,14 +212,14 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
                     </button>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    coins per completion
+                    coins
                   </span>
                 </div>
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">{habit ? 'Save Changes' : 'Add Habit'}</Button>
+            <Button type="submit">{habit ? 'Save Changes' : `Add ${isTasksView ? 'Task' : 'Habit'}`}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

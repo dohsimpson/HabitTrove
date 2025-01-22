@@ -9,7 +9,7 @@ import { cn, isHabitDueToday, getHabitFreq } from '@/lib/utils'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
-import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, transientSettingsAtom } from '@/lib/atoms'
+import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -32,16 +32,21 @@ export default function DailyOverview({
 }: UpcomingItemsProps) {
   const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
+  const [browserSettings] = useAtom(browserSettingsAtom)
   const [dailyHabits, setDailyHabits] = useState<Habit[]>([])
   const [completedHabitsMap] = useAtom(completedHabitsMapAtom)
   const today = getTodayInTimezone(settings.system.timezone)
   const todayCompletions = completedHabitsMap.get(today) || []
+  const isTasksView = browserSettings.viewType === 'tasks'
 
   useEffect(() => {
     // Filter habits that are due today based on their recurrence rule
-    const filteredHabits = habits.filter(habit => isHabitDueToday({ habit, timezone: settings.system.timezone }))
+    const filteredHabits = habits.filter(habit =>
+      (isTasksView ? habit.isTask : !habit.isTask) &&
+      isHabitDueToday({ habit, timezone: settings.system.timezone })
+    )
     setDailyHabits(filteredHabits)
-  }, [habits])
+  }, [habits, isTasksView])
 
   // Get all wishlist items sorted by redeemable status (non-redeemable first) then by coin cost
   const sortedWishlistItems = wishlistItems
@@ -72,7 +77,7 @@ export default function DailyOverview({
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">Daily Habits</h3>
+                <h3 className="font-semibold">{isTasksView ? 'Daily Tasks' : 'Daily Habits'}</h3>
                 <Badge variant="secondary">
                   {`${dailyHabits.filter(habit => {
                     const completions = (completedHabitsMap.get(today) || [])

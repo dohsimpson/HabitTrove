@@ -101,13 +101,19 @@ export async function saveCoinsData(data: CoinsData): Promise<void> {
   return saveData('coins', data)
 }
 
-export async function addCoins(
-  amount: number,
-  description: string,
-  type: TransactionType = 'MANUAL_ADJUSTMENT',
-  relatedItemId?: string,
+export async function addCoins({
+  amount,
+  description,
+  type = 'MANUAL_ADJUSTMENT',
+  relatedItemId,
+  note,
+}: {
+  amount: number
+  description: string
+  type?: TransactionType
+  relatedItemId?: string
   note?: string
-): Promise<CoinsData> {
+}): Promise<CoinsData> {
   const data = await loadCoinsData()
   const newTransaction: CoinTransaction = {
     id: crypto.randomUUID(),
@@ -143,13 +149,19 @@ export async function saveSettings(settings: Settings): Promise<void> {
   return saveData('settings', settings)
 }
 
-export async function removeCoins(
-  amount: number,
-  description: string,
-  type: TransactionType = 'MANUAL_ADJUSTMENT',
-  relatedItemId?: string,
+export async function removeCoins({
+  amount,
+  description,
+  type = 'MANUAL_ADJUSTMENT',
+  relatedItemId,
+  note,
+}: {
+  amount: number
+  description: string
+  type?: TransactionType
+  relatedItemId?: string
   note?: string
-): Promise<CoinsData> {
+}): Promise<CoinsData> {
   const data = await loadCoinsData()
   const newTransaction: CoinTransaction = {
     id: crypto.randomUUID(),
