@@ -4,7 +4,8 @@ import {
   getDefaultHabitsData,
   getDefaultCoinsData,
   getDefaultWishlistData,
-  Habit
+  Habit,
+  ViewType,
 } from "./types";
 import {
   getTodayInTimezone,
@@ -72,23 +73,37 @@ export const pomodoroAtom = atom<PomodoroAtom>({
   minimized: false,
 })
 
-// Derived atom for today's completions of selected habit
+// Derived atom for *fully* completed habits by date, respecting target completions
 export const completedHabitsMapAtom = atom((get) => {
   const habits = get(habitsAtom).habits
   const timezone = get(settingsAtom).system.timezone
 
   const map = new Map<string, Habit[]>()
+
   habits.forEach(habit => {
+    // Group completions by date
+    const completionsByDate = new Map<string, number>()
+
     habit.completions.forEach(completion => {
       const dateKey = getISODate({ dateTime: t2d({ timestamp: completion, timezone }), timezone })
-      if (!map.has(dateKey)) {
-        map.set(dateKey, [])
+      completionsByDate.set(dateKey, (completionsByDate.get(dateKey) || 0) + 1)
+    })
+
+    // Check if habit meets target completions for each date
+    completionsByDate.forEach((count, dateKey) => {
+      const target = habit.targetCompletions || 1
+      if (count >= target) {
+        if (!map.has(dateKey)) {
+          map.set(dateKey, [])
+        }
+        map.get(dateKey)!.push(habit)
       }
-      map.get(dateKey)!.push(habit)
     })
   })
+
   return map
 })
+
 
 export const pomodoroTodayCompletionsAtom = atom((get) => {
   const pomo = get(pomodoroAtom)
@@ -104,4 +119,12 @@ export const pomodoroTodayCompletionsAtom = atom((get) => {
     habit: selectedHabit,
     timezone: settings.system.timezone
   })
+})
+
+export interface TransientSettings {
+  viewType: ViewType
+}
+
+export const transientSettingsAtom = atom<TransientSettings>({
+  viewType: 'habits'
 })

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Check, Circle, CircleCheck } from 'lucide-react'
-import { d2s, getNow, t2d, getCompletedHabitsForDate, isHabitDue, getISODate } from '@/lib/utils'
+import { d2s, getNow, t2d, getCompletedHabitsForDate, isHabitDue, getISODate, getCompletionsForToday, getCompletionsForDate } from '@/lib/utils'
 import { useAtom } from 'jotai'
 import { useHabits } from '@/hooks/useHabits'
 import { habitsAtom, settingsAtom, completedHabitsMapAtom } from '@/lib/atoms'
@@ -87,9 +87,8 @@ export default function HabitCalendar() {
                     date: selectedDate
                   }))
                   .map((habit) => {
-                    const habitsForDate = completedHabitsMap.get(getISODate({ dateTime: selectedDate, timezone: settings.system.timezone })) || []
-                    const completionsToday = habitsForDate.filter((h: Habit) => h.id === habit.id).length
-                    const isCompleted = completionsToday >= (habit.targetCompletions || 1)
+                    const completions = getCompletionsForDate({ habit, date: selectedDate, timezone: settings.system.timezone })
+                    const isCompleted = completions >= (habit.targetCompletions || 1)
                     return (
                       <li key={habit.id} className="flex items-center justify-between gap-2">
                         <span>
@@ -99,7 +98,7 @@ export default function HabitCalendar() {
                           <div className="flex items-center gap-2">
                             {habit.targetCompletions && (
                               <span className="text-sm text-muted-foreground">
-                                {completionsToday}/{habit.targetCompletions}
+                                {completions}/{habit.targetCompletions}
                               </span>
                             )}
                             <button
@@ -116,8 +115,8 @@ export default function HabitCalendar() {
                                     className="absolute h-4 w-4 rounded-full overflow-hidden"
                                     style={{
                                       background: `conic-gradient(
-                                        currentColor ${(completionsToday / (habit.targetCompletions ?? 1)) * 360}deg,
-                                        transparent ${(completionsToday / (habit.targetCompletions ?? 1)) * 360}deg 360deg
+                                        currentColor ${(completions / (habit.targetCompletions ?? 1)) * 360}deg,
+                                        transparent ${(completions / (habit.targetCompletions ?? 1)) * 360}deg 360deg
                                       )`,
                                       mask: 'radial-gradient(transparent 50%, black 51%)',
                                       WebkitMask: 'radial-gradient(transparent 50%, black 51%)'

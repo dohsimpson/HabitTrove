@@ -8,6 +8,7 @@ export type Habit = {
   completions: string[] // Array of UTC ISO date strings
 }
 
+
 export type Freq = 'daily' | 'weekly' | 'monthly' | 'yearly'
 
 export type WishlistItemType = {
@@ -33,6 +34,7 @@ export interface HabitsData {
   habits: Habit[];
 }
 
+
 export interface CoinsData {
   balance: number;
   transactions: CoinTransaction[];
@@ -48,6 +50,7 @@ export interface WishlistData {
 export const getDefaultHabitsData = (): HabitsData => ({
   habits: []
 });
+
 
 export const getDefaultCoinsData = (): CoinsData => ({
   balance: 0,
@@ -102,6 +105,8 @@ export interface Settings {
   system: SystemSettings;
   profile: ProfileSettings;
 }
+
+export type ViewType = 'habits' | 'tasks'
 
 export interface JotaiHydrateInitialValues {
   settings: Settings;

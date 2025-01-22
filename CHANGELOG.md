@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.24
+
+### Fixed
+
+- completed habits atom should not store partially completed habits (#46)
+
 ## Version 0.1.23
 
 ### Added

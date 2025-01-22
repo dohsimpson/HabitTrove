@@ -9,7 +9,7 @@ import { cn, isHabitDueToday, getHabitFreq } from '@/lib/utils'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
-import { pomodoroAtom, settingsAtom, completedHabitsMapAtom } from '@/lib/atoms'
+import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, transientSettingsAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -74,11 +74,11 @@ export default function DailyOverview({
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold">Daily Habits</h3>
                 <Badge variant="secondary">
-                  {dailyHabits.filter(habit => {
+                  {`${dailyHabits.filter(habit => {
                     const completions = (completedHabitsMap.get(today) || [])
                       .filter(h => h.id === habit.id).length;
                     return completions >= (habit.targetCompletions || 1);
-                  }).length}/{dailyHabits.length} Completed
+                  }).length}/${dailyHabits.length} Completed`}
                 </Badge>
               </div>
               <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedHabits ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>

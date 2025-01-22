@@ -87,6 +87,7 @@ export async function saveHabitsData(data: HabitsData): Promise<void> {
   return saveData('habits', data)
 }
 
+
 // Coins specific functions
 export async function loadCoinsData(): Promise<CoinsData> {
   try {
@@ -172,7 +173,7 @@ export async function removeCoins(
 export async function uploadAvatar(formData: FormData) {
   const file = formData.get('avatar') as File
   if (!file) throw new Error('No file provided')
-  
+
   if (file.size > 5 * 1024 * 1024) { // 5MB
     throw new Error('File size must be less than 5MB')
   }
