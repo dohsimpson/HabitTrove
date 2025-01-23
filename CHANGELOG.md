@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 0.1.26
+
+### Added
+
+- archiving habits and wishlists (#44)
+
+### Fixed
+
+- pomodoro skip should update label
+
 ## Version 0.1.25
 
 ### Added

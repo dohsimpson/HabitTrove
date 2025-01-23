@@ -16,9 +16,14 @@ export default function WishlistManager() {
     editWishlistItem,
     deleteWishlistItem,
     redeemWishlistItem,
+    archiveWishlistItem,
+    unarchiveWishlistItem,
     canRedeem,
     wishlistItems
   } = useWishlist()
+
+  const activeItems = wishlistItems.filter(item => !item.archived)
+  const archivedItems = wishlistItems.filter(item => item.archived)
 
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null)
   const [recentlyRedeemedId, setRecentlyRedeemedId] = useState<string | null>(null)
@@ -69,7 +74,7 @@ export default function WishlistManager() {
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-        {wishlistItems.length === 0 ? (
+        {activeItems.length === 0 ? (
           <div className="col-span-2">
             <EmptyState
               icon={Gift}
@@ -78,7 +83,7 @@ export default function WishlistManager() {
             />
           </div>
         ) : (
-          wishlistItems.map((item) => (
+          activeItems.map((item) => (
             <div
               key={item.id}
               ref={(el) => {
@@ -97,10 +102,37 @@ export default function WishlistManager() {
                 }}
                 onDelete={() => setDeleteConfirmation({ isOpen: true, itemId: item.id })}
                 onRedeem={() => handleRedeem(item)}
+                onArchive={() => archiveWishlistItem(item.id)}
+                onUnarchive={() => unarchiveWishlistItem(item.id)}
                 canRedeem={canRedeem(item.coinCost)}
               />
             </div>
           ))
+        )}
+        
+        {archivedItems.length > 0 && (
+          <>
+            <div className="col-span-2 relative flex items-center my-6">
+              <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
+              <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">Archived</span>
+              <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
+            </div>
+            {archivedItems.map((item) => (
+              <WishlistItem
+                key={item.id}
+                item={item}
+                onEdit={() => {
+                  setEditingItem(item)
+                  setIsModalOpen(true)
+                }}
+                onDelete={() => setDeleteConfirmation({ isOpen: true, itemId: item.id })}
+                onRedeem={() => handleRedeem(item)}
+                onArchive={() => archiveWishlistItem(item.id)}
+                onUnarchive={() => unarchiveWishlistItem(item.id)}
+                canRedeem={canRedeem(item.coinCost)}
+              />
+            ))}
+          </>
         )}
       </div>
       <AddEditWishlistItemModal

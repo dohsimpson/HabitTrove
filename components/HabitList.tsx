@@ -18,9 +18,11 @@ export default function HabitList() {
   const [habitsData, setHabitsData] = useAtom(habitsAtom)
   const [browserSettings] = useAtom(browserSettingsAtom)
   const isTasksView = browserSettings.viewType === 'tasks'
-  const habits = habitsData.habits.filter(habit =>
+  const habits = habitsData.habits.filter(habit => 
     isTasksView ? habit.isTask : !habit.isTask
   )
+  const activeHabits = habits.filter(h => !h.archived)
+  const archivedHabits = habits.filter(h => h.archived)
   const [settings] = useAtom(settingsAtom)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
@@ -41,7 +43,7 @@ export default function HabitList() {
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-        {habits.length === 0 ? (
+        {activeHabits.length === 0 ? (
           <div className="col-span-2">
             <EmptyState
               icon={isTasksView ? TaskIcon : HabitIcon}
@@ -50,7 +52,7 @@ export default function HabitList() {
             />
           </div>
         ) : (
-          habits.map((habit) => (
+          activeHabits.map((habit: Habit) => (
             <HabitItem
               key={habit.id}
               habit={habit}
@@ -61,6 +63,27 @@ export default function HabitList() {
               onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
             />
           ))
+        )}
+        
+        {archivedHabits.length > 0 && (
+          <>
+            <div className="col-span-2 relative flex items-center my-6">
+              <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
+              <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">Archived</span>
+              <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
+            </div>
+            {archivedHabits.map((habit: Habit) => (
+              <HabitItem
+                key={habit.id}
+                habit={habit}
+                onEdit={() => {
+                  setEditingHabit(habit)
+                  setIsModalOpen(true)
+                }}
+                onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
+              />
+            ))}
+          </>
         )}
       </div>
       {isModalOpen &&

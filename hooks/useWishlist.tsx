@@ -66,11 +66,29 @@ export function useWishlist() {
 
   const canRedeem = (cost: number) => balance >= cost
 
+  const archiveWishlistItem = async (id: string) => {
+    const newItems = wishlist.items.map(item => 
+      item.id === id ? { ...item, archived: true } : item
+    )
+    setWishlist({ items: newItems })
+    await saveWishlistItems(newItems)
+  }
+
+  const unarchiveWishlistItem = async (id: string) => {
+    const newItems = wishlist.items.map(item => 
+      item.id === id ? { ...item, archived: undefined } : item
+    )
+    setWishlist({ items: newItems })
+    await saveWishlistItems(newItems)
+  }
+
   return {
     addWishlistItem,
     editWishlistItem,
     deleteWishlistItem,
     redeemWishlistItem,
+    archiveWishlistItem,
+    unarchiveWishlistItem,
     canRedeem,
     wishlistItems: wishlist.items
   }

@@ -7,6 +7,7 @@ export type Habit = {
   targetCompletions?: number // Optional field, default to 1
   completions: string[] // Array of UTC ISO date strings
   isTask?: boolean // mark the habit as a task
+  archived?: boolean // mark the habit as archived
 }
 
 
@@ -17,6 +18,7 @@ export type WishlistItemType = {
   name: string
   description: string
   coinCost: number
+  archived?: boolean // mark the wishlist item as archived
 }
 
 export type TransactionType = 'HABIT_COMPLETION' | 'HABIT_UNDO' | 'WISH_REDEMPTION' | 'MANUAL_ADJUSTMENT' | 'TASK_COMPLETION' | 'TASK_UNDO';

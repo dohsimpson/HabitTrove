@@ -231,11 +231,29 @@ export function useHabits() {
     }
   }
 
+  const archiveHabit = async (id: string) => {
+    const updatedHabits = habitsData.habits.map(h =>
+      h.id === id ? { ...h, archived: true } : h
+    )
+    await saveHabitsData({ habits: updatedHabits })
+    setHabitsData({ habits: updatedHabits })
+  }
+
+  const unarchiveHabit = async (id: string) => {
+    const updatedHabits = habitsData.habits.map(h =>
+      h.id === id ? { ...h, archived: undefined } : h
+    )
+    await saveHabitsData({ habits: updatedHabits })
+    setHabitsData({ habits: updatedHabits })
+  }
+
   return {
     completeHabit,
     undoComplete,
     saveHabit,
     deleteHabit,
-    completePastHabit
+    completePastHabit,
+    archiveHabit,
+    unarchiveHabit
   }
 }
