@@ -184,6 +184,16 @@ export default function PomodoroTimer() {
     setTimeLeft(currentTimer.current.duration)
   }
 
+  const skipTimer = () => {
+    currentTimer.current = currentTimer.current.type === 'focus'
+      ? PomoConfigs.break
+      : PomoConfigs.focus
+    resetTimer()
+    setCurrentLabel(
+      currentTimer.current.labels[Math.floor(Math.random() * currentTimer.current.labels.length)]
+    )
+  }
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -314,12 +324,7 @@ export default function PomodoroTimer() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => {
-                  currentTimer.current = currentTimer.current.type === 'focus'
-                    ? PomoConfigs.break
-                    : PomoConfigs.focus
-                  resetTimer()
-                }}
+                onClick={skipTimer}
                 disabled={state === "started"}
                 className="sm:px-4"
               >

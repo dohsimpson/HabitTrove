@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.1.26
+
+### Added
+
+- archiving habits and wishlists (#44)
+- wishlist item now supports redeem count (#36)
+
+### Fixed
+
+- pomodoro skip should update label
+
 ## Version 0.1.25
 
 ### Added

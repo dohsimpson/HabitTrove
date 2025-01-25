@@ -4,7 +4,7 @@ import { settingsAtom, pomodoroAtom, browserSettingsAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule, d2s } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer } from 'lucide-react'
+import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer, Archive, ArchiveRestore } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,7 @@ interface HabitItemProps {
 }
 
 export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
-  const { completeHabit, undoComplete } = useHabits()
+  const { completeHabit, undoComplete, archiveHabit, unarchiveHabit } = useHabits()
   const [settings] = useAtom(settingsAtom)
   const [_, setPomo] = useAtom(pomodoroAtom)
   const completionsToday = habit.completions?.filter(completion =>
@@ -59,21 +59,21 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   return (
     <Card
       id={`habit-${habit.id}`}
-      className={`h-full flex flex-col transition-all duration-500 ${isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900' : ''}`}
+      className={`h-full flex flex-col transition-all duration-500 ${isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900' : ''} ${habit.archived ? 'opacity-75' : ''}`}
     >
       <CardHeader className="flex-none">
-        <CardTitle className="line-clamp-1">{habit.name}</CardTitle>
+        <CardTitle className={`line-clamp-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{habit.name}</CardTitle>
         {habit.description && (
-          <CardDescription className="whitespace-pre-line">
+          <CardDescription className={`whitespace-pre-line ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
             {habit.description}
           </CardDescription>
         )}
       </CardHeader>
       <CardContent className="flex-1">
-        <p className="text-sm text-gray-500">When: {isRecurRule ? parseRRule(habit.frequency || INITIAL_RECURRENCE_RULE).toText() : d2s({ dateTime: t2d({ timestamp: habit.frequency, timezone: settings.system.timezone }), timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })}</p>
+        <p className={`text-sm ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500'}`}>When: {isRecurRule ? parseRRule(habit.frequency || INITIAL_RECURRENCE_RULE).toText() : d2s({ dateTime: t2d({ timestamp: habit.frequency, timezone: settings.system.timezone }), timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })}</p>
         <div className="flex items-center mt-2">
-          <Coins className="h-4 w-4 text-yellow-400 mr-1" />
-          <span className="text-sm font-medium">{habit.coinReward} coins per completion</span>
+          <Coins className={`h-4 w-4 mr-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />
+          <span className={`text-sm font-medium ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{habit.coinReward} coins per completion</span>
         </div>
       </CardContent>
       <CardFooter className="flex justify-between gap-2">
@@ -83,8 +83,8 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               variant={isCompletedToday ? "secondary" : "default"}
               size="sm"
               onClick={async () => await completeHabit(habit)}
-              disabled={isCompletedToday && completionsToday >= target}
-              className="overflow-hidden w-24 sm:w-auto"
+              disabled={habit.archived || (isCompletedToday && completionsToday >= target)}
+              className={`overflow-hidden w-24 sm:w-auto ${habit.archived ? 'cursor-not-allowed' : ''}`}
             >
               <Check className="h-4 w-4 sm:mr-2" />
               <span>
@@ -116,7 +116,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               )}
             </Button>
           </div>
-          {completionsToday > 0 && (
+          {completionsToday > 0 && !habit.archived && (
             <Button
               variant="outline"
               size="sm"
@@ -129,15 +129,17 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
           )}
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="edit"
-            size="sm"
-            onClick={onEdit}
-            className="hidden sm:flex"
-          >
-            <Edit className="h-4 w-4" />
-            <span className="ml-2">Edit</span>
-          </Button>
+          {!habit.archived && (
+            <Button
+              variant="edit"
+              size="sm"
+              onClick={onEdit}
+              className="hidden sm:flex"
+            >
+              <Edit className="h-4 w-4" />
+              <span className="ml-2">Edit</span>
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -145,17 +147,35 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => {
-                setPomo((prev) => ({
-                  ...prev,
-                  show: true,
-                  selectedHabitId: habit.id
-                }))
-              }}>
-                <Timer className="mr-2 h-4 w-4" />
-                <span>Start Pomodoro</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onEdit} className="sm:hidden">
+              {!habit.archived && (
+                <DropdownMenuItem onClick={() => {
+                  setPomo((prev) => ({
+                    ...prev,
+                    show: true,
+                    selectedHabitId: habit.id
+                  }))
+                }}>
+                  <Timer className="mr-2 h-4 w-4" />
+                  <span>Start Pomodoro</span>
+                </DropdownMenuItem>
+              )}
+              {!habit.archived && (
+                <DropdownMenuItem onClick={() => archiveHabit(habit.id)}>
+                  <Archive className="mr-2 h-4 w-4" />
+                  <span>Archive</span>
+                </DropdownMenuItem>
+              )}
+              {habit.archived && (
+                <DropdownMenuItem onClick={() => unarchiveHabit(habit.id)}>
+                  <ArchiveRestore className="mr-2 h-4 w-4" />
+                  <span>Unarchive</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={onEdit}
+                className="sm:hidden"
+                disabled={habit.archived}
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
