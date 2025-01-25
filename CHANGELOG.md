@@ -5,6 +5,7 @@
 ### Added
 
 - archiving habits and wishlists (#44)
+- wishlist item now supports redeem count (#36)
 
 ### Fixed
 
