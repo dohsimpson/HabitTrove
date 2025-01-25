@@ -49,7 +49,7 @@ export default function WishlistItem({
           </CardTitle>
           {item.targetCompletions && (
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              ({item.targetCompletions} uses)
+              ({item.targetCompletions} {item.targetCompletions === 1 ? 'use' : 'uses'} left)
             </span>
           )}
         </div>
