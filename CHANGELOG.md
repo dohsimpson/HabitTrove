@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.1.27
+
+### Added
+
+- dark mode toggle (#48)
+- notification badge for tasks (#51)
+
 ## Version 0.1.26
 
 ### Added

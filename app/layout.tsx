@@ -7,6 +7,8 @@ import { JotaiHydrate } from '@/components/jotai-hydrate'
 import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData } from './actions/data'
 import Layout from '@/components/Layout'
 import { Toaster } from '@/components/ui/toaster'
+import { ThemeProvider } from "@/components/theme-provider"
+
 
 // Inter (clean, modern, excellent readability)
 // const inter = Inter({
@@ -42,7 +44,8 @@ export default async function RootLayout({
   ])
 
   return (
-    <html lang="en">
+    // set suppressHydrationWarning to true to prevent hydration errors when using ThemeProvider (https://ui.shadcn.com/docs/dark-mode/next)
+    <html lang="en" suppressHydrationWarning>
       <body className={activeFont.className}>
         <script
           dangerouslySetInnerHTML={{
@@ -71,9 +74,16 @@ export default async function RootLayout({
                 wishlist: initialWishlist
               }}
             >
-              <Layout>
-                {children}
-              </Layout>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <Layout>
+                  {children}
+                </Layout>
+              </ThemeProvider>
             </JotaiHydrate>
           </Suspense>
         </JotaiProvider>

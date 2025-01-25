@@ -3,9 +3,11 @@
 import { cn } from '@/lib/utils'
 import { useAtom } from 'jotai'
 import { CheckSquare, ListChecks } from 'lucide-react'
-import { browserSettingsAtom } from '@/lib/atoms'
+import { browserSettingsAtom, habitsAtom, settingsAtom } from '@/lib/atoms'
 import type { ViewType } from '@/lib/types'
 import { HabitIcon, TaskIcon } from '@/lib/constants'
+import { isHabitDueToday } from '@/lib/utils'
+import { NotificationBadge } from './ui/notification-badge'
 
 interface ViewToggleProps {
   defaultView?: ViewType
@@ -17,6 +19,8 @@ export function ViewToggle({
   className
 }: ViewToggleProps) {
   const [browserSettings, setBrowserSettings] = useAtom(browserSettingsAtom)
+  const [habits] = useAtom(habitsAtom)
+  const [settings] = useAtom(settingsAtom)
 
   const handleViewChange = (checked: boolean) => {
     const newView = checked ? 'tasks' : 'habits'
@@ -25,6 +29,11 @@ export function ViewToggle({
       viewType: newView,
     })
   }
+
+  // Calculate due tasks count
+  const dueTasksCount = habits.habits.filter(habit => 
+    habit.isTask && !habit.archived && isHabitDueToday({ habit, timezone: settings.system.timezone })
+  ).length
 
   return (
     <div className={cn('inline-flex rounded-full bg-muted/50 h-8', className)}>
@@ -39,16 +48,23 @@ export function ViewToggle({
           <HabitIcon className="h-4 w-4" />
           <span className="hidden sm:inline">Habits</span>
         </button>
-        <button
-          onClick={() => handleViewChange(true)}
-          className={cn(
-            'relative z-10 rounded-full px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2',
-            browserSettings.viewType === 'tasks' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-          )}
+        <NotificationBadge 
+          label={dueTasksCount}
+          show={dueTasksCount > 0}
+          variant={browserSettings.viewType === 'tasks' ? 'secondary' : 'default'}
+          className="shadow-md"
         >
-          <TaskIcon className="h-4 w-4" />
-          <span className="hidden sm:inline">Tasks</span>
-        </button>
+          <button
+            onClick={() => handleViewChange(true)}
+            className={cn(
+              'relative z-10 rounded-full px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2',
+              browserSettings.viewType === 'tasks' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <TaskIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">Tasks</span>
+          </button>
+        </NotificationBadge>
         <div
           className={cn(
             'absolute left-0.5 top-0.5 h-[calc(100%-0.25rem)] rounded-full bg-primary transition-transform',
