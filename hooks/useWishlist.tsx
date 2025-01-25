@@ -33,6 +33,16 @@ export function useWishlist() {
 
   const redeemWishlistItem = async (item: WishlistItemType) => {
     if (balance >= item.coinCost) {
+      // Check if item has target completions and if we've reached the limit
+      if (item.targetCompletions && item.targetCompletions <= 0) {
+        toast({
+          title: "Redemption limit reached",
+          description: `You've reached the maximum redemptions for "${item.name}".`,
+          variant: "destructive",
+        })
+        return false
+      }
+
       const data = await removeCoins({
         amount: item.coinCost,
         description: `Redeemed reward: ${item.name}`,
@@ -40,6 +50,30 @@ export function useWishlist() {
         relatedItemId: item.id
       })
       setCoins(data)
+
+      // Update target completions if set
+      if (item.targetCompletions !== undefined) {
+        const newItems = wishlist.items.map(wishlistItem => {
+          if (wishlistItem.id === item.id) {
+            const newTarget = wishlistItem.targetCompletions! - 1
+            // If target reaches 0, archive the item
+            if (newTarget <= 0) {
+              return { 
+                ...wishlistItem, 
+                targetCompletions: undefined,
+                archived: true
+              }
+            }
+            return { 
+              ...wishlistItem, 
+              targetCompletions: newTarget 
+            }
+          }
+          return wishlistItem
+        })
+        setWishlist({ items: newItems })
+        await saveWishlistItems(newItems)
+      }
 
       // Randomly choose a celebration effect
       const celebrationEffects = [
@@ -67,7 +101,7 @@ export function useWishlist() {
   const canRedeem = (cost: number) => balance >= cost
 
   const archiveWishlistItem = async (id: string) => {
-    const newItems = wishlist.items.map(item => 
+    const newItems = wishlist.items.map(item =>
       item.id === id ? { ...item, archived: true } : item
     )
     setWishlist({ items: newItems })
@@ -75,7 +109,7 @@ export function useWishlist() {
   }
 
   const unarchiveWishlistItem = async (id: string) => {
-    const newItems = wishlist.items.map(item => 
+    const newItems = wishlist.items.map(item =>
       item.id === id ? { ...item, archived: undefined } : item
     )
     setWishlist({ items: newItems })

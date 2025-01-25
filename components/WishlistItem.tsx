@@ -43,7 +43,16 @@ export default function WishlistItem({
         } ${item.archived ? 'opacity-75' : ''}`}
     >
       <CardHeader className="flex-none">
-        <CardTitle className={`line-clamp-1 ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{item.name}</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle className={`line-clamp-1 ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
+            {item.name}
+          </CardTitle>
+          {item.targetCompletions && (
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              ({item.targetCompletions} uses)
+            </span>
+          )}
+        </div>
         {item.description && (
           <CardDescription className={`whitespace-pre-line ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
             {item.description}
@@ -51,9 +60,11 @@ export default function WishlistItem({
         )}
       </CardHeader>
       <CardContent className="flex-1">
-        <div className="flex items-center">
-          <Coins className={`h-4 w-4 mr-1 ${item.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />
-          <span className={`text-sm font-medium ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{item.coinCost} coins</span>
+        <div className="flex items-center gap-2">
+          <Coins className={`h-4 w-4 ${item.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />
+          <span className={`text-sm font-medium ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
+            {item.coinCost} coins
+          </span>
         </div>
       </CardContent>
       <CardFooter className="flex justify-between gap-2">

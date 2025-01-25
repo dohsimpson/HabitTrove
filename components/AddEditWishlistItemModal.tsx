@@ -18,25 +18,51 @@ interface AddEditWishlistItemModalProps {
 }
 
 export default function AddEditWishlistItemModal({ isOpen, onClose, onSave, item }: AddEditWishlistItemModalProps) {
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [coinCost, setCoinCost] = useState(1)
+  const [name, setName] = useState(item?.name || '')
+  const [description, setDescription] = useState(item?.description || '')
+  const [coinCost, setCoinCost] = useState(item?.coinCost || 1)
+  const [targetCompletions, setTargetCompletions] = useState<number | undefined>(item?.targetCompletions)
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
     if (item) {
       setName(item.name)
       setDescription(item.description)
       setCoinCost(item.coinCost)
+      setTargetCompletions(item.targetCompletions)
     } else {
       setName('')
       setDescription('')
       setCoinCost(1)
+      setTargetCompletions(undefined)
     }
+    setErrors({})
   }, [item])
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {}
+    if (!name.trim()) {
+      newErrors.name = 'Name is required'
+    }
+    if (coinCost < 1) {
+      newErrors.coinCost = 'Coin cost must be at least 1'
+    }
+    if (targetCompletions !== undefined && targetCompletions < 1) {
+      newErrors.targetCompletions = 'Target completions must be at least 1'
+    }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({ name, description, coinCost })
+    if (!validate()) return
+    onSave({ 
+      name, 
+      description, 
+      coinCost,
+      targetCompletions: targetCompletions || undefined
+    })
   }
 
   return (
@@ -108,6 +134,33 @@ export default function AddEditWishlistItemModal({ isOpen, onClose, onSave, item
                 min={1}
                 required
               />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="targetCompletions" className="text-right">
+                Max Redemptions
+              </Label>
+              <div className="col-span-3 space-y-1">
+                <Input
+                  id="targetCompletions"
+                  type="number"
+                  value={targetCompletions || ''}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setTargetCompletions(value ? parseInt(value) : undefined)
+                  }}
+                  className="w-full"
+                  min={1}
+                  placeholder="Leave blank for unlimited"
+                />
+                <div className="text-sm text-gray-500">
+                  Set a limit on how many times this can be redeemed
+                </div>
+                {errors.targetCompletions && (
+                  <div className="text-sm text-red-500">
+                    {errors.targetCompletions}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <DialogFooter>
