@@ -13,32 +13,44 @@ import { WishlistItemType } from '@/lib/types'
 
 interface AddEditWishlistItemModalProps {
   isOpen: boolean
-  onClose: () => void
-  onSave: (item: Omit<WishlistItemType, 'id'>) => void
-  item?: WishlistItemType | null
+  setIsOpen: (isOpen: boolean) => void
+  editingItem: WishlistItemType | null
+  setEditingItem: (item: WishlistItemType | null) => void
+  addWishlistItem: (item: Omit<WishlistItemType, 'id'>) => void
+  editWishlistItem: (item: WishlistItemType) => void
 }
 
-export default function AddEditWishlistItemModal({ isOpen, onClose, onSave, item }: AddEditWishlistItemModalProps) {
-  const [name, setName] = useState(item?.name || '')
-  const [description, setDescription] = useState(item?.description || '')
-  const [coinCost, setCoinCost] = useState(item?.coinCost || 1)
-  const [targetCompletions, setTargetCompletions] = useState<number | undefined>(item?.targetCompletions)
+export default function AddEditWishlistItemModal({
+  isOpen,
+  setIsOpen,
+  editingItem,
+  setEditingItem,
+  addWishlistItem,
+  editWishlistItem
+}: AddEditWishlistItemModalProps) {
+  const [name, setName] = useState(editingItem?.name || '')
+  const [description, setDescription] = useState(editingItem?.description || '')
+  const [coinCost, setCoinCost] = useState(editingItem?.coinCost || 1)
+  const [targetCompletions, setTargetCompletions] = useState<number | undefined>(editingItem?.targetCompletions)
+  const [link, setLink] = useState(editingItem?.link || '')
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
-    if (item) {
-      setName(item.name)
-      setDescription(item.description)
-      setCoinCost(item.coinCost)
-      setTargetCompletions(item.targetCompletions)
+    if (editingItem) {
+      setName(editingItem.name)
+      setDescription(editingItem.description)
+      setCoinCost(editingItem.coinCost)
+      setTargetCompletions(editingItem.targetCompletions)
+      setLink(editingItem.link || '')
     } else {
       setName('')
       setDescription('')
       setCoinCost(1)
       setTargetCompletions(undefined)
+      setLink('')
     }
     setErrors({})
-  }, [item])
+  }, [editingItem])
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {}
@@ -51,32 +63,60 @@ export default function AddEditWishlistItemModal({ isOpen, onClose, onSave, item
     if (targetCompletions !== undefined && targetCompletions < 1) {
       newErrors.targetCompletions = 'Target completions must be at least 1'
     }
+    if (link && !isValidUrl(link)) {
+      newErrors.link = 'Please enter a valid URL'
+    }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const handleClose = () => {
+    setIsOpen(false)
+    setEditingItem(null)
+  }
+
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    onSave({
+
+    const itemData = {
       name,
       description,
       coinCost,
-      targetCompletions: targetCompletions || undefined
-    })
+      targetCompletions: targetCompletions || undefined,
+      link: link.trim() || undefined
+    }
+
+    if (editingItem) {
+      editWishlistItem({ ...itemData, id: editingItem.id })
+    } else {
+      addWishlistItem(itemData)
+    }
+    
+    setIsOpen(false)
+    setEditingItem(null)
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{item ? 'Edit Reward' : 'Add New Reward'}</DialogTitle>
+          <DialogTitle>{editingItem ? 'Edit Reward' : 'Add New Reward'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSave}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
-                Name
+                Name *
               </Label>
               <div className="col-span-3 flex gap-2">
                 <Input
@@ -208,9 +248,29 @@ export default function AddEditWishlistItemModal({ isOpen, onClose, onSave, item
                 )}
               </div>
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="link" className="text-right">
+                Link
+              </Label>
+              <div className="col-span-3">
+                <Input
+                  id="link"
+                  type="url"
+                  placeholder="https://..."
+                  value={link}
+                  onChange={(e) => setLink(e.target.value)}
+                  className="col-span-3"
+                />
+                {errors.link && (
+                  <div className="text-sm text-red-500">
+                    {errors.link}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           <DialogFooter>
-            <Button type="submit">{item ? 'Save Changes' : 'Add Reward'}</Button>
+            <Button type="submit">{editingItem ? 'Save Changes' : 'Add Reward'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

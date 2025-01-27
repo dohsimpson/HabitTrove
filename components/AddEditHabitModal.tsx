@@ -61,7 +61,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
-                Name
+                Name *
               </Label>
               <div className='flex col-span-3 gap-2'>
                 <Input
@@ -112,13 +112,14 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="recurrence" className="text-right">
-                When
+                When *
               </Label>
               <div className="col-span-3 space-y-2">
                 <Input
                   id="recurrence"
                   value={ruleText}
                   onChange={(e) => setRuleText(e.target.value)}
+                  required
                 // placeholder="e.g. 'every weekday' or 'every 2 weeks on Monday, Wednesday'"
                 />
               </div>

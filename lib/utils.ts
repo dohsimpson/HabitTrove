@@ -279,3 +279,11 @@ export function getHabitFreq(habit: Habit): Freq {
     default: throw new Error(`Invalid frequency: ${freq}`)
   }
 }
+
+// play sound (client side only, must be run in browser)
+export const playSound = (soundPath: string = '/sounds/timer-end.wav') => {
+  const audio = new Audio(soundPath)
+  audio.play().catch(error => {
+    console.error('Error playing sound:', error)
+  })
+}

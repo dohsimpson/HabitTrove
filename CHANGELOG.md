@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.1.28
+
+### Added
+
+- redeem link for wishlist items (#52)
+- sound effect for habit / task completion (#53)
+
+### Fixed
+
+- fail habit create or edit if frequency is not set (#54)
+- archive task when completed (#50)
+
 ## Version 0.1.27
 
 ### Added

@@ -148,14 +148,6 @@ export default function PomodoroTimer() {
     }
   }, [state])
 
-
-  const playSound = useCallback(() => {
-    const audio = new Audio('/sounds/timer-end.wav')
-    audio.play().catch(error => {
-      console.error('Error playing sound:', error)
-    })
-  }, [])
-
   const handleTimerEnd = async () => {
     setState("stopped")
     const currentTimerType = currentTimer.current.type
@@ -164,9 +156,6 @@ export default function PomodoroTimer() {
     setCurrentLabel(
       currentTimer.current.labels[Math.floor(Math.random() * currentTimer.current.labels.length)]
     )
-
-    // Play sound
-    playSound()
 
     // update habits only after focus sessions
     if (selectedHabit && currentTimerType === 'focus') {

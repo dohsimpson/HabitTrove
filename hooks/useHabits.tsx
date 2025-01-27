@@ -3,7 +3,18 @@ import { habitsAtom, coinsAtom, settingsAtom } from '@/lib/atoms'
 import { addCoins, removeCoins, saveHabitsData } from '@/app/actions/data'
 import { Habit } from '@/lib/types'
 import { DateTime } from 'luxon'
-import { getNowInMilliseconds, getTodayInTimezone, isSameDate, t2d, d2t, getNow, getCompletionsForDate, getISODate, d2s } from '@/lib/utils'
+import { 
+  getNowInMilliseconds, 
+  getTodayInTimezone, 
+  isSameDate, 
+  t2d, 
+  d2t, 
+  getNow, 
+  getCompletionsForDate, 
+  getISODate, 
+  d2s,
+  playSound 
+} from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 import { Undo2 } from 'lucide-react'
@@ -38,7 +49,9 @@ export function useHabits() {
     // Add new completion
     const updatedHabit = {
       ...habit,
-      completions: [...habit.completions, d2t({ dateTime: getNow({ timezone }) })]
+      completions: [...habit.completions, d2t({ dateTime: getNow({ timezone }) })],
+      // Archive the habit if it's a task and we're about to reach the target
+      archived: habit.isTask && completionsToday + 1 === target ? true : habit.archived
     }
 
     const updatedHabits = habitsData.habits.map(h =>
@@ -46,29 +59,36 @@ export function useHabits() {
     )
 
     await saveHabitsData({ habits: updatedHabits })
-    setHabitsData({ habits: updatedHabits })
 
     // Check if we've now reached the target
     const isTargetReached = completionsToday + 1 === target
     if (isTargetReached) {
       const updatedCoins = await addCoins({
         amount: habit.coinReward,
-        description: `Completed habit: ${habit.name}`,
+        description: `Completed: ${habit.name}`,
         type: habit.isTask ? 'TASK_COMPLETION' : 'HABIT_COMPLETION',
         relatedItemId: habit.id,
       })
+      isTargetReached && playSound()
+      toast({
+        title: "Habit completed!",
+        description: `You earned ${habit.coinReward} coins.`,
+        action: <ToastAction altText="Undo" className="gap-2" onClick={() => undoComplete(updatedHabit)}>
+          <Undo2 className="h-4 w-4" />Undo
+        </ToastAction>
+      })
       setCoins(updatedCoins)
+    } else {
+      toast({
+        title: "Progress!",
+        description: `You've completed ${completionsToday + 1}/${target} times today.`,
+        action: <ToastAction altText="Undo" className="gap-2" onClick={() => undoComplete(updatedHabit)}>
+          <Undo2 className="h-4 w-4" />Undo
+        </ToastAction>
+      })
     }
-
-    toast({
-      title: isTargetReached ? "Habit completed!" : "Progress!",
-      description: isTargetReached
-        ? `You earned ${habit.coinReward} coins.`
-        : `You've completed ${completionsToday + 1}/${target} times today.`,
-      action: <ToastAction altText="Undo" className="gap-2" onClick={() => undoComplete(updatedHabit)}>
-        <Undo2 className="h-4 w-4" />Undo
-      </ToastAction>
-    })
+    // move atom update at the end of function to improve UI responsiveness
+    setHabitsData({ habits: updatedHabits })
 
     return {
       updatedHabits,
@@ -87,12 +107,13 @@ export function useHabits() {
     )
 
     if (todayCompletions.length > 0) {
-      // Remove the most recent completion
+      // Remove the most recent completion and unarchive if needed
       const updatedHabit = {
         ...habit,
         completions: habit.completions.filter(
           (_, index) => index !== habit.completions.length - 1
-        )
+        ),
+        archived: habit.isTask ? undefined : habit.archived // Unarchive if it's a task
       }
 
       const updatedHabits = habitsData.habits.map(h =>
@@ -107,7 +128,7 @@ export function useHabits() {
       if (todayCompletions.length === target) {
         const updatedCoins = await removeCoins({
           amount: habit.coinReward,
-          description: `Undid habit completion: ${habit.name}`,
+          description: `Undid completion: ${habit.name}`,
           type: habit.isTask ? 'TASK_UNDO' : 'HABIT_UNDO',
           relatedItemId: habit.id,
         })
@@ -207,7 +228,7 @@ export function useHabits() {
     if (isTargetReached) {
       const updatedCoins = await addCoins({
         amount: habit.coinReward,
-        description: `Completed habit: ${habit.name} on ${d2s({ dateTime: date, timezone, format: 'yyyy-MM-dd' })}`,
+        description: `Completed: ${habit.name} on ${d2s({ dateTime: date, timezone, format: 'yyyy-MM-dd' })}`,
         type: habit.isTask ? 'TASK_COMPLETION' : 'HABIT_COMPLETION',
         relatedItemId: habit.id,
       })

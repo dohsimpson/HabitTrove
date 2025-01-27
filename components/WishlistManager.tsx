@@ -137,20 +137,11 @@ export default function WishlistManager() {
       </div>
       <AddEditWishlistItemModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false)
-          setEditingItem(null)
-        }}
-        onSave={(item) => {
-          if (editingItem) {
-            editWishlistItem({ ...item, id: editingItem.id })
-          } else {
-            addWishlistItem(item)
-          }
-          setIsModalOpen(false)
-          setEditingItem(null)
-        }}
-        item={editingItem}
+        setIsOpen={setIsModalOpen}
+        editingItem={editingItem}
+        setEditingItem={setEditingItem}
+        addWishlistItem={addWishlistItem}
+        editWishlistItem={editWishlistItem}
       />
       <ConfirmDialog
         isOpen={deleteConfirmation.isOpen}

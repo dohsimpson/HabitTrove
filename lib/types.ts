@@ -20,6 +20,7 @@ export type WishlistItemType = {
   coinCost: number
   archived?: boolean // mark the wishlist item as archived
   targetCompletions?: number // Optional field, infinity when unset
+  link?: string // Optional URL to external resource
 }
 
 export type TransactionType = 'HABIT_COMPLETION' | 'HABIT_UNDO' | 'WISH_REDEMPTION' | 'MANUAL_ADJUSTMENT' | 'TASK_COMPLETION' | 'TASK_UNDO';
