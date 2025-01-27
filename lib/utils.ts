@@ -287,3 +287,13 @@ export const playSound = (soundPath: string = '/sounds/timer-end.wav') => {
     console.error('Error playing sound:', error)
   })
 }
+
+// open a new window (client side only, must be run in browser)
+export const openWindow = (url: string): boolean => {
+  const newWindow = window.open(url, '_blank')
+  if (newWindow === null) {
+    // Popup was blocked
+    return false
+  }
+  return true
+}

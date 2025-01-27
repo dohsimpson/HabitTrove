@@ -9,6 +9,8 @@ import WishlistItem from './WishlistItem'
 import AddEditWishlistItemModal from './AddEditWishlistItemModal'
 import ConfirmDialog from './ConfirmDialog'
 import { WishlistItemType } from '@/lib/types'
+import { openWindow } from '@/lib/utils'
+import { toast } from '@/hooks/use-toast'
 
 export default function WishlistManager() {
   const {
@@ -62,6 +64,19 @@ export default function WishlistManager() {
       setTimeout(() => {
         setRecentlyRedeemedId(null)
       }, 3000)
+      
+      if (item.link) {
+        setTimeout(() => {
+          const opened = openWindow(item.link!)
+          if (!opened) {
+            toast({
+              title: "Popup Blocked",
+              description: "Please allow popups to open the link",
+              variant: "destructive"
+            })
+          }
+        }, 300)
+      }
     }
   }
 

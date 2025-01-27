@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.29
+
+### Fixed
+
+- actually working redeem link for wishlist items (#52)
+
 ## Version 0.1.28
 
 ### Added
