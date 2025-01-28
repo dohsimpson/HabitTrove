@@ -67,7 +67,7 @@ export default function HabitList() {
         
         {archivedHabits.length > 0 && (
           <>
-            <div className="col-span-2 relative flex items-center my-6">
+            <div className="col-span-1 sm:col-span-2 relative flex items-center my-6">
               <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
               <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">Archived</span>
               <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />

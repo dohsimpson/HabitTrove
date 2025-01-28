@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.30
+
+### Fixed
+
+- fix responsive layout on mobile for habits and wishlist when has archived items
+
 ## Version 0.1.29
 
 ### Fixed
