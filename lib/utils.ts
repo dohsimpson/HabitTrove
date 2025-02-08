@@ -2,9 +2,11 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DateTime, DateTimeFormatOptions } from "luxon"
 import { datetime, RRule } from 'rrule'
-import { Freq, Habit, CoinTransaction } from '@/lib/types'
-import { DUE_MAP, INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from "./constants"
+import { Freq, Habit, CoinTransaction, Permission } from '@/lib/types'
+import { DUE_MAP, RECURRENCE_RULE_MAP } from "./constants"
 import * as chrono from 'chrono-node';
+import { randomBytes, scryptSync } from "crypto"
+import _ from "lodash"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -296,4 +298,50 @@ export const openWindow = (url: string): boolean => {
     return false
   }
   return true
+}
+
+export function saltAndHashPassword(password: string, salt?: string): string {
+  salt = salt || randomBytes(16).toString('hex');
+  const hash = scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
+
+export function verifyPassword(password: string, storedHash: string): boolean {
+  // Split the stored hash into its salt and hash components
+  const [salt, hash] = storedHash.split(':');
+  
+  // Hash the input password with the same salt
+  const newHash = saltAndHashPassword(password, salt).split(':')[1];
+  
+  // Compare the new hash with the stored hash
+  return newHash === hash;
+}
+
+export function deepMerge<T>(a: T, b: T) {
+  return _.merge(a, b, (x: unknown, y: unknown) => {
+      if (_.isArray(a)) {
+        return a.concat(b)
+      }
+    })
+}
+
+export function checkPermission(
+  permissions: Permission[] | undefined,
+  resource: 'habit' | 'wishlist' | 'coins',
+  action: 'write' | 'interact'
+): boolean {
+  if (!permissions) return false
+  
+  return permissions.some(permission => {
+    switch (resource) {
+      case 'habit':
+        return permission.habit[action]
+      case 'wishlist':
+        return permission.wishlist[action]
+      case 'coins':
+        return permission.coins[action]
+      default:
+        return false
+    }
+  })
 }

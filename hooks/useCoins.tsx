@@ -1,4 +1,5 @@
 import { useAtom } from 'jotai'
+import { checkPermission } from '@/lib/utils'
 import {
   coinsAtom,
   coinsEarnedTodayAtom,
@@ -10,8 +11,36 @@ import {
 import { addCoins, removeCoins, saveCoinsData } from '@/app/actions/data'
 import { CoinsData } from '@/lib/types'
 import { toast } from '@/hooks/use-toast'
+import { useHelpers } from '@/lib/client-helpers'
+
+function handlePermissionCheck(
+  user: any,
+  resource: 'habit' | 'wishlist' | 'coins',
+  action: 'write' | 'interact'
+): boolean {
+  if (!user) {
+    toast({
+      title: "Authentication Required",
+      description: "Please sign in to continue.",
+      variant: "destructive",
+    })
+    return false
+  }
+  
+  if (!user.isAdmin && !checkPermission(user.permissions, resource, action)) {
+    toast({
+      title: "Permission Denied",
+      description: `You don't have ${action} permission for ${resource}s.`,
+      variant: "destructive",
+    })
+    return false
+  }
+  
+  return true
+}
 
 export function useCoins() {
+  const { currentUser: user } = useHelpers()
   const [coins, setCoins] = useAtom(coinsAtom)
   const [coinsEarnedToday] = useAtom(coinsEarnedTodayAtom)
   const [totalEarned] = useAtom(totalEarnedAtom)
@@ -20,6 +49,7 @@ export function useCoins() {
   const [transactionsToday] = useAtom(transactionsTodayAtom)
 
   const add = async (amount: number, description: string, note?: string) => {
+    if (!handlePermissionCheck(user, 'coins', 'write')) return null
     if (isNaN(amount) || amount <= 0) {
       toast({
         title: "Invalid amount",
@@ -40,6 +70,7 @@ export function useCoins() {
   }
 
   const remove = async (amount: number, description: string, note?: string) => {
+    if (!handlePermissionCheck(user, 'coins', 'write')) return null
     const numAmount = Math.abs(amount)
     if (isNaN(numAmount) || numAmount <= 0) {
       toast({
@@ -61,6 +92,7 @@ export function useCoins() {
   }
 
   const updateNote = async (transactionId: string, note: string) => {
+    if (!handlePermissionCheck(user, 'coins', 'write')) return null
     const transaction = coins.transactions.find(t => t.id === transactionId)
     if (!transaction) {
       toast({

@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.2.0
+
+### Added
+* Multi-user support with permissions system
+* User management interface
+* Support for multiple users tracking habits and wishlists
+* Sharing habits and wishlist items with other users
+
+### BREAKING CHANGE
+* Requires AUTH_SECRET environment variable for user authentication
+* Generate a secure secret with: `openssl rand -base64 32`
+
 ## Version 0.1.30
 
 ### Fixed

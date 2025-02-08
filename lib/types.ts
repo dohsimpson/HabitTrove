@@ -1,3 +1,35 @@
+import { DEFAULT_ADMIN_PASS_HASH } from "./constants"
+import { saltAndHashPassword } from "./utils"
+
+export type UserId = string
+
+export type Permission = {
+  habit: {
+    write: boolean
+    interact: boolean
+  }
+  wishlist: {
+    write: boolean
+    interact: boolean
+  }
+  coins: {
+    write: boolean
+    interact: boolean
+  }
+}
+
+export type SafeUser = {
+  id: UserId
+  username: string
+  avatarPath?: string
+  permissions?: Permission[]
+  isAdmin?: boolean
+}
+
+export type User = SafeUser & {
+  password: string
+}
+
 export type Habit = {
   id: string
   name: string
@@ -8,6 +40,7 @@ export type Habit = {
   completions: string[] // Array of UTC ISO date strings
   isTask?: boolean // mark the habit as a task
   archived?: boolean // mark the habit as archived
+  userIds?: UserId[]
 }
 
 
@@ -21,6 +54,7 @@ export type WishlistItemType = {
   archived?: boolean // mark the wishlist item as archived
   targetCompletions?: number // Optional field, infinity when unset
   link?: string // Optional URL to external resource
+  userIds?: UserId[]
 }
 
 export type TransactionType = 'HABIT_COMPLETION' | 'HABIT_UNDO' | 'WISH_REDEMPTION' | 'MANUAL_ADJUSTMENT' | 'TASK_COMPLETION' | 'TASK_UNDO';
@@ -33,6 +67,11 @@ export interface CoinTransaction {
   timestamp: string;
   relatedItemId?: string;
   note?: string;
+  userId?: UserId;
+}
+
+export interface UserData {
+  users: User[]
 }
 
 export interface HabitsData {
@@ -52,6 +91,17 @@ export interface WishlistData {
 }
 
 // Default value functions
+export const getDefaultUsersData = (): UserData => ({
+  users: [
+    {
+      id: crypto.randomUUID(),
+      username: 'admin',
+      password: DEFAULT_ADMIN_PASS_HASH,
+      isAdmin: true,
+    }
+  ]
+});
+
 export const getDefaultHabitsData = (): HabitsData => ({
   habits: []
 });
@@ -84,6 +134,7 @@ export const DATA_DEFAULTS = {
   habits: getDefaultHabitsData,
   coins: getDefaultCoinsData,
   settings: getDefaultSettings,
+  auth: getDefaultUsersData,
 } as const;
 
 // Type for all possible data types
@@ -102,7 +153,7 @@ export interface SystemSettings {
 }
 
 export interface ProfileSettings {
-  avatarPath?: string;
+  avatarPath?: string; // deprecated
 }
 
 export interface Settings {
@@ -118,4 +169,5 @@ export interface JotaiHydrateInitialValues {
   coins: CoinsData;
   habits: HabitsData;
   wishlist: WishlistData;
+  users: UserData;
 }

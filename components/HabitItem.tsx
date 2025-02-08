@@ -1,6 +1,6 @@
-import { Habit } from '@/lib/types'
+import { Habit, SafeUser } from '@/lib/types'
 import { useAtom } from 'jotai'
-import { settingsAtom, pomodoroAtom, browserSettingsAtom } from '@/lib/atoms'
+import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule, d2s } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,8 @@ import { useEffect, useState } from 'react'
 import { useHabits } from '@/hooks/useHabits'
 import { INITIAL_RECURRENCE_RULE } from '@/lib/constants'
 import { DateTime } from 'luxon'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { useHelpers } from '@/lib/client-helpers'
 
 interface HabitItemProps {
   habit: Habit
@@ -36,6 +38,9 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const [browserSettings] = useAtom(browserSettingsAtom)
   const isTasksView = browserSettings.viewType === 'tasks'
   const isRecurRule = !isTasksView
+
+  const [usersData] = useAtom(usersAtom)
+  const { currentUser } = useHelpers()
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -63,11 +68,29 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
     >
       <CardHeader className="flex-none">
         <CardTitle className={`line-clamp-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{habit.name}</CardTitle>
-        {habit.description && (
-          <CardDescription className={`whitespace-pre-line ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
-            {habit.description}
-          </CardDescription>
-        )}
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            {habit.description && (
+              <CardDescription className={`whitespace-pre-line ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
+                {habit.description}
+              </CardDescription>
+            )}
+          </div>
+          {habit.userIds && habit.userIds.length > 1 && (
+            <div className="flex -space-x-2 ml-2 flex-shrink-0">
+              {habit.userIds?.filter((u) => u !== currentUser?.id).map(userId => {
+                const user = usersData.users.find(u => u.id === userId)
+                if (!user) return null
+                return (
+                  <Avatar key={user.id} className="h-6 w-6">
+                    <AvatarImage src={user?.avatarPath && `/api/avatars/${user.avatarPath.split('/').pop()}` || ""} />
+                    <AvatarFallback>{user.username[0]}</AvatarFallback>
+                  </Avatar>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="flex-1">
         <p className={`text-sm ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500'}`}>When: {isRecurRule ? parseRRule(habit.frequency || INITIAL_RECURRENCE_RULE).toText() : d2s({ dateTime: t2d({ timestamp: habit.frequency, timezone: settings.system.timezone }), timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })}</p>

@@ -6,6 +6,7 @@ import {
   getDefaultWishlistData,
   Habit,
   ViewType,
+  getDefaultUsersData,
 } from "./types";
 import {
   getTodayInTimezone,
@@ -29,6 +30,7 @@ export const browserSettingsAtom = atomWithStorage('browserSettings', {
   viewType: 'habits'
 } as BrowserSettings)
 
+export const usersAtom = atom(getDefaultUsersData())
 export const settingsAtom = atom(getDefaultSettings());
 export const habitsAtom = atom(getDefaultHabitsData());
 export const coinsAtom = atom(getDefaultCoinsData());
@@ -81,6 +83,8 @@ export const pomodoroAtom = atom<PomodoroAtom>({
   autoStart: true,
   minimized: false,
 })
+
+export const userSelectAtom = atom<boolean>(false)
 
 // Derived atom for *fully* completed habits by date, respecting target completions
 export const completedHabitsMapAtom = atom((get) => {

@@ -5,3 +5,5 @@ services:
     volumes:
       - "./data:/app/data" # Use a relative path instead of $(pwd)
     image: dohsimpson/habittrove
+    environment:
+      - AUTH_SECRET=your-secret-key-here

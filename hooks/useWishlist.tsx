@@ -4,34 +4,70 @@ import { saveWishlistItems, removeCoins } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
 import { WishlistItemType } from '@/lib/types'
 import { celebrations } from '@/utils/celebrations'
+import { checkPermission } from '@/lib/utils'
+import { useHelpers } from '@/lib/client-helpers'
+
+function handlePermissionCheck(
+  user: any,
+  resource: 'habit' | 'wishlist' | 'coins',
+  action: 'write' | 'interact'
+): boolean {
+  if (!user) {
+    toast({
+      title: "Authentication Required",
+      description: "Please sign in to continue.",
+      variant: "destructive",
+    })
+    return false
+  }
+  
+  if (!user.isAdmin && !checkPermission(user.permissions, resource, action)) {
+    toast({
+      title: "Permission Denied",
+      description: `You don't have ${action} permission for ${resource}s.`,
+      variant: "destructive",
+    })
+    return false
+  }
+  
+  return true
+}
 
 export function useWishlist() {
+  const { currentUser: user } = useHelpers()
   const [wishlist, setWishlist] = useAtom(wishlistAtom)
   const [coins, setCoins] = useAtom(coinsAtom)
   const balance = coins.balance
 
   const addWishlistItem = async (item: Omit<WishlistItemType, 'id'>) => {
+    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
     const newItem = { ...item, id: Date.now().toString() }
     const newItems = [...wishlist.items, newItem]
-    setWishlist({ items: newItems })
-    await saveWishlistItems(newItems)
+    const newWishListData = { items: newItems }
+    setWishlist(newWishListData)
+    await saveWishlistItems(newWishListData)
   }
 
   const editWishlistItem = async (updatedItem: WishlistItemType) => {
+    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
     const newItems = wishlist.items.map(item =>
       item.id === updatedItem.id ? updatedItem : item
     )
-    setWishlist({ items: newItems })
-    await saveWishlistItems(newItems)
+    const newWishListData = { items: newItems }
+    setWishlist(newWishListData)
+    await saveWishlistItems(newWishListData)
   }
 
   const deleteWishlistItem = async (id: string) => {
+    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
     const newItems = wishlist.items.filter(item => item.id !== id)
-    setWishlist({ items: newItems })
-    await saveWishlistItems(newItems)
+    const newWishListData = { items: newItems }
+    setWishlist(newWishListData)
+    await saveWishlistItems(newWishListData)
   }
 
   const redeemWishlistItem = async (item: WishlistItemType) => {
+    if (!handlePermissionCheck(user, 'wishlist', 'interact')) return false
     if (balance >= item.coinCost) {
       // Check if item has target completions and if we've reached the limit
       if (item.targetCompletions && item.targetCompletions <= 0) {
@@ -71,8 +107,9 @@ export function useWishlist() {
           }
           return wishlistItem
         })
-        setWishlist({ items: newItems })
-        await saveWishlistItems(newItems)
+        const newWishListData = { items: newItems }
+        setWishlist(newWishListData)
+        await saveWishlistItems(newWishListData)
       }
 
       // Randomly choose a celebration effect
@@ -101,19 +138,23 @@ export function useWishlist() {
   const canRedeem = (cost: number) => balance >= cost
 
   const archiveWishlistItem = async (id: string) => {
+    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
     const newItems = wishlist.items.map(item =>
       item.id === id ? { ...item, archived: true } : item
     )
-    setWishlist({ items: newItems })
-    await saveWishlistItems(newItems)
+    const newWishListData = { items: newItems }
+    setWishlist(newWishListData)
+    await saveWishlistItems(newWishListData)
   }
 
   const unarchiveWishlistItem = async (id: string) => {
+    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
     const newItems = wishlist.items.map(item =>
-      item.id === id ? { ...item, archived: undefined } : item
+      item.id === id ? { ...item, archived: false } : item
     )
-    setWishlist({ items: newItems })
-    await saveWishlistItems(newItems)
+    const newWishListData = { items: newItems }
+    setWishlist(newWishListData)
+    await saveWishlistItems(newWishListData)
   }
 
   return {
