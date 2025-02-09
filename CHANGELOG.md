@@ -19,6 +19,7 @@
 - always show edit button in user switch modal
 - move crypto utils to server-helpers
 - use uuid package for client-compatible generator
+- fix add button for tasks and habits in daily overview
 
 
 ### BREAKING CHANGE

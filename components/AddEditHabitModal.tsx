@@ -33,17 +33,16 @@ interface AddEditHabitModalProps {
   onClose: () => void
   onSave: (habit: Omit<Habit, 'id'>) => Promise<void>
   habit?: Habit | null
+  isTask: boolean
 }
 
-export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHabitModalProps) {
+export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: AddEditHabitModalProps) {
   const [settings] = useAtom(settingsAtom)
-  const [browserSettings, setBrowserSettings] = useAtom(browserSettingsAtom)
-  const isTasksView = browserSettings.viewType === 'tasks'
   const [name, setName] = useState(habit?.name || '')
   const [description, setDescription] = useState(habit?.description || '')
   const [coinReward, setCoinReward] = useState(habit?.coinReward || 1)
   const [targetCompletions, setTargetCompletions] = useState(habit?.targetCompletions || 1)
-  const isRecurRule = !isTasksView
+  const isRecurRule = !isTask
   const origRuleText = isRecurRule ? parseRRule(habit?.frequency || INITIAL_RECURRENCE_RULE).toText() : habit?.frequency || INITIAL_DUE
   const [ruleText, setRuleText] = useState<string>(origRuleText)
   const now = getNow({ timezone: settings.system.timezone })
@@ -61,7 +60,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
       targetCompletions: targetCompletions > 1 ? targetCompletions : undefined,
       completions: habit?.completions || [],
       frequency: isRecurRule ? serializeRRule(parseNaturalLanguageRRule(ruleText)) : d2t({ dateTime: parseNaturalLanguageDate({ text: ruleText, timezone: settings.system.timezone }) }),
-      isTask: isTasksView ? true : undefined,
+      isTask: isTask || undefined,
       userIds: selectedUserIds.length > 0 ? selectedUserIds.concat(currentUser?.id || []) : (currentUser && [currentUser.id])
     })
   }
@@ -70,7 +69,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{habit ? `Edit ${isTasksView ? 'Task' : 'Habit'}` : `Add New ${isTasksView ? 'Task' : 'Habit'}`}</DialogTitle>
+          <DialogTitle>{habit ? `Edit ${isTask ? 'Task' : 'Habit'}` : `Add New ${isTask ? 'Task' : 'Habit'}`}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
@@ -265,7 +264,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
             )}
           </div>
           <DialogFooter>
-            <Button type="submit">{habit ? 'Save Changes' : `Add ${isTasksView ? 'Task' : 'Habit'}`}</Button>
+            <Button type="submit">{habit ? 'Save Changes' : `Add ${isTask ? 'Task' : 'Habit'}`}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

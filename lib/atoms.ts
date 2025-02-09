@@ -139,3 +139,9 @@ export const pomodoroTodayCompletionsAtom = atom((get) => {
     timezone: settings.system.timezone
   })
 })
+
+// Derived atom to check if any habits are tasks
+export const hasTasksAtom = atom((get) => {
+  const habits = get(habitsAtom)
+  return habits.habits.some(habit => habit.isTask === true)
+})

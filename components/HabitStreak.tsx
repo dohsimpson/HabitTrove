@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { d2s, getNow, t2d, getCompletedHabitsForDate } from '@/lib/utils'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
+import { settingsAtom, hasTasksAtom } from '@/lib/atoms'
 
 interface HabitStreakProps {
   habits: Habit[]
@@ -13,6 +13,7 @@ interface HabitStreakProps {
 
 export default function HabitStreak({ habits }: HabitStreakProps) {
   const [settings] = useAtom(settingsAtom)
+  const [hasTasks] = useAtom(hasTasksAtom)
   // Get the last 7 days of data
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = getNow({ timezone: settings.system.timezone });
@@ -66,14 +67,16 @@ export default function HabitStreak({ habits }: HabitStreakProps) {
                 strokeWidth={2}
                 dot={false}
               />
-              <Line
-                type="monotone"
-                name="tasks"
-                dataKey="tasks"
-                stroke="#f59e0b"
-                strokeWidth={2}
-                dot={false}
-              />
+              {hasTasks && (
+                <Line
+                  type="monotone"
+                  name="tasks"
+                  dataKey="tasks"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         </div>

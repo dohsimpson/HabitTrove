@@ -9,7 +9,7 @@ import { cn, isHabitDueToday, getHabitFreq } from '@/lib/utils'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
-import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings } from '@/lib/atoms'
+import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings, hasTasksAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -43,19 +43,25 @@ export default function DailyOverview({
   const [browserSettings, setBrowserSettings] = useAtom(browserSettingsAtom)
 
   useEffect(() => {
-    // Filter habits and tasks that are due today based on their recurrence rule
+    // Filter habits and tasks that are due today and not archived
     const filteredHabits = habits.filter(habit =>
-      !habit.isTask && isHabitDueToday({ habit, timezone: settings.system.timezone })
+      !habit.isTask && 
+      !habit.archived && 
+      isHabitDueToday({ habit, timezone: settings.system.timezone })
     )
     const filteredTasks = habits.filter(habit =>
-      habit.isTask && isHabitDueToday({ habit, timezone: settings.system.timezone })
+      habit.isTask && 
+      !habit.archived && 
+      isHabitDueToday({ habit, timezone: settings.system.timezone })
     )
     setDailyHabits(filteredHabits)
     setDailyTasks(filteredTasks)
   }, [habits])
 
   // Get all wishlist items sorted by redeemable status (non-redeemable first) then by coin cost
+  // Filter out archived wishlist items
   const sortedWishlistItems = wishlistItems
+    .filter(item => !item.archived)
     .sort((a, b) => {
       const aRedeemable = a.coinCost <= coinBalance
       const bRedeemable = b.coinCost <= coinBalance
@@ -72,9 +78,15 @@ export default function DailyOverview({
   const [expandedHabits, setExpandedHabits] = useState(false)
   const [expandedTasks, setExpandedTasks] = useState(false)
   const [expandedWishlist, setExpandedWishlist] = useState(false)
+  const [hasTasks] = useAtom(hasTasksAtom)
   const [_, setPomo] = useAtom(pomodoroAtom)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isTaskModal, setIsTaskModal] = useState(false)
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean,
+    isTask: boolean
+  }>({
+    isOpen: false,
+    isTask: false
+  });
 
   return (
     <>
@@ -85,7 +97,30 @@ export default function DailyOverview({
         <CardContent>
           <div className="space-y-6">
             {/* Tasks Section */}
-            {dailyTasks.length > 0 && (
+            {hasTasks && dailyTasks.length === 0 ? (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">Daily Tasks</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary"
+                    onClick={() => {
+                      setModalConfig({
+                        isOpen: true,
+                        isTask: true
+                      });
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="sr-only">Add Task</span>
+                  </Button>
+                </div>
+                <div className="text-center text-muted-foreground text-sm py-4">
+                  No tasks due today. Add some tasks to get started!
+                </div>
+              </div>
+            ) : hasTasks && (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -97,8 +132,10 @@ export default function DailyOverview({
                     size="sm"
                     className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary"
                     onClick={() => {
-                      setIsTaskModal(true)
-                      setIsModalOpen(true)
+                      setModalConfig({
+                        isOpen: true,
+                        isTask: true
+                      });
                     }}
                   >
                     <Plus className="h-4 w-4" />
@@ -271,7 +308,30 @@ export default function DailyOverview({
             )}
 
             {/* Habits Section */}
-            {dailyHabits.length > 0 && (
+            {dailyHabits.length === 0 ? (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">Daily Habits</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary"
+                    onClick={() => {
+                      setModalConfig({
+                        isOpen: true,
+                        isTask: false
+                      });
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="sr-only">Add Habit</span>
+                  </Button>
+                </div>
+                <div className="text-center text-muted-foreground text-sm py-4">
+                  No habits due today. Add some habits to get started!
+                </div>
+              </div>
+            ) : (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -283,8 +343,10 @@ export default function DailyOverview({
                     size="sm"
                     className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary"
                     onClick={() => {
-                      setIsTaskModal(false)
-                      setIsModalOpen(true)
+                      setModalConfig({
+                        isOpen: true,
+                        isTask: false
+                      });
                     }}
                   >
                     <Plus className="h-4 w-4" />
@@ -554,14 +616,15 @@ export default function DailyOverview({
           </div>
         </CardContent>
       </Card>
-      {isModalOpen && (
+      {modalConfig.isOpen && (
         <AddEditHabitModal
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setModalConfig({ isOpen: false, isTask: false })}
           onSave={async (habit) => {
-            await saveHabit({ ...habit, isTask: isTaskModal })
-            setIsModalOpen(false)
+            await saveHabit({ ...habit, isTask: modalConfig.isTask })
+            setModalConfig({ isOpen: false, isTask: false });
           }}
           habit={null}
+          isTask={modalConfig.isTask}
         />
       )}
     </>

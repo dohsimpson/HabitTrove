@@ -25,7 +25,13 @@ export default function HabitList() {
   const activeHabits = habits.filter(h => !h.archived)
   const archivedHabits = habits.filter(h => h.archived)
   const [settings] = useAtom(settingsAtom)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean,
+    isTask: boolean
+  }>({
+    isOpen: false,
+    isTask: false
+  })
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean, habitId: string | null }>({
     isOpen: false,
@@ -39,7 +45,7 @@ export default function HabitList() {
         <h1 className="text-3xl font-bold">
           {isTasksView ? 'My Tasks' : 'My Habits'}
         </h1>
-        <Button onClick={() => setIsModalOpen(true)}>
+        <Button onClick={() => setModalConfig({ isOpen: true, isTask: isTasksView })}>
           <Plus className="mr-2 h-4 w-4" /> {isTasksView ? 'Add Task' : 'Add Habit'}
         </Button>
       </div>
@@ -62,7 +68,7 @@ export default function HabitList() {
               habit={habit}
               onEdit={() => {
                 setEditingHabit(habit)
-                setIsModalOpen(true)
+                setModalConfig({ isOpen: true, isTask: isTasksView })
               }}
               onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
             />
@@ -82,7 +88,7 @@ export default function HabitList() {
                 habit={habit}
                 onEdit={() => {
                   setEditingHabit(habit)
-                  setIsModalOpen(true)
+                  setModalConfig({ isOpen: true, isTask: isTasksView })
                 }}
                 onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
               />
@@ -90,18 +96,19 @@ export default function HabitList() {
           </>
         )}
       </div>
-      {isModalOpen &&
+      {modalConfig.isOpen &&
         <AddEditHabitModal
           onClose={() => {
-            setIsModalOpen(false)
+            setModalConfig({ isOpen: false, isTask: false })
             setEditingHabit(null)
           }}
           onSave={async (habit) => {
-            await saveHabit({ ...habit, id: editingHabit?.id })
-            setIsModalOpen(false)
+            await saveHabit({ ...habit, id: editingHabit?.id, isTask: modalConfig.isTask })
+            setModalConfig({ isOpen: false, isTask: false })
             setEditingHabit(null)
           }}
           habit={editingHabit}
+          isTask={modalConfig.isTask}
         />
       }
       <ConfirmDialog
