@@ -6,7 +6,8 @@ import {
   totalEarnedAtom,
   totalSpentAtom,
   coinsSpentTodayAtom,
-  transactionsTodayAtom
+  transactionsTodayAtom,
+  coinsBalanceAtom
 } from '@/lib/atoms'
 import { addCoins, removeCoins, saveCoinsData } from '@/app/actions/data'
 import { CoinsData } from '@/lib/types'
@@ -47,6 +48,7 @@ export function useCoins() {
   const [totalSpent] = useAtom(totalSpentAtom)
   const [coinsSpentToday] = useAtom(coinsSpentTodayAtom)
   const [transactionsToday] = useAtom(transactionsTodayAtom)
+  const [balance] = useAtom(coinsBalanceAtom)
 
   const add = async (amount: number, description: string, note?: string) => {
     if (!handlePermissionCheck(user, 'coins', 'write')) return null
@@ -125,7 +127,7 @@ export function useCoins() {
     add,
     remove,
     updateNote,
-    balance: coins.balance,
+    balance,
     transactions: coins.transactions,
     coinsEarnedToday,
     totalEarned,

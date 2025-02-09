@@ -60,7 +60,7 @@ function UserCard({
             e.stopPropagation();
             onEdit();
           }}
-          className="absolute top-0 right-0 p-1 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors opacity-0 group-hover:opacity-100"
+          className="absolute top-0 right-0 p-1 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
         >
           <UserRoundPen className="h-4 w-4" />
         </button>

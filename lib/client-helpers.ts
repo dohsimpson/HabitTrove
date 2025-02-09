@@ -8,13 +8,13 @@ import { usersAtom } from './atoms'
 
 export function useHelpers() {
   const { data: session, status } = useSession()
-  const currentUser = session?.user
+  const currentUserId = session?.user.id
   const [usersData] = useAtom(usersAtom)
-  const currentUserData = usersData.users.find((u) => u.id === currentUser?.id)
+  const currentUser = usersData.users.find((u) => u.id === currentUserId)
 
   return {
+    currentUserId,
     currentUser,
-    currentUserData,
     usersData,
     status
   }

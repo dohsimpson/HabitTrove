@@ -12,6 +12,7 @@ import ConfirmDialog from './ConfirmDialog'
 import { Habit } from '@/lib/types'
 import { useHabits } from '@/hooks/useHabits'
 import { HabitIcon, TaskIcon } from '@/lib/constants'
+import { ViewToggle } from './ViewToggle'
 
 export default function HabitList() {
   const { saveHabit, deleteHabit } = useHabits()
@@ -41,6 +42,9 @@ export default function HabitList() {
         <Button onClick={() => setIsModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> {isTasksView ? 'Add Task' : 'Add Habit'}
         </Button>
+      </div>
+      <div className='py-4'>
+        <ViewToggle />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
         {activeHabits.length === 0 ? (

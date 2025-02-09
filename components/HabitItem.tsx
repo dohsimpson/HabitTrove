@@ -1,4 +1,4 @@
-import { Habit, SafeUser } from '@/lib/types'
+import { Habit, SafeUser, User } from '@/lib/types'
 import { useAtom } from 'jotai'
 import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule, d2s } from '@/lib/utils'
@@ -25,6 +25,26 @@ interface HabitItemProps {
   onDelete: () => void
 }
 
+const renderUserAvatars = (habit: Habit, currentUser: User | null, usersData: { users: User[] }) => {
+  if (!habit.userIds || habit.userIds.length <= 1) return null;
+  
+  return (
+    <div className="flex -space-x-2 ml-2 flex-shrink-0">
+      {habit.userIds?.filter((u) => u !== currentUser?.id).map(userId => {
+        const user = usersData.users.find(u => u.id === userId)
+        if (!user) return null
+        return (
+          <Avatar key={user.id} className="h-6 w-6">
+            <AvatarImage src={user?.avatarPath && `/api/avatars/${user.avatarPath.split('/').pop()}` || ""} />
+            <AvatarFallback>{user.username[0]}</AvatarFallback>
+          </Avatar>
+        )
+      })}
+    </div>
+  );
+};
+
+
 export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const { completeHabit, undoComplete, archiveHabit, unarchiveHabit } = useHabits()
   const [settings] = useAtom(settingsAtom)
@@ -35,12 +55,11 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const target = habit.targetCompletions || 1
   const isCompletedToday = completionsToday >= target
   const [isHighlighted, setIsHighlighted] = useState(false)
+  const [usersData] = useAtom(usersAtom)
+  const { currentUser } = useHelpers()
   const [browserSettings] = useAtom(browserSettingsAtom)
   const isTasksView = browserSettings.viewType === 'tasks'
   const isRecurRule = !isTasksView
-
-  const [usersData] = useAtom(usersAtom)
-  const { currentUser } = useHelpers()
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -76,20 +95,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               </CardDescription>
             )}
           </div>
-          {habit.userIds && habit.userIds.length > 1 && (
-            <div className="flex -space-x-2 ml-2 flex-shrink-0">
-              {habit.userIds?.filter((u) => u !== currentUser?.id).map(userId => {
-                const user = usersData.users.find(u => u.id === userId)
-                if (!user) return null
-                return (
-                  <Avatar key={user.id} className="h-6 w-6">
-                    <AvatarImage src={user?.avatarPath && `/api/avatars/${user.avatarPath.split('/').pop()}` || ""} />
-                    <AvatarFallback>{user.username[0]}</AvatarFallback>
-                  </Avatar>
-                )
-              })}
-            </div>
-          )}
+          {renderUserAvatars(habit, currentUser as User, usersData)}
         </div>
       </CardHeader>
       <CardContent className="flex-1">

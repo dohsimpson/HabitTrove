@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { getUser } from "./app/actions/data"
 import { signInSchema } from "./lib/zod"
-import { SafeUser } from "./lib/types"
+import { SafeUser, SessionUser } from "./lib/types"
  
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -22,7 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Invalid credentials.")
         }
  
-        const safeUser: SafeUser = { username: user.username, id: user.id, avatarPath: user.avatarPath, isAdmin: user.isAdmin }
+        const safeUser: SessionUser = { id: user.id }
         return safeUser
       },
     }),
@@ -30,19 +30,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     jwt: async ({ token, user }) => {
       if (user) {
-        token.id = (user as SafeUser).id
-        token.username = (user as SafeUser).username
-        token.avatarPath = (user as SafeUser).avatarPath
-        token.isAdmin = (user as SafeUser).isAdmin
+        token.id = (user as SessionUser).id
       }
       return token
     },
     session: async ({ session, token }) => {
       if (session?.user) {
         session.user.id = token.id as string
-        session.user.username = token.username as string
-        session.user.avatarPath = token.avatarPath as string
-        session.user.isAdmin = token.isAdmin as boolean
       }
       return session
     }

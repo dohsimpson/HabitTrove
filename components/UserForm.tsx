@@ -219,7 +219,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         )}
 
         
-        {currentUser && currentUser.isAdmin && <PermissionSelector
+        {currentUser && currentUser.isAdmin && users.users.length > 1 && <PermissionSelector
           permissions={permissions}
           isAdmin={isAdmin}
           onPermissionsChange={setPermissions}

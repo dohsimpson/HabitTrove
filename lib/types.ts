@@ -18,8 +18,11 @@ export type Permission = {
   }
 }
 
-export type SafeUser = {
+export type SessionUser = {
   id: UserId
+}
+
+export type SafeUser = SessionUser & {
   username: string
   avatarPath?: string
   permissions?: Permission[]

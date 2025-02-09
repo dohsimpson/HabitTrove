@@ -3,12 +3,24 @@
 ## Version 0.2.0
 
 ### Added
+
 * Multi-user support with permissions system
 * User management interface
 * Support for multiple users tracking habits and wishlists
 * Sharing habits and wishlist items with other users
+* show both tasks and habits in dashboard (#58)
+* show tasks in completion streak (#57)
+
+### Changed
+
+- useHelpers hook should return user from atom not session
+- sharing wishlist with other users
+- disable permission edit if only has 1 user
+- always show edit button in user switch modal
+
 
 ### BREAKING CHANGE
+
 * Requires AUTH_SECRET environment variable for user authentication
 * Generate a secure secret with: `openssl rand -base64 32`
 

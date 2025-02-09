@@ -20,21 +20,27 @@ export default function HabitStreak({ habits }: HabitStreakProps) {
   }).reverse()
 
   const completions = dates.map(date => {
-    const completedCount = getCompletedHabitsForDate({
-      habits,
+    const completedHabits = getCompletedHabitsForDate({
+      habits: habits.filter(h => !h.isTask),
       date: t2d({ timestamp: date, timezone: settings.system.timezone }),
       timezone: settings.system.timezone
-    }).length;
+    });
+    const completedTasks = getCompletedHabitsForDate({
+      habits: habits.filter(h => h.isTask),
+      date: t2d({ timestamp: date, timezone: settings.system.timezone }),
+      timezone: settings.system.timezone
+    });
     return {
       date,
-      completed: completedCount
+      habits: completedHabits.length,
+      tasks: completedTasks.length
     };
   });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Daily Habit Completion Streak</CardTitle>
+        <CardTitle>Daily Completion Streak</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="w-full aspect-[2/1]">
@@ -51,11 +57,20 @@ export default function HabitStreak({ habits }: HabitStreakProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
-              <Tooltip formatter={(value) => [`${value} habits`, 'Completed']} />
+              <Tooltip formatter={(value, name) => [`${value} ${name}`, 'Completed']} />
               <Line
                 type="monotone"
-                dataKey="completed"
+                name="habits"
+                dataKey="habits"
                 stroke="#14b8a6"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                name="tasks"
+                dataKey="tasks"
+                stroke="#f59e0b"
                 strokeWidth={2}
                 dot={false}
               />

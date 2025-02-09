@@ -37,7 +37,7 @@ interface AddEditHabitModalProps {
 
 export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHabitModalProps) {
   const [settings] = useAtom(settingsAtom)
-  const [browserSettings] = useAtom(browserSettingsAtom)
+  const [browserSettings, setBrowserSettings] = useAtom(browserSettingsAtom)
   const isTasksView = browserSettings.viewType === 'tasks'
   const [name, setName] = useState(habit?.name || '')
   const [description, setDescription] = useState(habit?.description || '')
@@ -243,8 +243,8 @@ export default function AddEditHabitModal({ onClose, onSave, habit }: AddEditHab
                         key={user.id}
                         className={`h-8 w-8 border-2 cursor-pointer
                           ${selectedUserIds.includes(user.id) 
-                            ? 'border-primary hover:border-primary/80' 
-                            : 'border-muted hover:border-primary/50'
+                            ? 'border-primary' 
+                            : 'border-muted'
                           }`}
                         title={user.username}
                         onClick={() => {

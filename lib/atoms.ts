@@ -69,6 +69,12 @@ export const transactionsTodayAtom = atom((get) => {
   return calculateTransactionsToday(coins.transactions, settings.system.timezone);
 });
 
+// Derived atom for current balance from all transactions
+export const coinsBalanceAtom = atom((get) => {
+  const coins = get(coinsAtom);
+  return coins.transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+});
+
 /* transient atoms */
 interface PomodoroAtom {
   show: boolean

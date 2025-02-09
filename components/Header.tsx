@@ -28,9 +28,8 @@ const TodayEarnedCoins = dynamic(() => import('./TodayEarnedCoins'), { ssr: fals
 
 export default function Header({ className }: HeaderProps) {
   const [settings] = useAtom(settingsAtom)
-  const [coins] = useAtom(coinsAtom)
   const [browserSettings] = useAtom(browserSettingsAtom)
-  const isTasksView = browserSettings.viewType === 'tasks'
+  const { balance } = useCoins()
   return (
     <>
       <header className={`border-b bg-white dark:bg-gray-800 shadow-sm ${className || ''}`}>
@@ -44,7 +43,7 @@ export default function Header({ className }: HeaderProps) {
                 <Coins className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
                 <div className="flex items-baseline gap-1 sm:gap-2">
                   <FormattedNumber
-                    amount={coins.balance}
+                    amount={balance}
                     settings={settings}
                     className="text-gray-800 dark:text-gray-100 font-medium text-lg"
                   />
