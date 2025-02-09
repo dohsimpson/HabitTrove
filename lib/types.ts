@@ -1,5 +1,6 @@
 import { DEFAULT_ADMIN_PASS_HASH } from "./constants"
-import { saltAndHashPassword } from "./utils"
+import { saltAndHashPassword } from "./server-helpers"
+import { uuid } from "./utils"
 
 export type UserId = string
 
@@ -97,7 +98,7 @@ export interface WishlistData {
 export const getDefaultUsersData = (): UserData => ({
   users: [
     {
-      id: crypto.randomUUID(),
+      id: uuid(),
       username: 'admin',
       password: DEFAULT_ADMIN_PASS_HASH,
       isAdmin: true,

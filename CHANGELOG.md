@@ -17,6 +17,8 @@
 - sharing wishlist with other users
 - disable permission edit if only has 1 user
 - always show edit button in user switch modal
+- move crypto utils to server-helpers
+- use uuid package for client-compatible generator
 
 
 ### BREAKING CHANGE

@@ -1,4 +1,4 @@
-import { saltAndHashPassword } from '@/lib/utils';
+import { saltAndHashPassword } from "@/lib/server-helpers";
 
 export default function DebugPage() {
   const password = 'admin';

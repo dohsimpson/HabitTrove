@@ -15,7 +15,8 @@ import {
   calculateTotalSpent,
   calculateCoinsSpentToday,
   isHabitDueToday,
-  isHabitDue
+  isHabitDue,
+  uuid
 } from './utils'
 import { CoinTransaction } from './types'
 import { DateTime } from "luxon";
@@ -28,6 +29,32 @@ describe('cn utility', () => {
     expect(cn('foo', { bar: true })).toBe('foo bar')
     expect(cn('foo', { bar: false })).toBe('foo')
     expect(cn('foo', ['bar', 'baz'])).toBe('foo bar baz')
+  })
+})
+
+describe('uuid', () => {
+  test('should generate valid UUIDs', () => {
+    const id = uuid()
+    // UUID v4 format: 8-4-4-4-12 hex digits
+    expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+  })
+
+  test('should generate unique UUIDs', () => {
+    const ids = new Set()
+    for (let i = 0; i < 1000; i++) {
+      ids.add(uuid())
+    }
+    // All 1000 UUIDs should be unique
+    expect(ids.size).toBe(1000)
+  })
+
+  test('should generate v4 UUIDs', () => {
+    const id = uuid()
+    // Version 4 UUID has specific bits set:
+    // - 13th character is '4'
+    // - 17th character is '8', '9', 'a', or 'b'
+    expect(id.charAt(14)).toBe('4')
+    expect('89ab').toContain(id.charAt(19))
   })
 })
 

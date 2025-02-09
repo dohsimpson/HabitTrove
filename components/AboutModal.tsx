@@ -8,7 +8,6 @@ import { DialogTitle } from "@radix-ui/react-dialog"
 import { Logo } from "./Logo"
 import ChangelogModal from "./ChangelogModal"
 import { useState } from "react"
-import { saltAndHashPassword } from "@/lib/utils"
 
 interface AboutModalProps {
   isOpen: boolean

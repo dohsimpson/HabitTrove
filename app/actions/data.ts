@@ -21,7 +21,9 @@ import {
   getDefaultCoinsData,
   Permission
 } from '@/lib/types'
-import { d2t, deepMerge, getNow, saltAndHashPassword, verifyPassword, checkPermission } from '@/lib/utils';
+import { d2t, deepMerge, getNow, checkPermission, uuid } from '@/lib/utils';
+import { verifyPassword } from "@/lib/server-helpers";
+import { saltAndHashPassword } from "@/lib/server-helpers";
 import { signInSchema } from '@/lib/zod';
 import { auth } from '@/auth';
 import _ from 'lodash';
@@ -226,7 +228,7 @@ export async function addCoins({
   await verifyPermission('coins', type === 'MANUAL_ADJUSTMENT' ? 'write' : 'interact')
   const data = await loadCoinsData()
   const newTransaction: CoinTransaction = {
-    id: crypto.randomUUID(),
+    id: uuid(),
     amount,
     type,
     description,
@@ -277,7 +279,7 @@ export async function removeCoins({
   await verifyPermission('coins', type === 'MANUAL_ADJUSTMENT' ? 'write' : 'interact')
   const data = await loadCoinsData()
   const newTransaction: CoinTransaction = {
-    id: crypto.randomUUID(),
+    id: uuid(),
     amount: -amount,
     type,
     description,
@@ -384,7 +386,7 @@ export async function createUser(formData: FormData): Promise<User> {
   }
 
   const newUser: User = {
-    id: crypto.randomUUID(),
+    id: uuid(),
     username,
     password: hashedPassword,
     permissions,

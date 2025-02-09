@@ -4,9 +4,9 @@ import { DateTime, DateTimeFormatOptions } from "luxon"
 import { datetime, RRule } from 'rrule'
 import { Freq, Habit, CoinTransaction, Permission } from '@/lib/types'
 import { DUE_MAP, RECURRENCE_RULE_MAP } from "./constants"
-import * as chrono from 'chrono-node';
-import { randomBytes, scryptSync } from "crypto"
+import * as chrono from 'chrono-node'
 import _ from "lodash"
+import { v4 as uuidv4 } from 'uuid'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -300,23 +300,6 @@ export const openWindow = (url: string): boolean => {
   return true
 }
 
-export function saltAndHashPassword(password: string, salt?: string): string {
-  salt = salt || randomBytes(16).toString('hex');
-  const hash = scryptSync(password, salt, 64).toString('hex');
-  return `${salt}:${hash}`;
-}
-
-export function verifyPassword(password: string, storedHash: string): boolean {
-  // Split the stored hash into its salt and hash components
-  const [salt, hash] = storedHash.split(':');
-  
-  // Hash the input password with the same salt
-  const newHash = saltAndHashPassword(password, salt).split(':')[1];
-  
-  // Compare the new hash with the stored hash
-  return newHash === hash;
-}
-
 export function deepMerge<T>(a: T, b: T) {
   return _.merge(a, b, (x: unknown, y: unknown) => {
       if (_.isArray(a)) {
@@ -344,4 +327,8 @@ export function checkPermission(
         return false
     }
   })
+}
+
+export function uuid() {
+  return uuidv4()
 }
