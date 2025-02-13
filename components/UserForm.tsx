@@ -111,7 +111,11 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         // Create new user
         const formData = new FormData();
         formData.append('username', username);
-        if (password) formData.append('password', password);
+        if (disablePassword) {
+          formData.append('password', '');
+        } else if (password) {
+          formData.append('password', password);
+        }
         formData.append('permissions', JSON.stringify(isAdmin ? undefined : permissions));
         formData.append('isAdmin', JSON.stringify(isAdmin));
         if (avatarFile) {

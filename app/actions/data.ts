@@ -365,12 +365,13 @@ export async function getUser(username: string, plainTextPassword?: string): Pro
 
 export async function createUser(formData: FormData): Promise<User> {
   const username = formData.get('username') as string;
-  const password = formData.get('password') as string;
+  let password = formData.get('password') as string | undefined;
   const avatarFile = formData.get('avatar') as File | null;
   const permissions = formData.get('permissions') ? 
     JSON.parse(formData.get('permissions') as string) as Permission[] : 
     undefined;
 
+  if (password === null) password = undefined
   // Validate username and password against schema
   await signInSchema.parseAsync({ username, password });
 

@@ -29,6 +29,8 @@
 - disable buttons when doesn't have permissions
 - disable redeem if user has no more coins
 - fix task completed in the past still show up as uncompleted if due today
+- fix create user error when disable password
+- fix permission switches spacing in mobile viewport
 
 
 ### BREAKING CHANGE
