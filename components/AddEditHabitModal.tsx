@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { RRule, RRuleSet, rrulestr } from 'rrule'
 import { useAtom } from 'jotai'
 import { settingsAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
@@ -11,13 +11,13 @@ import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Info, SmilePlus } from 'lucide-react'
+import { Info, SmilePlus, Zap } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { Habit, SafeUser } from '@/lib/types'
 import { d2s, d2t, getISODate, getNow, parseNaturalLanguageDate, parseNaturalLanguageRRule, parseRRule, serializeRRule } from '@/lib/utils'
-import { INITIAL_DUE, INITIAL_RECURRENCE_RULE } from '@/lib/constants'
+import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES } from '@/lib/constants'
 import * as chrono from 'chrono-node';
 import { DateTime } from 'luxon'
 import {
@@ -47,8 +47,9 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
   const [ruleText, setRuleText] = useState<string>(origRuleText)
   const now = getNow({ timezone: settings.system.timezone })
   const { currentUser } = useHelpers()
+  const [isQuickDatesOpen, setIsQuickDatesOpen] = useState(false)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>((habit?.userIds || []).filter(id => id !== currentUser?.id))
-  const [usersData]= useAtom(usersAtom)
+  const [usersData] = useAtom(usersAtom)
   const users = usersData.users
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,13 +130,47 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
                 When *
               </Label>
               <div className="col-span-3 space-y-2">
-                <Input
-                  id="recurrence"
-                  value={ruleText}
-                  onChange={(e) => setRuleText(e.target.value)}
-                  required
-                // placeholder="e.g. 'every weekday' or 'every 2 weeks on Monday, Wednesday'"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="recurrence"
+                    value={ruleText}
+                    onChange={(e) => setRuleText(e.target.value)}
+                    required
+                  />
+                  {isTask && (
+                    <Popover open={isQuickDatesOpen} onOpenChange={setIsQuickDatesOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <Zap className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-3 w-[280px] max-h-[40vh] overflow-y-auto" align="start">
+                        <div className="space-y-1">
+                          <div className="grid grid-cols-2 gap-2">
+                            {QUICK_DATES.map((date) => (
+                              <Button
+                                key={date.value}
+                                variant="outline"
+                                className="justify-start h-9 px-3 hover:bg-primary hover:text-primary-foreground transition-colors"
+                                onClick={() => {
+                                  setRuleText(date.value);
+                                  setIsQuickDatesOpen(false);
+                                }}
+                              >
+                                {date.label}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
               </div>
               <div className="col-start-2 col-span-3 text-sm text-muted-foreground">
                 <span>

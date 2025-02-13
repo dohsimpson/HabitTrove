@@ -38,7 +38,7 @@ export function t2d({ timestamp, timezone }: { timestamp: string; timezone: stri
   return DateTime.fromISO(timestamp).setZone(timezone);
 }
 
-// convert datetime object to iso timestamp, mostly for storage write
+// convert datetime object to iso timestamp, mostly for storage write (be sure to use default utc timezone when writing)
 export function d2t({ dateTime, timezone = 'utc' }: { dateTime: DateTime, timezone?: string }) {
   return dateTime.setZone(timezone).toISO()!;
 }
@@ -253,6 +253,17 @@ export function isHabitDue({
   if (!matches.length) return false
   const t = DateTime.fromJSDate(matches[0]).toUTC().setZone('local', { keepLocalTime: true }).setZone(timezone)
   return startOfDay <= t && t <= endOfDay
+}
+
+export function isHabitCompleted(habit: Habit, timezone: string): boolean {
+  return getCompletionsForToday({ habit, timezone: timezone }) >= (habit.targetCompletions || 1)
+}
+
+export function isTaskOverdue(habit: Habit, timezone: string): boolean {
+  if (!habit.isTask || habit.archived) return false
+  const dueDate = t2d({ timestamp: habit.frequency, timezone }).startOf('day')
+  const now = getNow({ timezone }).startOf('day')
+  return dueDate < now && !isHabitCompleted(habit, timezone)
 }
 
 export function isHabitDueToday({

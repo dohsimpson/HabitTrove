@@ -1,10 +1,10 @@
-import { Habit, SafeUser, User } from '@/lib/types'
+import { Habit, SafeUser, User, Permission } from '@/lib/types'
 import { useAtom } from 'jotai'
 import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule, d2s } from '@/lib/utils'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule, d2s, getCompletionsForToday, isTaskOverdue } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer, Archive, ArchiveRestore } from 'lucide-react'
+import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer, Archive, ArchiveRestore, Calendar } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,17 +46,17 @@ const renderUserAvatars = (habit: Habit, currentUser: User | null, usersData: { 
 
 
 export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
-  const { completeHabit, undoComplete, archiveHabit, unarchiveHabit } = useHabits()
+  const { completeHabit, undoComplete, archiveHabit, unarchiveHabit, saveHabit } = useHabits()
   const [settings] = useAtom(settingsAtom)
   const [_, setPomo] = useAtom(pomodoroAtom)
-  const completionsToday = habit.completions?.filter(completion =>
-    isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
-  ).length || 0
+  const completionsToday = getCompletionsForToday({ habit, timezone: settings.system.timezone })
   const target = habit.targetCompletions || 1
   const isCompletedToday = completionsToday >= target
   const [isHighlighted, setIsHighlighted] = useState(false)
   const [usersData] = useAtom(usersAtom)
-  const { currentUser } = useHelpers()
+  const { currentUser, hasPermission } = useHelpers()
+  const canWrite = hasPermission('habit', 'write')
+  const canInteract = hasPermission('habit', 'interact')
   const [browserSettings] = useAtom(browserSettingsAtom)
   const isTasksView = browserSettings.viewType === 'tasks'
   const isRecurRule = !isTasksView
@@ -86,17 +86,22 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
       className={`h-full flex flex-col transition-all duration-500 ${isHighlighted ? 'bg-yellow-100 dark:bg-yellow-900' : ''} ${habit.archived ? 'opacity-75' : ''}`}
     >
       <CardHeader className="flex-none">
-        <CardTitle className={`line-clamp-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{habit.name}</CardTitle>
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            {habit.description && (
-              <CardDescription className={`whitespace-pre-line ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
-                {habit.description}
-              </CardDescription>
+        <div className="flex justify-between items-start">
+          <CardTitle className={`line-clamp-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''} flex items-center ${isTasksView ? 'w-full' : ''} justify-between`}>
+            <span>{habit.name}</span>
+            {isTaskOverdue(habit, settings.system.timezone) && (
+              <span className="ml-2 inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/30 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10 dark:ring-red-500/20">
+                Overdue
+              </span>
             )}
-          </div>
+          </CardTitle>
           {renderUserAvatars(habit, currentUser as User, usersData)}
         </div>
+        {habit.description && (
+          <CardDescription className={`whitespace-pre-line mt-2 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
+            {habit.description}
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent className="flex-1">
         <p className={`text-sm ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500'}`}>When: {isRecurRule ? parseRRule(habit.frequency || INITIAL_RECURRENCE_RULE).toText() : d2s({ dateTime: t2d({ timestamp: habit.frequency, timezone: settings.system.timezone }), timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })}</p>
@@ -112,7 +117,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               variant={isCompletedToday ? "secondary" : "default"}
               size="sm"
               onClick={async () => await completeHabit(habit)}
-              disabled={habit.archived || (isCompletedToday && completionsToday >= target)}
+              disabled={!canInteract || habit.archived || (isCompletedToday && completionsToday >= target)}
               className={`overflow-hidden w-24 sm:w-auto ${habit.archived ? 'cursor-not-allowed' : ''}`}
             >
               <Check className="h-4 w-4 sm:mr-2" />
@@ -150,6 +155,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               variant="outline"
               size="sm"
               onClick={async () => await undoComplete(habit)}
+              disabled={!canWrite}
               className="w-10 sm:w-auto"
             >
               <Undo2 className="h-4 w-4" />
@@ -163,6 +169,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               variant="edit"
               size="sm"
               onClick={onEdit}
+              disabled={!canWrite}
               className="hidden sm:flex"
             >
               <Edit className="h-4 w-4" />
@@ -178,6 +185,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
             <DropdownMenuContent align="end">
               {!habit.archived && (
                 <DropdownMenuItem onClick={() => {
+                  if (!canInteract) return
                   setPomo((prev) => ({
                     ...prev,
                     show: true,
@@ -189,13 +197,23 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
                 </DropdownMenuItem>
               )}
               {!habit.archived && (
-                <DropdownMenuItem onClick={() => archiveHabit(habit.id)}>
-                  <Archive className="mr-2 h-4 w-4" />
-                  <span>Archive</span>
-                </DropdownMenuItem>
+                <>
+                  {habit.isTask && (
+                    <DropdownMenuItem disabled={!canWrite} onClick={() => {
+                      saveHabit({...habit, frequency: d2t({ dateTime: getNow({ timezone: settings.system.timezone })})})
+                    }}>
+                      <Calendar className="mr-2 h-4 w-4" />
+                      <span>Move to Today</span>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem disabled={!canWrite} onClick={() => archiveHabit(habit.id)}>
+                    <Archive className="mr-2 h-4 w-4" />
+                    <span>Archive</span>
+                  </DropdownMenuItem>
+                </>
               )}
               {habit.archived && (
-                <DropdownMenuItem onClick={() => unarchiveHabit(habit.id)}>
+                <DropdownMenuItem disabled={!canWrite} onClick={() => unarchiveHabit(habit.id)}>
                   <ArchiveRestore className="mr-2 h-4 w-4" />
                   <span>Unarchive</span>
                 </DropdownMenuItem>

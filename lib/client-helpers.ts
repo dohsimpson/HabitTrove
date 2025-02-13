@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import { User, UserId } from './types'
 import { useAtom } from 'jotai'
 import { usersAtom } from './atoms'
+import { checkPermission } from './utils'
 
 export function useHelpers() {
   const { data: session, status } = useSession()
@@ -16,6 +17,8 @@ export function useHelpers() {
     currentUserId,
     currentUser,
     usersData,
-    status
+    status,
+    hasPermission: (resource: 'habit' | 'wishlist' | 'coins', action: 'write' | 'interact') => currentUser?.isAdmin ||
+      checkPermission(currentUser?.permissions, resource, action)
   }
 }

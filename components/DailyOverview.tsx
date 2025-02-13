@@ -51,7 +51,6 @@ export default function DailyOverview({
     )
     const filteredTasks = habits.filter(habit =>
       habit.isTask && 
-      !habit.archived && 
       isHabitDueToday({ habit, timezone: settings.system.timezone })
     )
     setDailyHabits(filteredHabits)
@@ -127,6 +126,13 @@ export default function DailyOverview({
                     <h3 className="font-semibold">Daily Tasks</h3>
                   </div>
                 <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {`${dailyTasks.filter(task => {
+                      const completions = (completedHabitsMap.get(today) || [])
+                        .filter(h => h.id === task.id).length;
+                      return completions >= (task.targetCompletions || 1);
+                    }).length}/${dailyTasks.length} Completed`}
+                  </Badge>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -141,13 +147,6 @@ export default function DailyOverview({
                     <Plus className="h-4 w-4" />
                     <span className="sr-only">Add Task</span>
                   </Button>
-                  <Badge variant="secondary">
-                    {`${dailyTasks.filter(task => {
-                      const completions = (completedHabitsMap.get(today) || [])
-                        .filter(h => h.id === task.id).length;
-                      return completions >= (task.targetCompletions || 1);
-                    }).length}/${dailyTasks.length} Completed`}
-                  </Badge>
                 </div>
               </div>
               <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedTasks ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
@@ -184,7 +183,7 @@ export default function DailyOverview({
                       isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
                     ).length
                     const target = habit.targetCompletions || 1
-                    const isCompleted = completionsToday >= target
+                    const isCompleted = completionsToday >= target || (habit.isTask && habit.archived)
                     return (
                       <li
                         className={`flex items-center justify-between text-sm p-2 rounded-md
@@ -338,6 +337,13 @@ export default function DailyOverview({
                     <h3 className="font-semibold">Daily Habits</h3>
                   </div>
                 <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {`${dailyHabits.filter(habit => {
+                      const completions = (completedHabitsMap.get(today) || [])
+                        .filter(h => h.id === habit.id).length;
+                      return completions >= (habit.targetCompletions || 1);
+                    }).length}/${dailyHabits.length} Completed`}
+                  </Badge>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -352,13 +358,6 @@ export default function DailyOverview({
                     <Plus className="h-4 w-4" />
                     <span className="sr-only">Add Habit</span>
                   </Button>
-                  <Badge variant="secondary">
-                    {`${dailyHabits.filter(habit => {
-                      const completions = (completedHabitsMap.get(today) || [])
-                        .filter(h => h.id === habit.id).length;
-                      return completions >= (habit.targetCompletions || 1);
-                    }).length}/${dailyHabits.length} Completed`}
-                  </Badge>
                 </div>
               </div>
               <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedHabits ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>

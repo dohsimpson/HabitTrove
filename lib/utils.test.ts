@@ -16,7 +16,8 @@ import {
   calculateCoinsSpentToday,
   isHabitDueToday,
   isHabitDue,
-  uuid
+  uuid,
+  isTaskOverdue
 } from './utils'
 import { CoinTransaction } from './types'
 import { DateTime } from "luxon";
@@ -29,6 +30,61 @@ describe('cn utility', () => {
     expect(cn('foo', { bar: true })).toBe('foo bar')
     expect(cn('foo', { bar: false })).toBe('foo')
     expect(cn('foo', ['bar', 'baz'])).toBe('foo bar baz')
+  })
+})
+
+describe('isTaskOverdue', () => {
+  const createTestHabit = (frequency: string, isTask = true, archived = false): Habit => ({
+    id: 'test-habit',
+    name: 'Test Habit',
+    description: '',
+    frequency,
+    coinReward: 10,
+    completions: [],
+    isTask,
+    archived
+  })
+
+  test('should return false for non-tasks', () => {
+    const habit = createTestHabit('FREQ=DAILY', false)
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+  })
+
+  test('should return false for archived tasks', () => {
+    const habit = createTestHabit('2024-01-01T00:00:00Z', true, true)
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+  })
+
+  test('should return false for future tasks', () => {
+    const tomorrow = DateTime.now().plus({ days: 1 }).toUTC().toISO()
+    const habit = createTestHabit(tomorrow)
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+  })
+
+  test('should return false for completed past tasks', () => {
+    const yesterday = DateTime.now().minus({ days: 1 }).toUTC().toISO()
+    const habit = {
+      ...createTestHabit(yesterday),
+      completions: [DateTime.now().toUTC().toISO()]
+    }
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+  })
+
+  test('should return true for incomplete past tasks', () => {
+    const yesterday = DateTime.now().minus({ days: 1 }).toUTC().toISO()
+    const habit = createTestHabit(yesterday)
+    expect(isTaskOverdue(habit, 'UTC')).toBe(true)
+  })
+
+  test('should handle timezone differences correctly', () => {
+    // Create a task due "tomorrow" in UTC
+    const tomorrow = DateTime.now().plus({ days: 1 }).toUTC().toISO()
+    const habit = createTestHabit(tomorrow)
+    
+    // Test in various timezones
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+    expect(isTaskOverdue(habit, 'America/New_York')).toBe(false)
+    expect(isTaskOverdue(habit, 'Asia/Tokyo')).toBe(false)
   })
 })
 

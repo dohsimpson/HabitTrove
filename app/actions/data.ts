@@ -184,7 +184,7 @@ export async function loadCoinsData(): Promise<CoinsData> {
     const data = await loadData<CoinsData>('coins')
     return {
       ...data,
-      transactions: data.transactions.filter(x => user.isAdmin || x.userId === user.id)
+      transactions: data.transactions.filter(x => x.userId === user.id)
     }
   } catch {
     return getDefaultCoinsData()
@@ -341,10 +341,16 @@ export async function loadUsersData(): Promise<UserData> {
 }
 
 export async function saveUsersData(data: UserData): Promise<void> {
+  if (process.env.DEMO === 'true') {
+    // remove password for all users
+    data.users.map(user => {
+      user.password = ''
+    })
+  }
   return saveData('auth', data)
 }
 
-export async function getUser(username: string, plainTextPassword: string): Promise<User | null> {
+export async function getUser(username: string, plainTextPassword?: string): Promise<User | null> {
   const data = await loadUsersData()
 
   const user = data.users.find(user => user.username === username)
@@ -375,7 +381,7 @@ export async function createUser(formData: FormData): Promise<User> {
     throw new Error('Username already exists');
   }
 
-  const hashedPassword = saltAndHashPassword(password);
+  const hashedPassword = password ? saltAndHashPassword(password) : '';
 
   // Handle avatar upload if present
   let avatarPath: string | undefined;
@@ -437,7 +443,7 @@ export async function updateUser(userId: string, updates: Partial<Omit<User, 'id
   return updatedUser
 }
 
-export async function updateUserPassword(userId: string, newPassword: string): Promise<void> {
+export async function updateUserPassword(userId: string, newPassword?: string): Promise<void> {
   const data = await loadUsersData()
   const userIndex = data.users.findIndex(user => user.id === userId)
 
@@ -445,7 +451,7 @@ export async function updateUserPassword(userId: string, newPassword: string): P
     throw new Error('User not found')
   }
 
-  const hashedPassword = saltAndHashPassword(newPassword)
+  const hashedPassword = newPassword ? saltAndHashPassword(newPassword) : ''
 
   const updatedUser = {
     ...data.users[userIndex],

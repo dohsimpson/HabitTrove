@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { passwordSchema, usernameSchema } from '@/lib/zod';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
@@ -44,7 +45,8 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
 
   const [avatarPath, setAvatarPath] = useState(user?.avatarPath)
   const [username, setUsername] = useState(user?.username || '');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState<string | undefined>('');
+  const [disablePassword, setDisablePassword] = useState(user?.password === '');
   const [error, setError] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isAdmin, setIsAdmin] = useState(user?.isAdmin || false);
@@ -57,20 +59,46 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
     e.preventDefault();
 
     try {
+      // Validate username
+      const usernameResult = usernameSchema.safeParse(username);
+      if (!usernameResult.success) {
+        setError(usernameResult.error.errors[0].message);
+        return;
+      }
+
+      // Validate password unless disabled
+      if (!disablePassword && password) {
+        const passwordResult = passwordSchema.safeParse(password);
+        if (!passwordResult.success) {
+          setError(passwordResult.error.errors[0].message);
+          return;
+        }
+      }
+
       if (isEditing) {
         // Update existing user
         if (username !== user.username || avatarPath !== user.avatarPath || !_.isEqual(permissions, user.permissions) || isAdmin !== user.isAdmin) {
           await updateUser(user.id, { username, avatarPath, permissions, isAdmin });
         }
 
-        if (password) {
+        // Handle password update
+        if (disablePassword) {
+          await updateUserPassword(user.id, undefined);
+        } else if (password) {
           await updateUserPassword(user.id, password);
         }
 
         setUsersData(prev => ({
           ...prev,
           users: prev.users.map(u =>
-            u.id === user.id ? { ...u, username, avatarPath, permissions, isAdmin } : u
+            u.id === user.id ? { 
+              ...u, 
+              username, 
+              avatarPath, 
+              permissions, 
+              isAdmin,
+              password: disablePassword ? '' : (password || u.password) // use the correct password to update atom
+            } : u
           ),
         }));
 
@@ -83,7 +111,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         // Create new user
         const formData = new FormData();
         formData.append('username', username);
-        formData.append('password', password);
+        if (password) formData.append('password', password);
         formData.append('permissions', JSON.stringify(isAdmin ? undefined : permissions));
         formData.append('isAdmin', JSON.stringify(isAdmin));
         if (avatarFile) {
@@ -199,19 +227,30 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="password">
-            {isEditing ? 'New Password' : 'Password'}
-          </Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder={isEditing ? "Leave blank to keep current password" : "Enter password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={error ? 'border-red-500' : ''}
-            required={!isEditing}
-          />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="password">
+              {isEditing ? 'New Password' : 'Password'}
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder={isEditing ? "Leave blank to keep current" : "Enter password"}
+              value={password || ''}
+              onChange={(e) => setPassword(e.target.value)}
+              className={error ? 'border-red-500' : ''}
+              disabled={disablePassword}
+            />
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="disable-password"
+              checked={disablePassword}
+              onCheckedChange={setDisablePassword}
+            />
+            <Label htmlFor="disable-password">Disable password</Label>
+          </div>
         </div>
 
         {error && (
@@ -236,7 +275,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={!username || (!isEditing && !password)}>
+        <Button type="submit" disabled={!username}>
           {isEditing ? 'Save Changes' : 'Create User'}
         </Button>
       </div>

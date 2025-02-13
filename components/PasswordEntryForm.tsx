@@ -24,8 +24,8 @@ export default function PasswordEntryForm({
   onSubmit,
   error 
 }: PasswordEntryFormProps) {
-  const hasPassword = user.password !== DEFAULT_ADMIN_PASS_HASH;
-  const [password, setPassword] = useState(hasPassword ? '' : DEFAULT_ADMIN_PASS);
+  const hasPassword = !!user.password;
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -19,12 +19,18 @@ export async function getCurrentUser(): Promise<User | undefined> {
   return usersData.users.find((u) => u.id === currentUserId)
 }
 export function saltAndHashPassword(password: string, salt?: string): string {
+  if (password.length === 0) throw new Error('Password must not be empty')
   salt = salt || randomBytes(16).toString('hex')
   const hash = scryptSync(password, salt, 64).toString('hex')
   return `${salt}:${hash}`
 }
 
-export function verifyPassword(password: string, storedHash: string): boolean {
+export function verifyPassword(password?: string, storedHash?: string): boolean {
+  // if both password and storedHash is undefined, return true
+  if (!password && !storedHash) return true
+  // else if either password or storedHash is undefined, return false
+  if (!password || !storedHash) return false
+
   // Split the stored hash into its salt and hash components
   const [salt, hash] = storedHash.split(':')
   // Hash the input password with the same salt

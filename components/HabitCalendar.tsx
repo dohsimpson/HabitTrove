@@ -105,7 +105,7 @@ export default function HabitCalendar() {
                     </div>
                     <ul className="space-y-3">
                       {habits
-                        .filter(habit => habit.isTask && !habit.archived && isHabitDue({
+                        .filter(habit => habit.isTask && isHabitDue({
                           habit,
                           timezone: settings.system.timezone,
                           date: selectedDate
@@ -117,9 +117,6 @@ export default function HabitCalendar() {
                             <li key={habit.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
                               <span className="flex items-center gap-2">
                                 <Linkify>{habit.name}</Linkify>
-                                {habit.archived && (
-                                  <Badge variant="secondary" className="text-xs">Archived</Badge>
-                                )}
                               </span>
                               <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-2">
@@ -165,7 +162,7 @@ export default function HabitCalendar() {
                     <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Habits</h3>
                     <Badge variant="secondary">
                       {`${habits.filter(habit => {
-                        if (!habit.isTask && !habit.archived && isHabitDue({
+                        if (!habit.isTask && isHabitDue({
                           habit,
                           timezone: settings.system.timezone,
                           date: selectedDate
@@ -183,7 +180,7 @@ export default function HabitCalendar() {
                   </div>
                   <ul className="space-y-3">
                     {habits
-                      .filter(habit => !habit.isTask && !habit.archived && isHabitDue({
+                      .filter(habit => !habit.isTask && isHabitDue({
                         habit,
                         timezone: settings.system.timezone,
                         date: selectedDate
@@ -195,9 +192,6 @@ export default function HabitCalendar() {
                       <li key={habit.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
                         <span className="flex items-center gap-2">
                           <Linkify>{habit.name}</Linkify>
-                          {habit.archived && (
-                            <Badge variant="secondary" className="text-xs">Archived</Badge>
-                          )}
                         </span>
                         <div className="flex items-center gap-2">
                           <div className="flex items-center gap-2">

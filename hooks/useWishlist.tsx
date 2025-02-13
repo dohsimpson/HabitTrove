@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai'
-import { wishlistAtom, coinsAtom } from '@/lib/atoms'
+import { wishlistAtom, coinsAtom, coinsBalanceAtom } from '@/lib/atoms'
 import { saveWishlistItems, removeCoins } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
 import { WishlistItemType } from '@/lib/types'
@@ -37,7 +37,7 @@ export function useWishlist() {
   const { currentUser: user } = useHelpers()
   const [wishlist, setWishlist] = useAtom(wishlistAtom)
   const [coins, setCoins] = useAtom(coinsAtom)
-  const balance = coins.balance
+  const [balance] = useAtom(coinsBalanceAtom)
 
   const addWishlistItem = async (item: Omit<WishlistItemType, 'id'>) => {
     if (!handlePermissionCheck(user, 'wishlist', 'write')) return

@@ -1,4 +1,4 @@
-import { WishlistItemType, User } from '@/lib/types'
+import { WishlistItemType, User, Permission } from '@/lib/types'
 import { useAtom } from 'jotai'
 import { usersAtom } from '@/lib/atoms'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
@@ -58,7 +58,9 @@ export default function WishlistItem({
   isHighlighted,
   isRecentlyRedeemed
 }: WishlistItemProps) {
-  const { currentUser } = useHelpers()
+  const { currentUser, hasPermission } = useHelpers()
+  const canWrite = hasPermission('wishlist', 'write')
+  const canInteract = hasPermission('wishlist', 'interact')
   const [usersData] = useAtom(usersAtom)
   
   return (
@@ -104,7 +106,7 @@ export default function WishlistItem({
             variant={canRedeem ? "default" : "secondary"}
             size="sm"
             onClick={onRedeem}
-            disabled={!canRedeem || item.archived}
+            disabled={!canRedeem || !canInteract || item.archived}
             className={`transition-all duration-300 w-24 sm:w-auto ${isRecentlyRedeemed ? 'bg-green-500 hover:bg-green-600' : ''} ${item.archived ? 'cursor-not-allowed' : ''}`}
           >
             <Gift className={`h-4 w-4 sm:mr-2 ${isRecentlyRedeemed ? 'animate-spin' : ''}`} />
@@ -129,6 +131,7 @@ export default function WishlistItem({
               variant="edit"
               size="sm"
               onClick={onEdit}
+              disabled={!canWrite}
               className="hidden sm:flex"
             >
               <Edit className="h-4 w-4" />
@@ -143,13 +146,13 @@ export default function WishlistItem({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {!item.archived && (
-                <DropdownMenuItem onClick={onArchive}>
+                <DropdownMenuItem disabled={!canWrite} onClick={onArchive}>
                   <Archive className="mr-2 h-4 w-4" />
                   <span>Archive</span>
                 </DropdownMenuItem>
               )}
               {item.archived && (
-                <DropdownMenuItem onClick={onUnarchive}>
+                <DropdownMenuItem disabled={!canWrite} onClick={onUnarchive}>
                   <ArchiveRestore className="mr-2 h-4 w-4" />
                   <span>Unarchive</span>
                 </DropdownMenuItem>
@@ -162,6 +165,7 @@ export default function WishlistItem({
               <DropdownMenuItem
                 className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400 cursor-pointer"
                 onClick={onDelete}
+                disabled={!canWrite}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete

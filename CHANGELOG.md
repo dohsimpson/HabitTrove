@@ -10,6 +10,9 @@
 * Sharing habits and wishlist items with other users
 * show both tasks and habits in dashboard (#58)
 * show tasks in completion streak (#57)
+* show badge for overdue tasks
+* shortcut for selecting date for tasks
+* context menu shortcut to move task to today
 
 ### Changed
 
@@ -20,6 +23,12 @@
 - move crypto utils to server-helpers
 - use uuid package for client-compatible generator
 - fix add button for tasks and habits in daily overview
+- better error message for user creation via frontend validation
+- allow empty password
+- better layout for permission editor
+- disable buttons when doesn't have permissions
+- disable redeem if user has no more coins
+- fix task completed in the past still show up as uncompleted if due today
 
 
 ### BREAKING CHANGE
