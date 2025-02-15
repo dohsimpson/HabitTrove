@@ -5,33 +5,9 @@
 ### Added
 
 * Multi-user support with permissions system
-* User management interface
-* Support for multiple users tracking habits and wishlists
 * Sharing habits and wishlist items with other users
 * show both tasks and habits in dashboard (#58)
 * show tasks in completion streak (#57)
-* show badge for overdue tasks
-* shortcut for selecting date for tasks
-* context menu shortcut to move task to today
-
-### Changed
-
-- useHelpers hook should return user from atom not session
-- sharing wishlist with other users
-- disable permission edit if only has 1 user
-- always show edit button in user switch modal
-- move crypto utils to server-helpers
-- use uuid package for client-compatible generator
-- fix add button for tasks and habits in daily overview
-- better error message for user creation via frontend validation
-- allow empty password
-- better layout for permission editor
-- disable buttons when doesn't have permissions
-- disable redeem if user has no more coins
-- fix task completed in the past still show up as uncompleted if due today
-- fix create user error when disable password
-- fix permission switches spacing in mobile viewport
-
 
 ### BREAKING CHANGE
 

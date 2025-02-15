@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { CompletionCountBadge } from '@/components/CompletionCountBadge'
 import { Button } from '@/components/ui/button'
 import { Check, Circle, CircleCheck } from 'lucide-react'
 import { d2s, getNow, t2d, getCompletedHabitsForDate, isHabitDue, getISODate, getCompletionsForToday, getCompletionsForDate } from '@/lib/utils'
@@ -85,23 +85,12 @@ export default function HabitCalendar() {
                   <div className="pt-2 border-t">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Tasks</h3>
-                      <Badge variant="secondary">
-                        {`${habits.filter(habit => {
-                          if (habit.isTask && isHabitDue({
-                            habit,
-                            timezone: settings.system.timezone,
-                            date: selectedDate
-                          })) {
-                            const completions = getCompletionsForDate({ habit, date: selectedDate, timezone: settings.system.timezone })
-                            return completions >= (habit.targetCompletions || 1)
-                          }
-                          return false
-                        }).length}/${habits.filter(habit => habit.isTask && isHabitDue({
-                          habit,
-                          timezone: settings.system.timezone,
-                          date: selectedDate
-                        })).length} Completed`}
-                      </Badge>
+                      <CompletionCountBadge
+                        habits={habits}
+                        selectedDate={selectedDate}
+                        timezone={settings.system.timezone}
+                        type="tasks"
+                      />
                     </div>
                     <ul className="space-y-3">
                       {habits
@@ -160,27 +149,16 @@ export default function HabitCalendar() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Habits</h3>
-                    <Badge variant="secondary">
-                      {`${habits.filter(habit => {
-                        if (!habit.isTask && isHabitDue({
-                          habit,
-                          timezone: settings.system.timezone,
-                          date: selectedDate
-                        })) {
-                          const completions = getCompletionsForDate({ habit, date: selectedDate, timezone: settings.system.timezone })
-                          return completions >= (habit.targetCompletions || 1)
-                        }
-                        return false
-                      }).length}/${habits.filter(habit => !habit.isTask && isHabitDue({
-                        habit,
-                        timezone: settings.system.timezone,
-                        date: selectedDate
-                      })).length} Completed`}
-                    </Badge>
+                    <CompletionCountBadge
+                      habits={habits}
+                      selectedDate={selectedDate}
+                      timezone={settings.system.timezone}
+                      type="habits"
+                    />
                   </div>
                   <ul className="space-y-3">
                     {habits
-                      .filter(habit => !habit.isTask && isHabitDue({
+                      .filter(habit => !habit.isTask && !habit.archived && isHabitDue({
                         habit,
                         timezone: settings.system.timezone,
                         date: selectedDate
