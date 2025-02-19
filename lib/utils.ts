@@ -2,9 +2,11 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DateTime, DateTimeFormatOptions } from "luxon"
 import { datetime, RRule } from 'rrule'
-import { Freq, Habit, CoinTransaction } from '@/lib/types'
-import { DUE_MAP, INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from "./constants"
-import * as chrono from 'chrono-node';
+import { Freq, Habit, CoinTransaction, Permission } from '@/lib/types'
+import { DUE_MAP, RECURRENCE_RULE_MAP } from "./constants"
+import * as chrono from 'chrono-node'
+import _ from "lodash"
+import { v4 as uuidv4 } from 'uuid'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -36,7 +38,7 @@ export function t2d({ timestamp, timezone }: { timestamp: string; timezone: stri
   return DateTime.fromISO(timestamp).setZone(timezone);
 }
 
-// convert datetime object to iso timestamp, mostly for storage write
+// convert datetime object to iso timestamp, mostly for storage write (be sure to use default utc timezone when writing)
 export function d2t({ dateTime, timezone = 'utc' }: { dateTime: DateTime, timezone?: string }) {
   return dateTime.setZone(timezone).toISO()!;
 }
@@ -253,6 +255,17 @@ export function isHabitDue({
   return startOfDay <= t && t <= endOfDay
 }
 
+export function isHabitCompleted(habit: Habit, timezone: string): boolean {
+  return getCompletionsForToday({ habit, timezone: timezone }) >= (habit.targetCompletions || 1)
+}
+
+export function isTaskOverdue(habit: Habit, timezone: string): boolean {
+  if (!habit.isTask || habit.archived) return false
+  const dueDate = t2d({ timestamp: habit.frequency, timezone }).startOf('day')
+  const now = getNow({ timezone }).startOf('day')
+  return dueDate < now && !isHabitCompleted(habit, timezone)
+}
+
 export function isHabitDueToday({
   habit,
   timezone
@@ -296,4 +309,37 @@ export const openWindow = (url: string): boolean => {
     return false
   }
   return true
+}
+
+export function deepMerge<T>(a: T, b: T) {
+  return _.merge(a, b, (x: unknown, y: unknown) => {
+      if (_.isArray(a)) {
+        return a.concat(b)
+      }
+    })
+}
+
+export function checkPermission(
+  permissions: Permission[] | undefined,
+  resource: 'habit' | 'wishlist' | 'coins',
+  action: 'write' | 'interact'
+): boolean {
+  if (!permissions) return false
+  
+  return permissions.some(permission => {
+    switch (resource) {
+      case 'habit':
+        return permission.habit[action]
+      case 'wishlist':
+        return permission.wishlist[action]
+      case 'coins':
+        return permission.coins[action]
+      default:
+        return false
+    }
+  })
+}
+
+export function uuid() {
+  return uuidv4()
 }

@@ -6,6 +6,7 @@ import {
   getDefaultWishlistData,
   Habit,
   ViewType,
+  getDefaultUsersData,
 } from "./types";
 import {
   getTodayInTimezone,
@@ -29,6 +30,7 @@ export const browserSettingsAtom = atomWithStorage('browserSettings', {
   viewType: 'habits'
 } as BrowserSettings)
 
+export const usersAtom = atom(getDefaultUsersData())
 export const settingsAtom = atom(getDefaultSettings());
 export const habitsAtom = atom(getDefaultHabitsData());
 export const coinsAtom = atom(getDefaultCoinsData());
@@ -67,6 +69,12 @@ export const transactionsTodayAtom = atom((get) => {
   return calculateTransactionsToday(coins.transactions, settings.system.timezone);
 });
 
+// Derived atom for current balance from all transactions
+export const coinsBalanceAtom = atom((get) => {
+  const coins = get(coinsAtom);
+  return coins.transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+});
+
 /* transient atoms */
 interface PomodoroAtom {
   show: boolean
@@ -81,6 +89,8 @@ export const pomodoroAtom = atom<PomodoroAtom>({
   autoStart: true,
   minimized: false,
 })
+
+export const userSelectAtom = atom<boolean>(false)
 
 // Derived atom for *fully* completed habits by date, respecting target completions
 export const completedHabitsMapAtom = atom((get) => {
@@ -128,4 +138,10 @@ export const pomodoroTodayCompletionsAtom = atom((get) => {
     habit: selectedHabit,
     timezone: settings.system.timezone
   })
+})
+
+// Derived atom to check if any habits are tasks
+export const hasTasksAtom = atom((get) => {
+  const habits = get(habitsAtom)
+  return habits.habits.some(habit => habit.isTask === true)
 })

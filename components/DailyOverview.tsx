@@ -1,4 +1,4 @@
-import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer } from 'lucide-react'
+import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer, Plus } from 'lucide-react'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -9,7 +9,7 @@ import { cn, isHabitDueToday, getHabitFreq } from '@/lib/utils'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
-import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom } from '@/lib/atoms'
+import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings, hasTasksAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +18,8 @@ import { WishlistItemType } from '@/lib/types'
 import { Habit } from '@/lib/types'
 import Linkify from './linkify'
 import { useHabits } from '@/hooks/useHabits'
+import AddEditHabitModal from './AddEditHabitModal'
+import { Button } from './ui/button'
 
 interface UpcomingItemsProps {
   habits: Habit[]
@@ -32,24 +34,33 @@ export default function DailyOverview({
 }: UpcomingItemsProps) {
   const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
-  const [browserSettings] = useAtom(browserSettingsAtom)
   const [dailyHabits, setDailyHabits] = useState<Habit[]>([])
+  const [dailyTasks, setDailyTasks] = useState<Habit[]>([])
   const [completedHabitsMap] = useAtom(completedHabitsMapAtom)
   const today = getTodayInTimezone(settings.system.timezone)
   const todayCompletions = completedHabitsMap.get(today) || []
-  const isTasksView = browserSettings.viewType === 'tasks'
+  const { saveHabit } = useHabits()
+  const [browserSettings, setBrowserSettings] = useAtom(browserSettingsAtom)
 
   useEffect(() => {
-    // Filter habits that are due today based on their recurrence rule
+    // Filter habits and tasks that are due today and not archived
     const filteredHabits = habits.filter(habit =>
-      (isTasksView ? habit.isTask : !habit.isTask) &&
+      !habit.isTask && 
+      !habit.archived && 
+      isHabitDueToday({ habit, timezone: settings.system.timezone })
+    )
+    const filteredTasks = habits.filter(habit =>
+      habit.isTask && 
       isHabitDueToday({ habit, timezone: settings.system.timezone })
     )
     setDailyHabits(filteredHabits)
-  }, [habits, isTasksView])
+    setDailyTasks(filteredTasks)
+  }, [habits])
 
   // Get all wishlist items sorted by redeemable status (non-redeemable first) then by coin cost
+  // Filter out archived wishlist items
   const sortedWishlistItems = wishlistItems
+    .filter(item => !item.archived)
     .sort((a, b) => {
       const aRedeemable = a.coinCost <= coinBalance
       const bRedeemable = b.coinCost <= coinBalance
@@ -64,8 +75,17 @@ export default function DailyOverview({
     })
 
   const [expandedHabits, setExpandedHabits] = useState(false)
+  const [expandedTasks, setExpandedTasks] = useState(false)
   const [expandedWishlist, setExpandedWishlist] = useState(false)
+  const [hasTasks] = useAtom(hasTasksAtom)
   const [_, setPomo] = useAtom(pomodoroAtom)
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean,
+    isTask: boolean
+  }>({
+    isOpen: false,
+    isTask: false
+  });
 
   return (
     <>
@@ -74,17 +94,271 @@ export default function DailyOverview({
           <CardTitle>Today's Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">{isTasksView ? 'Daily Tasks' : 'Daily Habits'}</h3>
-                <Badge variant="secondary">
-                  {`${dailyHabits.filter(habit => {
-                    const completions = (completedHabitsMap.get(today) || [])
-                      .filter(h => h.id === habit.id).length;
-                    return completions >= (habit.targetCompletions || 1);
-                  }).length}/${dailyHabits.length} Completed`}
-                </Badge>
+          <div className="space-y-6">
+            {/* Tasks Section */}
+            {hasTasks && dailyTasks.length === 0 ? (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">Daily Tasks</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary"
+                    onClick={() => {
+                      setModalConfig({
+                        isOpen: true,
+                        isTask: true
+                      });
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="sr-only">Add Task</span>
+                  </Button>
+                </div>
+                <div className="text-center text-muted-foreground text-sm py-4">
+                  No tasks due today. Add some tasks to get started!
+                </div>
+              </div>
+            ) : hasTasks && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold">Daily Tasks</h3>
+                  </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {`${dailyTasks.filter(task => {
+                      const completions = (completedHabitsMap.get(today) || [])
+                        .filter(h => h.id === task.id).length;
+                      return completions >= (task.targetCompletions || 1);
+                    }).length}/${dailyTasks.length} Completed`}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary"
+                    onClick={() => {
+                      setModalConfig({
+                        isOpen: true,
+                        isTask: true
+                      });
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="sr-only">Add Task</span>
+                  </Button>
+                </div>
+              </div>
+              <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedTasks ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
+                {dailyTasks
+                  .sort((a, b) => {
+                    // First by completion status
+                    const aCompleted = todayCompletions.includes(a);
+                    const bCompleted = todayCompletions.includes(b);
+                    if (aCompleted !== bCompleted) {
+                      return aCompleted ? 1 : -1;
+                    }
+
+                    // Then by frequency (daily first)
+                    const aFreq = getHabitFreq(a);
+                    const bFreq = getHabitFreq(b);
+                    const freqOrder = ['daily', 'weekly', 'monthly', 'yearly'];
+                    if (freqOrder.indexOf(aFreq) !== freqOrder.indexOf(bFreq)) {
+                      return freqOrder.indexOf(aFreq) - freqOrder.indexOf(bFreq);
+                    }
+
+                    // Then by coin reward (higher first)
+                    if (a.coinReward !== b.coinReward) {
+                      return b.coinReward - a.coinReward;
+                    }
+
+                    // Finally by target completions (higher first)
+                    const aTarget = a.targetCompletions || 1;
+                    const bTarget = b.targetCompletions || 1;
+                    return bTarget - aTarget;
+                  })
+                  .slice(0, expandedTasks ? undefined : 5)
+                  .map((habit) => {
+                    const completionsToday = habit.completions.filter(completion =>
+                      isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
+                    ).length
+                    const target = habit.targetCompletions || 1
+                    const isCompleted = completionsToday >= target || (habit.isTask && habit.archived)
+                    return (
+                      <li
+                        className={`flex items-center justify-between text-sm p-2 rounded-md
+                        ${isCompleted ? 'bg-secondary/50' : 'bg-secondary/20'}`}
+                        key={habit.id}
+                      >
+                        <span className="flex items-center gap-2">
+                          <ContextMenu>
+                            <ContextMenuTrigger asChild>
+                              <div className="flex-none">
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    if (isCompleted) {
+                                      undoComplete(habit);
+                                    } else {
+                                      completeHabit(habit);
+                                    }
+                                  }}
+                                  className="relative hover:opacity-70 transition-opacity w-4 h-4"
+                                >
+                                  {isCompleted ? (
+                                    <CircleCheck className="h-4 w-4 text-green-500" />
+                                  ) : (
+                                    <div className="relative h-4 w-4">
+                                      <Circle className="absolute h-4 w-4 text-muted-foreground" />
+                                      <div
+                                        className="absolute h-4 w-4 rounded-full overflow-hidden"
+                                        style={{
+                                          background: `conic-gradient(
+                                        currentColor ${(completionsToday / target) * 360}deg,
+                                        transparent ${(completionsToday / target) * 360}deg 360deg
+                                      )`,
+                                          mask: 'radial-gradient(transparent 50%, black 51%)',
+                                          WebkitMask: 'radial-gradient(transparent 50%, black 51%)'
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                                </button>
+                              </div>
+                            </ContextMenuTrigger>
+                            <span className={isCompleted ? 'line-through' : ''}>
+                              <Linkify>
+                                {habit.name}
+                              </Linkify>
+                            </span>
+                            <ContextMenuContent className="w-64">
+                              <ContextMenuItem onClick={() => {
+                                setPomo((prev) => ({
+                                  ...prev,
+                                  show: true,
+                                  selectedHabitId: habit.id
+                                }))
+                              }}>
+                                <Timer className="mr-2 h-4 w-4" />
+                                <span>Start Pomodoro</span>
+                              </ContextMenuItem>
+                            </ContextMenuContent>
+                          </ContextMenu>
+                        </span>
+                        <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                          {habit.targetCompletions && (
+                            <span className="bg-secondary px-1.5 py-0.5 rounded-full">
+                              {completionsToday}/{target}
+                            </span>
+                          )}
+                          {getHabitFreq(habit) !== 'daily' && (
+                            <Badge variant="outline" className="text-xs">
+                              {getHabitFreq(habit)}
+                            </Badge>
+                          )}
+                          <span className="flex items-center">
+                            <Coins className={cn(
+                              "h-3 w-3 mr-1 transition-all",
+                              isCompleted
+                                ? "text-yellow-500 drop-shadow-[0_0_2px_rgba(234,179,8,0.3)]"
+                                : "text-gray-400"
+                            )} />
+                            <span className={cn(
+                              "transition-all",
+                              isCompleted
+                                ? "text-yellow-500 font-medium"
+                                : "text-gray-400"
+                            )}>
+                              {habit.coinReward}
+                            </span>
+                          </span>
+                        </span>
+                      </li>
+                    )
+                  })}
+              </ul>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setExpandedTasks(!expandedTasks)}
+                  className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
+                >
+                  {expandedTasks ? (
+                    <>
+                      Show less
+                      <ChevronUp className="h-3 w-3" />
+                    </>
+                  ) : (
+                    <>
+                      Show all
+                      <ChevronDown className="h-3 w-3" />
+                    </>
+                  )}
+                </button>
+                <Link
+                  href="/habits?view=tasks"
+                  className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
+                  onClick={() => setBrowserSettings(prev => ({ ...prev, viewType: 'tasks' }))}
+                >
+                  View
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
+            )}
+
+            {/* Habits Section */}
+            {dailyHabits.length === 0 ? (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">Daily Habits</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary"
+                    onClick={() => {
+                      setModalConfig({
+                        isOpen: true,
+                        isTask: false
+                      });
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="sr-only">Add Habit</span>
+                  </Button>
+                </div>
+                <div className="text-center text-muted-foreground text-sm py-4">
+                  No habits due today. Add some habits to get started!
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold">Daily Habits</h3>
+                  </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {`${dailyHabits.filter(habit => {
+                      const completions = (completedHabitsMap.get(today) || [])
+                        .filter(h => h.id === habit.id).length;
+                      return completions >= (habit.targetCompletions || 1);
+                    }).length}/${dailyHabits.length} Completed`}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary"
+                    onClick={() => {
+                      setModalConfig({
+                        isOpen: true,
+                        isTask: false
+                      });
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="sr-only">Add Habit</span>
+                  </Button>
+                </div>
               </div>
               <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedHabits ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
                 {dailyHabits
@@ -234,12 +508,14 @@ export default function DailyOverview({
                 <Link
                   href="/habits"
                   className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
+                  onClick={() => setBrowserSettings(prev => ({ ...prev, viewType: 'habits' }))}
                 >
                   View
                   <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
             </div>
+            )}
 
             <div className="space-y-2">
               <div className="flex items-center justify-between mb-2">
@@ -339,6 +615,17 @@ export default function DailyOverview({
           </div>
         </CardContent>
       </Card>
+      {modalConfig.isOpen && (
+        <AddEditHabitModal
+          onClose={() => setModalConfig({ isOpen: false, isTask: false })}
+          onSave={async (habit) => {
+            await saveHabit({ ...habit, isTask: modalConfig.isTask })
+            setModalConfig({ isOpen: false, isTask: false });
+          }}
+          habit={null}
+          isTask={modalConfig.isTask}
+        />
+      )}
     </>
   )
 }

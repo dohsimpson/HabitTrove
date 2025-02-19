@@ -15,7 +15,9 @@ import {
   calculateTotalSpent,
   calculateCoinsSpentToday,
   isHabitDueToday,
-  isHabitDue
+  isHabitDue,
+  uuid,
+  isTaskOverdue
 } from './utils'
 import { CoinTransaction } from './types'
 import { DateTime } from "luxon";
@@ -28,6 +30,87 @@ describe('cn utility', () => {
     expect(cn('foo', { bar: true })).toBe('foo bar')
     expect(cn('foo', { bar: false })).toBe('foo')
     expect(cn('foo', ['bar', 'baz'])).toBe('foo bar baz')
+  })
+})
+
+describe('isTaskOverdue', () => {
+  const createTestHabit = (frequency: string, isTask = true, archived = false): Habit => ({
+    id: 'test-habit',
+    name: 'Test Habit',
+    description: '',
+    frequency,
+    coinReward: 10,
+    completions: [],
+    isTask,
+    archived
+  })
+
+  test('should return false for non-tasks', () => {
+    const habit = createTestHabit('FREQ=DAILY', false)
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+  })
+
+  test('should return false for archived tasks', () => {
+    const habit = createTestHabit('2024-01-01T00:00:00Z', true, true)
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+  })
+
+  test('should return false for future tasks', () => {
+    const tomorrow = DateTime.now().plus({ days: 1 }).toUTC().toISO()
+    const habit = createTestHabit(tomorrow)
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+  })
+
+  test('should return false for completed past tasks', () => {
+    const yesterday = DateTime.now().minus({ days: 1 }).toUTC().toISO()
+    const habit = {
+      ...createTestHabit(yesterday),
+      completions: [DateTime.now().toUTC().toISO()]
+    }
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+  })
+
+  test('should return true for incomplete past tasks', () => {
+    const yesterday = DateTime.now().minus({ days: 1 }).toUTC().toISO()
+    const habit = createTestHabit(yesterday)
+    expect(isTaskOverdue(habit, 'UTC')).toBe(true)
+  })
+
+  test('should handle timezone differences correctly', () => {
+    // Create a task due "tomorrow" in UTC
+    const tomorrow = DateTime.now().plus({ days: 1 }).toUTC().toISO()
+    const habit = createTestHabit(tomorrow)
+    
+    // Test in various timezones
+    expect(isTaskOverdue(habit, 'UTC')).toBe(false)
+    expect(isTaskOverdue(habit, 'America/New_York')).toBe(false)
+    expect(isTaskOverdue(habit, 'Asia/Tokyo')).toBe(false)
+  })
+})
+
+describe('uuid', () => {
+  test('should generate valid UUIDs', () => {
+    const id = uuid()
+    // UUID v4 format: 8-4-4-4-12 hex digits
+    expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+  })
+
+  test('should generate unique UUIDs', () => {
+    const ids = new Set()
+    for (let i = 0; i < 1000; i++) {
+      ids.add(uuid())
+    }
+    // All 1000 UUIDs should be unique
+    expect(ids.size).toBe(1000)
+  })
+
+  test('should generate v4 UUIDs', () => {
+    const id = uuid()
+    // Version 4 UUID has specific bits set:
+    // - 13th character is '4'
+    // - 17th character is '8', '9', 'a', or 'b'
+    expect(id.charAt(14)).toBe('4')
+    expect('89ab').toContain(id.charAt(19))
   })
 })
 

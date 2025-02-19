@@ -5,14 +5,16 @@ import { t2d, d2s, getNow, isSameDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { FormattedNumber } from '@/components/FormattedNumber'
 import { History, Pencil } from 'lucide-react'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import EmptyState from './EmptyState'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { settingsAtom } from '@/lib/atoms'
+import { settingsAtom, usersAtom } from '@/lib/atoms'
 import Link from 'next/link'
 import { useAtom } from 'jotai'
 import { useCoins } from '@/hooks/useCoins'
 import { TransactionNoteEditor } from './TransactionNoteEditor'
+import { useHelpers } from '@/lib/client-helpers'
 
 export default function CoinsManager() {
   const {
@@ -28,10 +30,12 @@ export default function CoinsManager() {
     transactionsToday
   } = useCoins()
   const [settings] = useAtom(settingsAtom)
+  const [usersData] = useAtom(usersAtom)
   const DEFAULT_AMOUNT = '0'
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
   const [pageSize, setPageSize] = useState(50)
   const [currentPage, setCurrentPage] = useState(1)
+  const { currentUser } = useHelpers()
 
   const [note, setNote] = useState('')
 
@@ -252,6 +256,17 @@ export default function CoinsManager() {
                               >
                                 {transaction.type.split('_').join(' ')}
                               </span>
+                              {transaction.userId && currentUser?.isAdmin && (
+                                <Avatar className="h-6 w-6">
+                                  <AvatarImage 
+                                    src={usersData.users.find(u => u.id === transaction.userId)?.avatarPath && 
+                                      `/api/avatars/${usersData.users.find(u => u.id === transaction.userId)?.avatarPath?.split('/').pop()}` || ""} 
+                                  />
+                                  <AvatarFallback>
+                                    {usersData.users.find(u => u.id === transaction.userId)?.username[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                              )}
                             </div>
                             <p className="text-sm text-gray-500">
                               {d2s({ dateTime: t2d({ timestamp: transaction.timestamp, timezone: settings.system.timezone }), timezone: settings.system.timezone })}

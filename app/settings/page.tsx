@@ -142,60 +142,6 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Profile Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="avatar">Avatar</Label>
-                <div className="text-sm text-muted-foreground">
-                  Customize your profile picture
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={settings.profile?.avatarPath ? `/api/avatars/${settings.profile.avatarPath.split('/').pop()}` : '/avatars/default.png'} />
-                  <AvatarFallback>
-                    <User className="h-8 w-8" />
-                  </AvatarFallback>
-                </Avatar>
-                <form action={async (formData: FormData) => {
-                  const newSettings = await uploadAvatar(formData)
-                  setSettings(newSettings)
-                }}>
-                  <input
-                    type="file"
-                    id="avatar"
-                    name="avatar"
-                    accept="image/png, image/jpeg"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) {
-                        if (file.size > 5 * 1024 * 1024) { // 5MB
-                          alert('File size must be less than 5MB')
-                          e.target.value = ''
-                          return
-                        }
-                        const form = e.target.form
-                        if (form) form.requestSubmit()
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById('avatar')?.click()}
-                  >
-                    Change
-                  </Button>
-                </form>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div >
     </>
   )

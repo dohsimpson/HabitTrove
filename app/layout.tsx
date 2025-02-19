@@ -1,13 +1,16 @@
+import '@/lib/env.server' // startup env var check
+
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { DM_Sans } from 'next/font/google'
 import { JotaiProvider } from '@/components/jotai-providers'
 import { Suspense } from 'react'
 import { JotaiHydrate } from '@/components/jotai-hydrate'
-import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData } from './actions/data'
+import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData, loadUsersData } from './actions/data'
 import Layout from '@/components/Layout'
 import { Toaster } from '@/components/ui/toaster'
 import { ThemeProvider } from "@/components/theme-provider"
+import { SessionProvider } from 'next-auth/react'
 
 
 // Inter (clean, modern, excellent readability)
@@ -36,11 +39,12 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [initialSettings, initialHabits, initialCoins, initialWishlist] = await Promise.all([
+  const [initialSettings, initialHabits, initialCoins, initialWishlist, initialUsers] = await Promise.all([
     loadSettings(),
     loadHabitsData(),
     loadCoinsData(),
-    loadWishlistData()
+    loadWishlistData(),
+    loadUsersData(),
   ])
 
   return (
@@ -71,7 +75,8 @@ export default async function RootLayout({
                 settings: initialSettings,
                 habits: initialHabits,
                 coins: initialCoins,
-                wishlist: initialWishlist
+                wishlist: initialWishlist,
+                users: initialUsers
               }}
             >
               <ThemeProvider
@@ -80,9 +85,11 @@ export default async function RootLayout({
                 enableSystem
                 disableTransitionOnChange
               >
-                <Layout>
-                  {children}
-                </Layout>
+                <SessionProvider>
+                  <Layout>
+                    {children}
+                  </Layout>
+                </SessionProvider>
               </ThemeProvider>
             </JotaiHydrate>
           </Suspense>

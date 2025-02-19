@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 0.2.0
+
+### Added
+
+* Multi-user support with permissions system
+* Sharing habits and wishlist items with other users
+* show both tasks and habits in dashboard (#58)
+* show tasks in completion streak (#57)
+
+### BREAKING CHANGE
+
+* PLEASE BACK UP `data/` DIRECTORY BEFORE UPGRADE.
+* Requires AUTH_SECRET environment variable for user authentication. Generate a secure secret with: `openssl rand -base64 32`
+* Previous coin balance will be hidden. If this is undesirable, consider using manual adjustment to adjust coin balance after upgrade.
+
 ## Version 0.1.30
 
 ### Fixed

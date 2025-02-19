@@ -15,8 +15,8 @@ Want to try HabitTrove before installing? Visit the public [demo instance](https
 - 💰 Create a wishlist of rewards to redeem with earned coins
 - 📊 View your habit completion streaks and statistics
 - 📅 Calendar heatmap to visualize your progress (WIP)
-- 🌙 Dark mode support (WIP)
-- 📲 Progressive Web App (PWA) support (Planned)
+- 🌙 Dark mode support
+- 📲 Progressive Web App (PWA) support
 
 ## Usage
 
@@ -46,11 +46,22 @@ chown -R 1001:1001 data  # Required for the nextjs user in container
 2. Then run using either method:
 
 ```bash
+# Generate a secure authentication secret
+export AUTH_SECRET=$(openssl rand -base64 32)
+echo $AUTH_SECRET
+
 # Using docker-compose (recommended)
+## update the AUTH_SECRET environment variable in docker-compose file
+nano docker-compose.yaml
+## start the container
 docker compose up -d
 
 # Or using docker run directly
-docker run -d -p 3000:3000 -v ./data:/app/data dohsimpson/habittrove
+docker run -d \
+  -p 3000:3000 \
+  -v ./data:/app/data \
+  -e AUTH_SECRET=$AUTH_SECRET \
+  dohsimpson/habittrove
 ```
 
 Available image tags:
