@@ -12,20 +12,22 @@ declare global {
   }
 }
 
-try {
-  zodEnv.parse(process.env)
-} catch (err) {
-  if (err instanceof z.ZodError) {
-    const { fieldErrors } = err.flatten()
-    const errorMessage = Object.entries(fieldErrors)
-      .map(([field, errors]) =>
-        errors ? `${field}: ${errors.join(", ")}` : field,
+export function init() {
+  try {
+    zodEnv.parse(process.env)
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      const { fieldErrors } = err.flatten()
+      const errorMessage = Object.entries(fieldErrors)
+        .map(([field, errors]) =>
+          errors ? `${field}: ${errors.join(", ")}` : field,
+        )
+        .join("\n ")
+
+      console.error(
+        `Missing environment variables:\n ${errorMessage}`,
       )
-      .join("\n ")
-    
-    console.error(
-      `Missing environment variables:\n ${errorMessage}`,
-    )
-    process.exit(1)
+      process.exit(1)
+    }
   }
 }
