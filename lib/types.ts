@@ -1,5 +1,3 @@
-import { DEFAULT_ADMIN_PASS_HASH } from "./constants"
-import { saltAndHashPassword } from "./server-helpers"
 import { uuid } from "./utils"
 
 export type UserId = string
@@ -100,7 +98,7 @@ export const getDefaultUsersData = (): UserData => ({
     {
       id: uuid(),
       username: 'admin',
-      password: DEFAULT_ADMIN_PASS_HASH,
+      password: '',
       isAdmin: true,
     }
   ]

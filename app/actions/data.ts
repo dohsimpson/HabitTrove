@@ -341,12 +341,6 @@ export async function loadUsersData(): Promise<UserData> {
 }
 
 export async function saveUsersData(data: UserData): Promise<void> {
-  if (process.env.DEMO === 'true') {
-    // remove password for all users
-    data.users.map(user => {
-      user.password = ''
-    })
-  }
   return saveData('auth', data)
 }
 
@@ -366,7 +360,7 @@ export async function getUser(username: string, plainTextPassword?: string): Pro
 export async function createUser(formData: FormData): Promise<User> {
   const username = formData.get('username') as string;
   let password = formData.get('password') as string | undefined;
-  const avatarFile = formData.get('avatar') as File | null;
+  const avatarPath = formData.get('avatarPath') as string;
   const permissions = formData.get('permissions') ? 
     JSON.parse(formData.get('permissions') as string) as Permission[] : 
     undefined;
@@ -384,13 +378,6 @@ export async function createUser(formData: FormData): Promise<User> {
 
   const hashedPassword = password ? saltAndHashPassword(password) : '';
 
-  // Handle avatar upload if present
-  let avatarPath: string | undefined;
-  if (avatarFile && avatarFile instanceof File && avatarFile.size > 0) {
-    const avatarFormData = new FormData();
-    avatarFormData.append('avatar', avatarFile);
-    avatarPath = await uploadAvatar(avatarFormData);
-  }
 
   const newUser: User = {
     id: uuid(),

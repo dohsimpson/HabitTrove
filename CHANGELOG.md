@@ -11,8 +11,9 @@
 
 ### BREAKING CHANGE
 
-* Requires AUTH_SECRET environment variable for user authentication
-* Generate a secure secret with: `openssl rand -base64 32`
+* PLEASE BACK UP `data/` DIRECTORY BEFORE UPGRADE.
+* Requires AUTH_SECRET environment variable for user authentication. Generate a secure secret with: `openssl rand -base64 32`
+* Previous coin balance will be hidden. If this is undesirable, consider using manual adjustment to adjust coin balance after upgrade.
 
 ## Version 0.1.30
 

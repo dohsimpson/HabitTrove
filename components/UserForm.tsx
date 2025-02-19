@@ -30,15 +30,15 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
   const { currentUser } = useHelpers()
   const getDefaultPermissions = (): Permission[] => [{
     habit: {
-      write: false,
+      write: true,
       interact: true
     },
     wishlist: {
-      write: false,
+      write: true,
       interact: true
     },
     coins: {
-      write: false,
+      write: true,
       interact: true
     }
   }];
@@ -46,7 +46,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
   const [avatarPath, setAvatarPath] = useState(user?.avatarPath)
   const [username, setUsername] = useState(user?.username || '');
   const [password, setPassword] = useState<string | undefined>('');
-  const [disablePassword, setDisablePassword] = useState(user?.password === '');
+  const [disablePassword, setDisablePassword] = useState(user?.password === '' || process.env.NEXT_PUBLIC_DEMO === 'true');
   const [error, setError] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isAdmin, setIsAdmin] = useState(user?.isAdmin || false);
@@ -118,9 +118,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         }
         formData.append('permissions', JSON.stringify(isAdmin ? undefined : permissions));
         formData.append('isAdmin', JSON.stringify(isAdmin));
-        if (avatarFile) {
-          formData.append('avatar', avatarFile);
-        }
+        formData.append('avatarPath', avatarPath || '');
 
         const newUser = await createUser(formData);
         setUsersData(prev => ({
@@ -153,27 +151,24 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
       return;
     }
 
-    if (isEditing) {
-      const formData = new FormData();
-      formData.append('avatar', file);
+    const formData = new FormData();
+    formData.append('avatar', file);
 
-      try {
-        const path = await uploadAvatar(formData);
-        setAvatarPath(path);
-        toast({
-          title: "Avatar uploaded",
-          description: "Successfully uploaded avatar",
-          variant: 'default'
-        });
-      } catch (err) {
-        toast({
-          title: "Error",
-          description: "Failed to upload avatar",
-          variant: 'destructive'
-        });
-      }
-    } else {
-      setAvatarFile(file);
+    try {
+      const path = await uploadAvatar(formData);
+      setAvatarPath(path);
+      setAvatarFile(null); // Clear the file since we've uploaded it
+      toast({
+        title: "Avatar uploaded",
+        description: "Successfully uploaded avatar",
+        variant: 'default'
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to upload avatar",
+        variant: 'destructive'
+      });
     }
   };
 
@@ -245,6 +240,9 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
               className={error ? 'border-red-500' : ''}
               disabled={disablePassword}
             />
+            {process.env.NEXT_PUBLIC_DEMO === 'true' && (
+              <p className="text-sm text-red-500">Password is automatically disabled in demo instance</p>
+            )}
           </div>
           
           <div className="flex items-center space-x-2">
@@ -262,7 +260,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         )}
 
         
-        {currentUser && currentUser.isAdmin && users.users.length > 1 && <PermissionSelector
+        {currentUser && currentUser.isAdmin && <PermissionSelector
           permissions={permissions}
           isAdmin={isAdmin}
           onPermissionsChange={setPermissions}

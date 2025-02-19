@@ -1,3 +1,5 @@
+import '@/lib/env.server' // startup env var check
+
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { DM_Sans } from 'next/font/google'

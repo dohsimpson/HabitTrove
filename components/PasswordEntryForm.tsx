@@ -8,8 +8,6 @@ import { User as UserIcon } from 'lucide-react';
 import { Permission, User } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import { DEFAULT_ADMIN_PASS, DEFAULT_ADMIN_PASS_HASH } from '@/lib/constants';
-import { Switch } from './ui/switch';
 
 interface PasswordEntryFormProps {
   user: User;
