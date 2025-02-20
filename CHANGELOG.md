@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.1
+
+### Changed
+
+* Added bottom padding for nav bar on iOS devices (#63)
+
 ## Version 0.2.0
 
 ### Added
