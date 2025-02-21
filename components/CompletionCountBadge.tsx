@@ -1,40 +1,35 @@
-import { Badge } from '@/components/ui/badge'
-import { Habit } from '@/lib/types'
-import { isHabitDue, getCompletionsForDate } from '@/lib/utils'
+import { Badge } from "@/components/ui/badge"
+import { useAtom } from 'jotai'
+import { completedHabitsMapAtom, habitsAtom, habitsByDateFamily } from '@/lib/atoms'
+import { getTodayInTimezone } from '@/lib/utils'
+import { useHabits } from '@/hooks/useHabits'
+import { settingsAtom } from '@/lib/atoms'
 
 interface CompletionCountBadgeProps {
-  habits: Habit[]
-  selectedDate: luxon.DateTime
-  timezone: string
-  type: 'tasks' | 'habits'
+  type: 'habits' | 'tasks'
+  date?: string
 }
 
-export function CompletionCountBadge({ habits, selectedDate, timezone, type }: CompletionCountBadgeProps) {
-  const filteredHabits = habits.filter(habit => {
-    const isTask = type === 'tasks'
-    if ((habit.isTask === isTask) && isHabitDue({
-      habit,
-      timezone,
-      date: selectedDate
-    })) {
-      const completions = getCompletionsForDate({ habit, date: selectedDate, timezone })
-      return completions >= (habit.targetCompletions || 1)
-    }
-    return false
-  }).length
+export default function CompletionCountBadge({
+  type,
+  date
+}: CompletionCountBadgeProps) {
+  const [settings] = useAtom(settingsAtom)
+  const [completedHabitsMap] = useAtom(completedHabitsMapAtom)
+  const targetDate = date || getTodayInTimezone(settings.system.timezone)
+  const [dueHabits] = useAtom(habitsByDateFamily(targetDate))
 
-  const totalHabits = habits.filter(habit => 
-    (habit.isTask === (type === 'tasks')) && 
-    isHabitDue({
-      habit,
-      timezone,
-      date: selectedDate
-    })
+  const completedCount = completedHabitsMap.get(targetDate)?.filter(h => 
+    type === 'tasks' ? h.isTask : !h.isTask
+  ).length || 0
+
+  const totalCount = dueHabits.filter(h => 
+    type === 'tasks' ? h.isTask : !h.isTask
   ).length
 
   return (
     <Badge variant="secondary">
-      {`${filteredHabits}/${totalHabits} Completed`}
+      {`${completedCount}/${totalCount} Completed`}
     </Badge>
   )
 }

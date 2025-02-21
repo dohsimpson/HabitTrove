@@ -1,4 +1,5 @@
 import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer, Plus } from 'lucide-react'
+import CompletionCountBadge from './CompletionCountBadge'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -9,7 +10,7 @@ import { cn, isHabitDueToday, getHabitFreq } from '@/lib/utils'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
-import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings, hasTasksAtom } from '@/lib/atoms'
+import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings, hasTasksAtom, dailyHabitsAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -34,28 +35,14 @@ export default function DailyOverview({
 }: UpcomingItemsProps) {
   const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
-  const [dailyHabits, setDailyHabits] = useState<Habit[]>([])
-  const [dailyTasks, setDailyTasks] = useState<Habit[]>([])
   const [completedHabitsMap] = useAtom(completedHabitsMapAtom)
+  const [dailyItems] = useAtom(dailyHabitsAtom)
+  const dailyTasks = dailyItems.filter(habit => habit.isTask)
+  const dailyHabits = dailyItems.filter(habit => !habit.isTask)
   const today = getTodayInTimezone(settings.system.timezone)
   const todayCompletions = completedHabitsMap.get(today) || []
   const { saveHabit } = useHabits()
   const [browserSettings, setBrowserSettings] = useAtom(browserSettingsAtom)
-
-  useEffect(() => {
-    // Filter habits and tasks that are due today and not archived
-    const filteredHabits = habits.filter(habit =>
-      !habit.isTask && 
-      !habit.archived && 
-      isHabitDueToday({ habit, timezone: settings.system.timezone })
-    )
-    const filteredTasks = habits.filter(habit =>
-      habit.isTask && 
-      isHabitDueToday({ habit, timezone: settings.system.timezone })
-    )
-    setDailyHabits(filteredHabits)
-    setDailyTasks(filteredTasks)
-  }, [habits])
 
   // Get all wishlist items sorted by redeemable status (non-redeemable first) then by coin cost
   // Filter out archived wishlist items
@@ -74,9 +61,6 @@ export default function DailyOverview({
       return a.coinCost - b.coinCost
     })
 
-  const [expandedHabits, setExpandedHabits] = useState(false)
-  const [expandedTasks, setExpandedTasks] = useState(false)
-  const [expandedWishlist, setExpandedWishlist] = useState(false)
   const [hasTasks] = useAtom(hasTasksAtom)
   const [_, setPomo] = useAtom(pomodoroAtom)
   const [modalConfig, setModalConfig] = useState<{
@@ -126,13 +110,7 @@ export default function DailyOverview({
                     <h3 className="font-semibold">Daily Tasks</h3>
                   </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">
-                    {`${dailyTasks.filter(task => {
-                      const completions = (completedHabitsMap.get(today) || [])
-                        .filter(h => h.id === task.id).length;
-                      return completions >= (task.targetCompletions || 1);
-                    }).length}/${dailyTasks.length} Completed`}
-                  </Badge>
+                  <CompletionCountBadge type="tasks" />
                   <Button
                     variant="ghost"
                     size="sm"
@@ -149,7 +127,7 @@ export default function DailyOverview({
                   </Button>
                 </div>
               </div>
-              <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedTasks ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
+              <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${browserSettings.expandedTasks ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
                 {dailyTasks
                   .sort((a, b) => {
                     // First by completion status
@@ -177,7 +155,7 @@ export default function DailyOverview({
                     const bTarget = b.targetCompletions || 1;
                     return bTarget - aTarget;
                   })
-                  .slice(0, expandedTasks ? undefined : 5)
+                  .slice(0, browserSettings.expandedTasks ? undefined : 5)
                   .map((habit) => {
                     const completionsToday = habit.completions.filter(completion =>
                       isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
@@ -279,10 +257,10 @@ export default function DailyOverview({
               </ul>
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => setExpandedTasks(!expandedTasks)}
+                  onClick={() => setBrowserSettings(prev => ({ ...prev, expandedTasks: !prev.expandedTasks }))}
                   className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
                 >
-                  {expandedTasks ? (
+                  {browserSettings.expandedTasks ? (
                     <>
                       Show less
                       <ChevronUp className="h-3 w-3" />
@@ -337,13 +315,7 @@ export default function DailyOverview({
                     <h3 className="font-semibold">Daily Habits</h3>
                   </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">
-                    {`${dailyHabits.filter(habit => {
-                      const completions = (completedHabitsMap.get(today) || [])
-                        .filter(h => h.id === habit.id).length;
-                      return completions >= (habit.targetCompletions || 1);
-                    }).length}/${dailyHabits.length} Completed`}
-                  </Badge>
+                  <CompletionCountBadge type="habits" />
                   <Button
                     variant="ghost"
                     size="sm"
@@ -360,7 +332,7 @@ export default function DailyOverview({
                   </Button>
                 </div>
               </div>
-              <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expandedHabits ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
+              <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${browserSettings.expandedHabits ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
                 {dailyHabits
                   .sort((a, b) => {
                     // First by completion status
@@ -388,7 +360,7 @@ export default function DailyOverview({
                     const bTarget = b.targetCompletions || 1;
                     return bTarget - aTarget;
                   })
-                  .slice(0, expandedHabits ? undefined : 5)
+                  .slice(0, browserSettings.expandedHabits ? undefined : 5)
                   .map((habit) => {
                     const completionsToday = habit.completions.filter(completion =>
                       isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
@@ -490,10 +462,10 @@ export default function DailyOverview({
               </ul>
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => setExpandedHabits(!expandedHabits)}
+                  onClick={() => setBrowserSettings(prev => ({ ...prev, expandedHabits: !prev.expandedHabits }))}
                   className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
                 >
-                  {expandedHabits ? (
+                  {browserSettings.expandedHabits ? (
                     <>
                       Show less
                       <ChevronUp className="h-3 w-3" />
@@ -525,7 +497,7 @@ export default function DailyOverview({
                 </Badge>
               </div>
               <div>
-                <div className={`space-y-3 transition-all duration-300 ease-in-out ${expandedWishlist ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
+                <div className={`space-y-3 transition-all duration-300 ease-in-out ${browserSettings.expandedWishlist ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
                   {sortedWishlistItems.length === 0 ? (
                     <div className="text-center text-muted-foreground text-sm py-4">
                       No wishlist items yet. Add some goals to work towards!
@@ -533,7 +505,7 @@ export default function DailyOverview({
                   ) : (
                     <>
                       {sortedWishlistItems
-                        .slice(0, expandedWishlist ? undefined : 5)
+                        .slice(0, browserSettings.expandedWishlist ? undefined : 5)
                         .map((item) => {
                           const isRedeemable = item.coinCost <= coinBalance
                           return (
@@ -587,10 +559,10 @@ export default function DailyOverview({
                 </div>
                 <div className="flex items-center justify-between">
                   <button
-                    onClick={() => setExpandedWishlist(!expandedWishlist)}
+                    onClick={() => setBrowserSettings(prev => ({ ...prev, expandedWishlist: !prev.expandedWishlist }))}
                     className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
                   >
-                    {expandedWishlist ? (
+                    {browserSettings.expandedWishlist ? (
                       <>
                         Show less
                         <ChevronUp className="h-3 w-3" />

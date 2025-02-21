@@ -32,7 +32,7 @@ export function ViewToggle({
 
   // Calculate due tasks count
   const dueTasksCount = habits.habits.filter(habit => 
-    habit.isTask && !habit.archived && isHabitDueToday({ habit, timezone: settings.system.timezone })
+    habit.isTask && isHabitDueToday({ habit, timezone: settings.system.timezone })
   ).length
 
   return (

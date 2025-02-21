@@ -7,6 +7,7 @@ import {
   Habit,
   ViewType,
   getDefaultUsersData,
+  CompletionCache,
 } from "./types";
 import {
   getTodayInTimezone,
@@ -18,16 +19,26 @@ import {
   calculateCoinsSpentToday,
   calculateTransactionsToday,
   getCompletionsForToday,
-  getISODate
+  getISODate,
+  isHabitDueToday,
+  getNow,
+  isHabitDue
 } from "@/lib/utils";
-import { atomWithStorage } from "jotai/utils";
+import { atomFamily, atomWithStorage } from "jotai/utils";
+import { DateTime } from "luxon";
 
 export interface BrowserSettings {
   viewType: ViewType
+  expandedHabits: boolean
+  expandedTasks: boolean
+  expandedWishlist: boolean
 }
 
 export const browserSettingsAtom = atomWithStorage('browserSettings', {
-  viewType: 'habits'
+  viewType: 'habits',
+  expandedHabits: false,
+  expandedTasks: false,
+  expandedWishlist: false
 } as BrowserSettings)
 
 export const usersAtom = atom(getDefaultUsersData())
@@ -92,36 +103,49 @@ export const pomodoroAtom = atom<PomodoroAtom>({
 
 export const userSelectAtom = atom<boolean>(false)
 
-// Derived atom for *fully* completed habits by date, respecting target completions
-export const completedHabitsMapAtom = atom((get) => {
-  const habits = get(habitsAtom).habits
-  const timezone = get(settingsAtom).system.timezone
-
-  const map = new Map<string, Habit[]>()
-
+// Derived atom for completion cache
+export const completionCacheAtom = atom((get) => {
+  const habits = get(habitsAtom).habits;
+  const timezone = get(settingsAtom).system.timezone;
+  const cache: CompletionCache = {};
+  
   habits.forEach(habit => {
-    // Group completions by date
-    const completionsByDate = new Map<string, number>()
-
-    habit.completions.forEach(completion => {
-      const dateKey = getISODate({ dateTime: t2d({ timestamp: completion, timezone }), timezone })
-      completionsByDate.set(dateKey, (completionsByDate.get(dateKey) || 0) + 1)
-    })
-
-    // Check if habit meets target completions for each date
-    completionsByDate.forEach((count, dateKey) => {
-      const target = habit.targetCompletions || 1
-      if (count >= target) {
-        if (!map.has(dateKey)) {
-          map.set(dateKey, [])
-        }
-        map.get(dateKey)!.push(habit)
+    habit.completions.forEach(utcTimestamp => {
+      const localDate = t2d({ timestamp: utcTimestamp, timezone })
+        .toFormat('yyyy-MM-dd');
+      
+      if (!cache[localDate]) {
+        cache[localDate] = {};
       }
-    })
-  })
+      
+      cache[localDate][habit.id] = (cache[localDate][habit.id] || 0) + 1;
+    });
+  });
 
-  return map
-})
+  return cache;
+});
+
+// Derived atom for completed habits by date, using the cache
+export const completedHabitsMapAtom = atom((get) => {
+  const habits = get(habitsAtom).habits;
+  const completionCache = get(completionCacheAtom);
+  const map = new Map<string, Habit[]>();
+
+  // For each date in the cache
+  Object.entries(completionCache).forEach(([dateKey, habitCompletions]) => {
+    const completedHabits = habits.filter(habit => {
+      const completionsNeeded = habit.targetCompletions || 1;
+      const completionsAchieved = habitCompletions[habit.id] || 0;
+      return completionsAchieved >= completionsNeeded;
+    });
+
+    if (completedHabits.length > 0) {
+      map.set(dateKey, completedHabits);
+    }
+  });
+
+  return map;
+});
 
 
 export const pomodoroTodayCompletionsAtom = atom((get) => {
@@ -145,3 +169,22 @@ export const hasTasksAtom = atom((get) => {
   const habits = get(habitsAtom)
   return habits.habits.some(habit => habit.isTask === true)
 })
+
+// Atom family for habits by specific date
+export const habitsByDateFamily = atomFamily((dateString: string) => 
+  atom((get) => {
+    const habits = get(habitsAtom).habits;
+    const settings = get(settingsAtom);
+    const timezone = settings.system.timezone;
+    
+    const date = DateTime.fromISO(dateString).setZone(timezone);
+    return habits.filter(habit => isHabitDue({ habit, timezone, date }));
+  })
+);
+
+// Derived atom for daily habits
+export const dailyHabitsAtom = atom((get) => {
+  const settings = get(settingsAtom);
+  const today = getTodayInTimezone(settings.system.timezone);
+  return get(habitsByDateFamily(today));
+});

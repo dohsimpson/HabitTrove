@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.2.2
+
+### Changed
+
+* persist "show all" settings in browser (#72)
+
+### Fixed
+
+* nav bar spacing
+* completion count badge
+
 ## Version 0.2.1
 
 ### Changed

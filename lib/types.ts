@@ -164,6 +164,12 @@ export interface Settings {
   profile: ProfileSettings;
 }
 
+export type CompletionCache = {
+  [dateKey: string]: {  // dateKey format: "YYYY-MM-DD"
+    [habitId: string]: number  // number of completions on that date
+  }
+}
+
 export type ViewType = 'habits' | 'tasks'
 
 export interface JotaiHydrateInitialValues {

@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { CompletionCountBadge } from '@/components/CompletionCountBadge'
+import CompletionCountBadge from '@/components/CompletionCountBadge'
 import { Button } from '@/components/ui/button'
 import { Check, Circle, CircleCheck } from 'lucide-react'
 import { d2s, getNow, t2d, getCompletedHabitsForDate, isHabitDue, getISODate, getCompletionsForToday, getCompletionsForDate } from '@/lib/utils'
@@ -25,7 +25,8 @@ export default function HabitCalendar() {
     }
   }, [completePastHabit])
   const [settings] = useAtom(settingsAtom)
-  const [selectedDate, setSelectedDate] = useState<DateTime>(getNow({ timezone: settings.system.timezone }))
+  const [selectedDateTime, setSelectedDateTime] = useState<DateTime>(getNow({ timezone: settings.system.timezone }))
+  const selectedDate = selectedDateTime.toFormat("yyyy-MM-dd")
   const [habitsData] = useAtom(habitsAtom)
   const [hasTasks] = useAtom(hasTasksAtom)
   const habits = habitsData.habits
@@ -50,8 +51,8 @@ export default function HabitCalendar() {
           <CardContent>
             <Calendar
               mode="single"
-              selected={selectedDate.toJSDate()}
-              onSelect={(e) => e && setSelectedDate(DateTime.fromJSDate(e))}
+              selected={selectedDateTime.toJSDate()}
+              onSelect={(e) => e && setSelectedDateTime(DateTime.fromJSDate(e))}
               weekStartsOn={settings.system.weekStartDay}
               className="rounded-md border"
               modifiers={{
@@ -71,36 +72,31 @@ export default function HabitCalendar() {
         <Card>
           <CardHeader>
             <CardTitle>
-              {selectedDate ? (
-                <>{d2s({ dateTime: selectedDate, timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })}</>
+              {selectedDateTime ? (
+                <>{d2s({ dateTime: selectedDateTime, timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })}</>
               ) : (
                 'Select a date'
               )}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {selectedDate && (
+            {selectedDateTime && (
               <div className="space-y-8">
                 {hasTasks && (
                   <div className="pt-2 border-t">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Tasks</h3>
-                      <CompletionCountBadge
-                        habits={habits}
-                        selectedDate={selectedDate}
-                        timezone={settings.system.timezone}
-                        type="tasks"
-                      />
+                      <CompletionCountBadge type="tasks" date={selectedDate.toString()} />
                     </div>
                     <ul className="space-y-3">
                       {habits
                         .filter(habit => habit.isTask && isHabitDue({
                           habit,
                           timezone: settings.system.timezone,
-                          date: selectedDate
+                          date: selectedDateTime
                         }))
                         .map((habit) => {
-                          const completions = getCompletionsForDate({ habit, date: selectedDate, timezone: settings.system.timezone })
+                          const completions = getCompletionsForDate({ habit, date: selectedDateTime, timezone: settings.system.timezone })
                           const isCompleted = completions >= (habit.targetCompletions || 1)
                           return (
                             <li key={habit.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
@@ -115,7 +111,7 @@ export default function HabitCalendar() {
                                     </span>
                                   )}
                                   <button
-                                    onClick={() => handleCompletePastHabit(habit, selectedDate)}
+                                    onClick={() => handleCompletePastHabit(habit, selectedDateTime)}
                                     disabled={isCompleted}
                                     className="relative h-4 w-4 hover:opacity-70 transition-opacity disabled:opacity-100"
                                   >
@@ -149,22 +145,17 @@ export default function HabitCalendar() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Habits</h3>
-                    <CompletionCountBadge
-                      habits={habits}
-                      selectedDate={selectedDate}
-                      timezone={settings.system.timezone}
-                      type="habits"
-                    />
+                    <CompletionCountBadge type="habits" date={selectedDate.toString()} />
                   </div>
                   <ul className="space-y-3">
                     {habits
-                      .filter(habit => !habit.isTask && !habit.archived && isHabitDue({
+                      .filter(habit => !habit.isTask && isHabitDue({
                         habit,
                         timezone: settings.system.timezone,
-                        date: selectedDate
+                        date: selectedDateTime
                       }))
                       .map((habit) => {
-                    const completions = getCompletionsForDate({ habit, date: selectedDate, timezone: settings.system.timezone })
+                    const completions = getCompletionsForDate({ habit, date: selectedDateTime, timezone: settings.system.timezone })
                     const isCompleted = completions >= (habit.targetCompletions || 1)
                     return (
                       <li key={habit.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
@@ -179,7 +170,7 @@ export default function HabitCalendar() {
                               </span>
                             )}
                             <button
-                              onClick={() => handleCompletePastHabit(habit, selectedDate)}
+                              onClick={() => handleCompletePastHabit(habit, selectedDateTime)}
                               disabled={isCompleted}
                               className="relative h-4 w-4 hover:opacity-70 transition-opacity disabled:opacity-100"
                             >

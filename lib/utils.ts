@@ -231,11 +231,18 @@ export function isHabitDue({
   timezone: string
   date: DateTime
 }): boolean {
+  // handle task
   if (habit.isTask) {
     // For tasks, frequency is stored as a UTC ISO timestamp
     const taskDueDate = t2d({ timestamp: habit.frequency, timezone })
     return isSameDate(taskDueDate, date);
   }
+
+  // handle habit
+  if (habit.archived) {
+    return false
+  }
+
   const startOfDay = date.setZone(timezone).startOf('day')
   const endOfDay = date.setZone(timezone).endOf('day')
 
