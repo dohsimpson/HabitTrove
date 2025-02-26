@@ -8,6 +8,7 @@ import {
   ViewType,
   getDefaultUsersData,
   CompletionCache,
+  getDefaultServerSettings,
 } from "./types";
 import {
   getTodayInTimezone,
@@ -46,6 +47,7 @@ export const settingsAtom = atom(getDefaultSettings());
 export const habitsAtom = atom(getDefaultHabitsData());
 export const coinsAtom = atom(getDefaultCoinsData());
 export const wishlistAtom = atom(getDefaultWishlistData());
+export const serverSettingsAtom = atom(getDefaultServerSettings());
 
 // Derived atom for coins earned today
 export const coinsEarnedTodayAtom = atom((get) => {

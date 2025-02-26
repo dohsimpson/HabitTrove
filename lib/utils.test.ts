@@ -535,13 +535,8 @@ describe('isHabitDueToday', () => {
 
   test('should return false for invalid recurrence rule', () => {
     const habit = testHabit('INVALID_RRULE')
-    // Mock console.error to prevent test output pollution
-    const consoleSpy = spyOn(console, 'error').mockImplementation(() => { })
-
-    // Expect the function to throw an error
-    expect(() => isHabitDueToday({ habit, timezone: 'UTC' })).toThrow()
-
-    consoleSpy.mockRestore()
+    const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
+    expect(isHabitDueToday({ habit, timezone: 'UTC' })).toBe(false)
   })
 })
 
@@ -653,8 +648,7 @@ describe('isHabitDue', () => {
   test('should return false for invalid recurrence rule', () => {
     const habit = testHabit('INVALID_RRULE')
     const date = DateTime.fromISO('2024-01-01T00:00:00Z')
-    const consoleSpy = spyOn(console, 'error').mockImplementation(() => { })
-    expect(() => isHabitDue({ habit, timezone: 'UTC', date })).toThrow()
-    consoleSpy.mockRestore()
+    const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
+    expect(isHabitDue({ habit, timezone: 'UTC', date })).toBe(false)
   })
 })

@@ -4,7 +4,7 @@ import { DM_Sans } from 'next/font/google'
 import { JotaiProvider } from '@/components/jotai-providers'
 import { Suspense } from 'react'
 import { JotaiHydrate } from '@/components/jotai-hydrate'
-import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData, loadUsersData } from './actions/data'
+import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData, loadUsersData, loadServerSettings } from './actions/data'
 import Layout from '@/components/Layout'
 import { Toaster } from '@/components/ui/toaster'
 import { ThemeProvider } from "@/components/theme-provider"
@@ -37,12 +37,13 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [initialSettings, initialHabits, initialCoins, initialWishlist, initialUsers] = await Promise.all([
+  const [initialSettings, initialHabits, initialCoins, initialWishlist, initialUsers, initialServerSettings] = await Promise.all([
     loadSettings(),
     loadHabitsData(),
     loadCoinsData(),
     loadWishlistData(),
     loadUsersData(),
+    loadServerSettings(),
   ])
 
   return (
@@ -74,7 +75,8 @@ export default async function RootLayout({
                 habits: initialHabits,
                 coins: initialCoins,
                 wishlist: initialWishlist,
-                users: initialUsers
+                users: initialUsers,
+                serverSettings: initialServerSettings,
               }}
             >
               <ThemeProvider

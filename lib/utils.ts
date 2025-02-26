@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { DateTime, DateTimeFormatOptions } from "luxon"
 import { datetime, RRule } from 'rrule'
 import { Freq, Habit, CoinTransaction, Permission } from '@/lib/types'
-import { DUE_MAP, RECURRENCE_RULE_MAP } from "./constants"
+import { DUE_MAP, INITIAL_DUE, INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from "./constants"
 import * as chrono from 'chrono-node'
 import _ from "lodash"
 import { v4 as uuidv4 } from 'uuid'
@@ -191,20 +191,28 @@ export function getRRuleUTC(recurrenceRule: string) {
 
 export function parseNaturalLanguageRRule(ruleText: string) {
   ruleText = ruleText.trim()
+  let rrule: RRule
   if (RECURRENCE_RULE_MAP[ruleText]) {
-    return RRule.fromString(RECURRENCE_RULE_MAP[ruleText])
+    rrule = RRule.fromString(RECURRENCE_RULE_MAP[ruleText])
+  } else {
+    rrule = RRule.fromText(ruleText)
   }
 
-  return RRule.fromText(ruleText)
+  if (isUnsupportedRRule(rrule)) return RRule.fromString('invalid') // return invalid if unsupported
+  return rrule
 }
 
 export function parseRRule(ruleText: string) {
   ruleText = ruleText.trim()
+  let rrule: RRule
   if (RECURRENCE_RULE_MAP[ruleText]) {
-    return RRule.fromString(RECURRENCE_RULE_MAP[ruleText])
+    rrule = RRule.fromString(RECURRENCE_RULE_MAP[ruleText])
+  } else {
+    rrule = RRule.fromString(ruleText)
   }
 
-  return RRule.fromString(ruleText)
+  if (isUnsupportedRRule(rrule)) return RRule.fromString('invalid') // return invalid if unsupported
+  return rrule
 }
 
 export function serializeRRule(rrule: RRule) {
@@ -220,6 +228,25 @@ export function parseNaturalLanguageDate({ text, timezone }: { text: string, tim
   if (!due) throw Error('invalid rule')
   // return d2s({ dateTime: DateTime.fromJSDate(due), timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })
   return DateTime.fromJSDate(due).setZone(timezone)
+}
+
+export function getFrequencyDisplayText(frequency: string | undefined, isRecurRule: boolean, timezone: string) {
+  if (isRecurRule) {
+    try {
+      return parseRRule((frequency) || INITIAL_RECURRENCE_RULE).toText();
+    } catch {
+      return 'invalid'
+    }
+  } else {
+    if (!frequency) {
+      return INITIAL_DUE
+    }
+    return d2s({
+      dateTime: t2d({ timestamp: frequency, timezone: timezone }),
+      timezone: timezone, 
+      format: DateTime.DATE_MED_WITH_WEEKDAY
+    });
+  }
 }
 
 export function isHabitDue({
@@ -247,8 +274,13 @@ export function isHabitDue({
   const endOfDay = date.setZone(timezone).endOf('day')
 
   const ruleText = habit.frequency
-  const rrule = parseRRule(ruleText)
-
+  let rrule
+  try {
+    rrule = parseRRule(ruleText)
+  } catch (error) {
+    console.error(`Failed to parse rrule for habit: ${habit.id} ${habit.name}`)
+    return false
+  }
   rrule.origOptions.tzid = timezone
   rrule.options.tzid = rrule.origOptions.tzid
   rrule.origOptions.dtstart = datetime(startOfDay.year, startOfDay.month, startOfDay.day, startOfDay.hour, startOfDay.minute, startOfDay.second)
@@ -296,8 +328,16 @@ export function getHabitFreq(habit: Habit): Freq {
     case RRule.WEEKLY: return 'weekly'
     case RRule.MONTHLY: return 'monthly'
     case RRule.YEARLY: return 'yearly'
-    default: throw new Error(`Invalid frequency: ${freq}`)
+
+    default:
+      console.error(`Invalid frequency: ${freq} (habit: ${habit.id} ${habit.name}) (rrule: ${rrule.toString()}). Defaulting to daily`)
+      return 'daily'
   }
+}
+
+export function isUnsupportedRRule(rrule: RRule): boolean {
+  const freq = rrule.origOptions.freq
+  return freq === RRule.HOURLY || freq === RRule.MINUTELY || freq === RRule.SECONDLY
 }
 
 // play sound (client side only, must be run in browser)

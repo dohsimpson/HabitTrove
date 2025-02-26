@@ -8,8 +8,8 @@ import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { Permission } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
-import { useAtom } from 'jotai';
-import { usersAtom } from '@/lib/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { serverSettingsAtom, usersAtom } from '@/lib/atoms';
 import { createUser, updateUser, updateUserPassword, uploadAvatar } from '@/app/actions/data';
 import { SafeUser, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -26,6 +26,7 @@ interface UserFormProps {
 
 export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps) {
   const [users, setUsersData] = useAtom(usersAtom);
+  const serverSettings = useAtomValue(serverSettingsAtom)
   const user = userId ? users.users.find(u => u.id === userId) : undefined;
   const { currentUser } = useHelpers()
   const getDefaultPermissions = (): Permission[] => [{
@@ -46,7 +47,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
   const [avatarPath, setAvatarPath] = useState(user?.avatarPath)
   const [username, setUsername] = useState(user?.username || '');
   const [password, setPassword] = useState<string | undefined>('');
-  const [disablePassword, setDisablePassword] = useState(user?.password === '' || process.env.NEXT_PUBLIC_DEMO === 'true');
+  const [disablePassword, setDisablePassword] = useState(user?.password === '' || serverSettings.isDemo);
   const [error, setError] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isAdmin, setIsAdmin] = useState(user?.isAdmin || false);
@@ -240,7 +241,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
               className={error ? 'border-red-500' : ''}
               disabled={disablePassword}
             />
-            {process.env.NEXT_PUBLIC_DEMO === 'true' && (
+            {serverSettings.isDemo && (
               <p className="text-sm text-red-500">Password is automatically disabled in demo instance</p>
             )}
           </div>

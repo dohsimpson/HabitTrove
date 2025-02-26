@@ -1,6 +1,6 @@
 'use client'
 
-import { settingsAtom, habitsAtom, coinsAtom, wishlistAtom, usersAtom } from "@/lib/atoms"
+import { settingsAtom, habitsAtom, coinsAtom, wishlistAtom, usersAtom, serverSettingsAtom } from "@/lib/atoms"
 import { useHydrateAtoms } from "jotai/utils"
 import { JotaiHydrateInitialValues } from "@/lib/types"
 
@@ -13,7 +13,8 @@ export function JotaiHydrate({
     [habitsAtom, initialValues.habits],
     [coinsAtom, initialValues.coins],
     [wishlistAtom, initialValues.wishlist],
-    [usersAtom, initialValues.users]
+    [usersAtom, initialValues.users],
+    [serverSettingsAtom, initialValues.serverSettings]
   ])
   return children
 }

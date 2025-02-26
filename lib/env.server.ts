@@ -24,10 +24,9 @@ export function init() {
         )
         .join("\n ")
 
-      console.error(
+      throw new Error(
         `Missing environment variables:\n ${errorMessage}`,
       )
-      process.exit(1)
     }
   }
 }

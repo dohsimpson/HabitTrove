@@ -168,10 +168,10 @@ export default function DailyOverview({
                         ${isCompleted ? 'bg-secondary/50' : 'bg-secondary/20'}`}
                         key={habit.id}
                       >
-                        <span className="flex items-center gap-2">
+                        <span className="flex items-center gap-2 flex-1 min-w-0">
                           <ContextMenu>
                             <ContextMenuTrigger asChild>
-                              <div className="flex-none">
+                              <div className="flex-shrink-0">
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault();
@@ -204,7 +204,7 @@ export default function DailyOverview({
                                 </button>
                               </div>
                             </ContextMenuTrigger>
-                            <span className={isCompleted ? 'line-through' : ''}>
+                            <span className={cn(isCompleted ? 'line-through' : '', 'break-all')}>
                               <Linkify>
                                 {habit.name}
                               </Linkify>
@@ -223,7 +223,7 @@ export default function DailyOverview({
                             </ContextMenuContent>
                           </ContextMenu>
                         </span>
-                        <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
                           {habit.targetCompletions && (
                             <span className="bg-secondary px-1.5 py-0.5 rounded-full">
                               {completionsToday}/{target}
@@ -373,10 +373,10 @@ export default function DailyOverview({
                         ${isCompleted ? 'bg-secondary/50' : 'bg-secondary/20'}`}
                         key={habit.id}
                       >
-                        <span className="flex items-center gap-2">
+                        <span className="flex items-center gap-2 flex-1 min-w-0">
                           <ContextMenu>
                             <ContextMenuTrigger asChild>
-                              <div className="flex-none">
+                              <div className="flex-shrink-0">
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault();
@@ -409,7 +409,7 @@ export default function DailyOverview({
                                 </button>
                               </div>
                             </ContextMenuTrigger>
-                            <span className={isCompleted ? 'line-through' : ''}>
+                            <span className={cn(isCompleted ? 'line-through' : '', 'break-all')}>
                               <Linkify>
                                 {habit.name}
                               </Linkify>
@@ -428,7 +428,7 @@ export default function DailyOverview({
                             </ContextMenuContent>
                           </ContextMenu>
                         </span>
-                        <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
                           {habit.targetCompletions && (
                             <span className="bg-secondary px-1.5 py-0.5 rounded-full">
                               {completionsToday}/{target}

@@ -19,7 +19,8 @@ import {
   getDefaultWishlistData,
   getDefaultHabitsData,
   getDefaultCoinsData,
-  Permission
+  Permission,
+  ServerSettings
 } from '@/lib/types'
 import { d2t, deepMerge, getNow, checkPermission, uuid } from '@/lib/utils';
 import { verifyPassword } from "@/lib/server-helpers";
@@ -473,4 +474,10 @@ export async function deleteUser(userId: string): Promise<void> {
   }
 
   await saveUsersData(newData)
+}
+
+export async function loadServerSettings(): Promise<ServerSettings> {
+  return {
+    isDemo: !!process.env.NEXT_PUBLIC_DEMO,
+  }
 }

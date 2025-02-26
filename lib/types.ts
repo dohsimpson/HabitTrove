@@ -130,6 +130,10 @@ export const getDefaultSettings = (): Settings => ({
   profile: {}
 });
 
+export const getDefaultServerSettings = (): ServerSettings => ({
+  isDemo: false
+})
+
 // Map of data types to their default values
 export const DATA_DEFAULTS = {
   wishlist: getDefaultWishlistData,
@@ -178,4 +182,9 @@ export interface JotaiHydrateInitialValues {
   habits: HabitsData;
   wishlist: WishlistData;
   users: UserData;
+  serverSettings: ServerSettings;
+}
+
+export interface ServerSettings {
+  isDemo: boolean
 }

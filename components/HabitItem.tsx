@@ -1,7 +1,7 @@
 import { Habit, SafeUser, User, Permission } from '@/lib/types'
 import { useAtom } from 'jotai'
 import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseNaturalLanguageRRule, parseRRule, d2s, getCompletionsForToday, isTaskOverdue } from '@/lib/utils'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseRRule, d2s, getCompletionsForToday, isTaskOverdue, getFrequencyDisplayText } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer, Archive, ArchiveRestore, Calendar } from 'lucide-react'
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useEffect, useState } from 'react'
 import { useHabits } from '@/hooks/useHabits'
-import { INITIAL_RECURRENCE_RULE } from '@/lib/constants'
+import { INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from '@/lib/constants'
 import { DateTime } from 'luxon'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { useHelpers } from '@/lib/client-helpers'
@@ -104,7 +104,9 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
         )}
       </CardHeader>
       <CardContent className="flex-1">
-        <p className={`text-sm ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500'}`}>When: {isRecurRule ? parseRRule(habit.frequency || INITIAL_RECURRENCE_RULE).toText() : d2s({ dateTime: t2d({ timestamp: habit.frequency, timezone: settings.system.timezone }), timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })}</p>
+        <p className={`text-sm ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500'}`}>
+          When: {getFrequencyDisplayText(habit.frequency, isRecurRule, settings.system.timezone)}
+        </p>
         <div className="flex items-center mt-2">
           <Coins className={`h-4 w-4 mr-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />
           <span className={`text-sm font-medium ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{habit.coinReward} coins per completion</span>

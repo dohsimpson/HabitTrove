@@ -16,8 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { Habit, SafeUser } from '@/lib/types'
-import { d2s, d2t, getISODate, getNow, parseNaturalLanguageDate, parseNaturalLanguageRRule, parseRRule, serializeRRule } from '@/lib/utils'
-import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES } from '@/lib/constants'
+import { d2s, d2t, getFrequencyDisplayText, getISODate, getNow, parseNaturalLanguageDate, parseNaturalLanguageRRule, parseRRule, serializeRRule } from '@/lib/utils'
+import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES, RECURRENCE_RULE_MAP } from '@/lib/constants'
 import * as chrono from 'chrono-node';
 import { DateTime } from 'luxon'
 import {
@@ -43,14 +43,32 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
   const [coinReward, setCoinReward] = useState(habit?.coinReward || 1)
   const [targetCompletions, setTargetCompletions] = useState(habit?.targetCompletions || 1)
   const isRecurRule = !isTask
-  const origRuleText = isRecurRule ? parseRRule(habit?.frequency || INITIAL_RECURRENCE_RULE).toText() : habit?.frequency || INITIAL_DUE
+  const origRuleText = getFrequencyDisplayText(habit?.frequency, isRecurRule, settings.system.timezone)
   const [ruleText, setRuleText] = useState<string>(origRuleText)
-  const now = getNow({ timezone: settings.system.timezone })
   const { currentUser } = useHelpers()
   const [isQuickDatesOpen, setIsQuickDatesOpen] = useState(false)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>((habit?.userIds || []).filter(id => id !== currentUser?.id))
   const [usersData] = useAtom(usersAtom)
   const users = usersData.users
+
+  function getFrequencyUpdate() {
+    if (ruleText === origRuleText && habit?.frequency) {
+      return habit.frequency
+    }
+    if (isRecurRule) {
+      const parsedRule = parseNaturalLanguageRRule(ruleText)
+      return serializeRRule(parsedRule)
+    } else {
+      const parsedDate = parseNaturalLanguageDate({
+        text: ruleText,
+        timezone: settings.system.timezone
+      })
+      return d2t({
+        dateTime: parsedDate,
+        timezone: settings.system.timezone
+      })
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,8 +78,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
       coinReward,
       targetCompletions: targetCompletions > 1 ? targetCompletions : undefined,
       completions: habit?.completions || [],
-      frequency: isRecurRule ? serializeRRule(parseNaturalLanguageRRule(ruleText)) : d2t({ dateTime: parseNaturalLanguageDate({ text: ruleText, timezone: settings.system.timezone }) }),
-      isTask: isTask || undefined,
+      frequency: getFrequencyUpdate(),
       userIds: selectedUserIds.length > 0 ? selectedUserIds.concat(currentUser?.id || []) : (currentUser && [currentUser.id])
     })
   }
@@ -276,13 +293,13 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
                       <Avatar
                         key={user.id}
                         className={`h-8 w-8 border-2 cursor-pointer
-                          ${selectedUserIds.includes(user.id) 
-                            ? 'border-primary' 
+                          ${selectedUserIds.includes(user.id)
+                            ? 'border-primary'
                             : 'border-muted'
                           }`}
                         title={user.username}
                         onClick={() => {
-                          setSelectedUserIds(prev => 
+                          setSelectedUserIds(prev =>
                             prev.includes(user.id)
                               ? prev.filter(id => id !== user.id)
                               : [...prev, user.id]

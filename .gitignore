@@ -41,6 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 # customize
-data/*
+/data/*
+/data.*/*
 Budfile
 certificates

@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.2.3
+
+### Fixed
+
+* gracefully handle invalid rrule (#76)
+* fix long habit name overflow in daily (#75)
+* disable password in demo instance (#74)
+
 ## Version 0.2.2
 
 ### Changed
