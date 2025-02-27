@@ -1,11 +1,12 @@
 import { useAtom } from 'jotai'
-import { wishlistAtom, coinsAtom, coinsBalanceAtom } from '@/lib/atoms'
+import { wishlistAtom, coinsAtom } from '@/lib/atoms'
 import { saveWishlistItems, removeCoins } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
 import { WishlistItemType } from '@/lib/types'
 import { celebrations } from '@/utils/celebrations'
 import { checkPermission } from '@/lib/utils'
 import { useHelpers } from '@/lib/client-helpers'
+import { useCoins } from './useCoins'
 
 function handlePermissionCheck(
   user: any,
@@ -37,7 +38,7 @@ export function useWishlist() {
   const { currentUser: user } = useHelpers()
   const [wishlist, setWishlist] = useAtom(wishlistAtom)
   const [coins, setCoins] = useAtom(coinsAtom)
-  const [balance] = useAtom(coinsBalanceAtom)
+  const { balance } = useCoins()
 
   const addWishlistItem = async (item: Omit<WishlistItemType, 'id'>) => {
     if (!handlePermissionCheck(user, 'wishlist', 'write')) return

@@ -1,21 +1,23 @@
 import { useAtom } from 'jotai'
-import { checkPermission } from '@/lib/utils'
+import { calculateCoinsEarnedToday, calculateCoinsSpentToday, calculateTotalEarned, calculateTotalSpent, calculateTransactionsToday, checkPermission } from '@/lib/utils'
 import {
   coinsAtom,
-  coinsEarnedTodayAtom,
-  totalEarnedAtom,
-  totalSpentAtom,
-  coinsSpentTodayAtom,
-  transactionsTodayAtom,
-  coinsBalanceAtom
+  // coinsEarnedTodayAtom,
+  // totalEarnedAtom,
+  // totalSpentAtom,
+  // coinsSpentTodayAtom,
+  // transactionsTodayAtom,
+  // coinsBalanceAtom,
+  settingsAtom,
+  usersAtom
 } from '@/lib/atoms'
 import { addCoins, removeCoins, saveCoinsData } from '@/app/actions/data'
-import { CoinsData } from '@/lib/types'
+import { CoinsData, User } from '@/lib/types'
 import { toast } from '@/hooks/use-toast'
 import { useHelpers } from '@/lib/client-helpers'
 
 function handlePermissionCheck(
-  user: any,
+  user: User | undefined,
   resource: 'habit' | 'wishlist' | 'coins',
   action: 'write' | 'interact'
 ): boolean {
@@ -40,15 +42,31 @@ function handlePermissionCheck(
   return true
 }
 
-export function useCoins() {
-  const { currentUser: user } = useHelpers()
+export function useCoins(options?: { selectedUser?: string }) {
   const [coins, setCoins] = useAtom(coinsAtom)
-  const [coinsEarnedToday] = useAtom(coinsEarnedTodayAtom)
-  const [totalEarned] = useAtom(totalEarnedAtom)
-  const [totalSpent] = useAtom(totalSpentAtom)
-  const [coinsSpentToday] = useAtom(coinsSpentTodayAtom)
-  const [transactionsToday] = useAtom(transactionsTodayAtom)
-  const [balance] = useAtom(coinsBalanceAtom)
+  const [settings] = useAtom(settingsAtom)
+  const [users] = useAtom(usersAtom)
+  const { currentUser } = useHelpers()
+  console.log(currentUser?.id)
+  let user: User | undefined;
+  if (!options?.selectedUser) {
+    user = currentUser;
+  } else {
+    user = users.users.find(u => u.id === options.selectedUser)
+  }
+  console.log('user', user?.id)
+
+  // Filter transactions for the selectd user
+  const transactions = coins.transactions.filter(t => t.userId === user?.id)
+  console.log('transactions', transactions.length)
+
+  const balance = transactions.reduce((sum, t) => sum + t.amount, 0)
+  console.log('balance', balance)
+  const coinsEarnedToday = calculateCoinsEarnedToday(transactions, settings.system.timezone)
+  const totalEarned = calculateTotalEarned(transactions)
+  const totalSpent = calculateTotalSpent(transactions)
+  const coinsSpentToday = calculateCoinsSpentToday(transactions, settings.system.timezone)
+  const transactionsToday = calculateTransactionsToday(transactions, settings.system.timezone)
 
   const add = async (amount: number, description: string, note?: string) => {
     if (!handlePermissionCheck(user, 'coins', 'write')) return null
@@ -64,7 +82,8 @@ export function useCoins() {
       amount,
       description,
       type: 'MANUAL_ADJUSTMENT',
-      note
+      note,
+      userId: user?.id
     })
     setCoins(data)
     toast({ title: "Success", description: `Added ${amount} coins` })
@@ -86,7 +105,8 @@ export function useCoins() {
       amount: numAmount,
       description,
       type: 'MANUAL_ADJUSTMENT',
-      note
+      note,
+      userId: user?.id
     })
     setCoins(data)
     toast({ title: "Success", description: `Removed ${numAmount} coins` })
@@ -128,7 +148,7 @@ export function useCoins() {
     remove,
     updateNote,
     balance,
-    transactions: coins.transactions,
+    transactions: transactions,
     coinsEarnedToday,
     totalEarned,
     totalSpent,
