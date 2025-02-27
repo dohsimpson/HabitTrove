@@ -47,21 +47,17 @@ export function useCoins(options?: { selectedUser?: string }) {
   const [settings] = useAtom(settingsAtom)
   const [users] = useAtom(usersAtom)
   const { currentUser } = useHelpers()
-  console.log(currentUser?.id)
   let user: User | undefined;
   if (!options?.selectedUser) {
     user = currentUser;
   } else {
     user = users.users.find(u => u.id === options.selectedUser)
   }
-  console.log('user', user?.id)
 
   // Filter transactions for the selectd user
   const transactions = coins.transactions.filter(t => t.userId === user?.id)
-  console.log('transactions', transactions.length)
 
   const balance = transactions.reduce((sum, t) => sum + t.amount, 0)
-  console.log('balance', balance)
   const coinsEarnedToday = calculateCoinsEarnedToday(transactions, settings.system.timezone)
   const totalEarned = calculateTotalEarned(transactions)
   const totalSpent = calculateTotalSpent(transactions)
@@ -69,7 +65,7 @@ export function useCoins(options?: { selectedUser?: string }) {
   const transactionsToday = calculateTransactionsToday(transactions, settings.system.timezone)
 
   const add = async (amount: number, description: string, note?: string) => {
-    if (!handlePermissionCheck(user, 'coins', 'write')) return null
+    if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null
     if (isNaN(amount) || amount <= 0) {
       toast({
         title: "Invalid amount",
@@ -91,7 +87,7 @@ export function useCoins(options?: { selectedUser?: string }) {
   }
 
   const remove = async (amount: number, description: string, note?: string) => {
-    if (!handlePermissionCheck(user, 'coins', 'write')) return null
+    if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null
     const numAmount = Math.abs(amount)
     if (isNaN(numAmount) || numAmount <= 0) {
       toast({
@@ -114,7 +110,7 @@ export function useCoins(options?: { selectedUser?: string }) {
   }
 
   const updateNote = async (transactionId: string, note: string) => {
-    if (!handlePermissionCheck(user, 'coins', 'write')) return null
+    if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null
     const transaction = coins.transactions.find(t => t.id === transactionId)
     if (!transaction) {
       toast({

@@ -193,7 +193,24 @@ export async function loadCoinsData(): Promise<CoinsData> {
 }
 
 export async function saveCoinsData(data: CoinsData): Promise<void> {
-  return saveData('coins', data)
+  const user = await getCurrentUser()
+
+  // Create clones of the data
+  const newData = _.cloneDeep(data)
+  newData.transactions = newData.transactions.map(transaction => ({
+    ...transaction,
+    userId: transaction.userId || user?.id
+  }))
+
+  if (!user?.isAdmin) {
+    const existingData = await loadData<CoinsData>('coins')
+    const existingTransactions = existingData.transactions.filter(x => user?.id && x.userId !== user.id)
+    newData.transactions = [
+      ...newData.transactions,
+      ...existingTransactions
+    ]
+  }
+  return saveData('coins', newData)
 }
 
 export async function addCoins({
