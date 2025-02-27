@@ -2,13 +2,13 @@ import { z } from "zod"
 
 const zodEnv = z.object({
   AUTH_SECRET: z.string(),
-  NEXT_PUBLIC_DEMO: z.string().optional(),
+  DEMO: z.string().optional(),
 })
 
 declare global {
   interface ProcessEnv extends z.TypeOf<typeof zodEnv> {
     AUTH_SECRET: string;
-    NEXT_PUBLIC_DEMO?: string;
+    DEMO?: string;
   }
 }
 

@@ -484,6 +484,6 @@ export async function deleteUser(userId: string): Promise<void> {
 
 export async function loadServerSettings(): Promise<ServerSettings> {
   return {
-    isDemo: !!process.env.NEXT_PUBLIC_DEMO,
+    isDemo: !!process.env.DEMO,
   }
 }
