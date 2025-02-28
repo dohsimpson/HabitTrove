@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 0.2.4
+
+### Added
+
+* admin can select user to view coins for that user
+
+### Fixed
+
+* fix disable password in demo instance (#74)
+
 ## Version 0.2.3
 
 ### Fixed

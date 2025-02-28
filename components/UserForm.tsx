@@ -251,6 +251,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
               id="disable-password"
               checked={disablePassword}
               onCheckedChange={setDisablePassword}
+              disabled={serverSettings.isDemo}
             />
             <Label htmlFor="disable-password">Disable password</Label>
           </div>

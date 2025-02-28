@@ -1,21 +1,23 @@
 import { useAtom } from 'jotai'
-import { checkPermission } from '@/lib/utils'
+import { calculateCoinsEarnedToday, calculateCoinsSpentToday, calculateTotalEarned, calculateTotalSpent, calculateTransactionsToday, checkPermission } from '@/lib/utils'
 import {
   coinsAtom,
-  coinsEarnedTodayAtom,
-  totalEarnedAtom,
-  totalSpentAtom,
-  coinsSpentTodayAtom,
-  transactionsTodayAtom,
-  coinsBalanceAtom
+  // coinsEarnedTodayAtom,
+  // totalEarnedAtom,
+  // totalSpentAtom,
+  // coinsSpentTodayAtom,
+  // transactionsTodayAtom,
+  // coinsBalanceAtom,
+  settingsAtom,
+  usersAtom
 } from '@/lib/atoms'
 import { addCoins, removeCoins, saveCoinsData } from '@/app/actions/data'
-import { CoinsData } from '@/lib/types'
+import { CoinsData, User } from '@/lib/types'
 import { toast } from '@/hooks/use-toast'
 import { useHelpers } from '@/lib/client-helpers'
 
 function handlePermissionCheck(
-  user: any,
+  user: User | undefined,
   resource: 'habit' | 'wishlist' | 'coins',
   action: 'write' | 'interact'
 ): boolean {
@@ -40,18 +42,30 @@ function handlePermissionCheck(
   return true
 }
 
-export function useCoins() {
-  const { currentUser: user } = useHelpers()
+export function useCoins(options?: { selectedUser?: string }) {
   const [coins, setCoins] = useAtom(coinsAtom)
-  const [coinsEarnedToday] = useAtom(coinsEarnedTodayAtom)
-  const [totalEarned] = useAtom(totalEarnedAtom)
-  const [totalSpent] = useAtom(totalSpentAtom)
-  const [coinsSpentToday] = useAtom(coinsSpentTodayAtom)
-  const [transactionsToday] = useAtom(transactionsTodayAtom)
-  const [balance] = useAtom(coinsBalanceAtom)
+  const [settings] = useAtom(settingsAtom)
+  const [users] = useAtom(usersAtom)
+  const { currentUser } = useHelpers()
+  let user: User | undefined;
+  if (!options?.selectedUser) {
+    user = currentUser;
+  } else {
+    user = users.users.find(u => u.id === options.selectedUser)
+  }
+
+  // Filter transactions for the selectd user
+  const transactions = coins.transactions.filter(t => t.userId === user?.id)
+
+  const balance = transactions.reduce((sum, t) => sum + t.amount, 0)
+  const coinsEarnedToday = calculateCoinsEarnedToday(transactions, settings.system.timezone)
+  const totalEarned = calculateTotalEarned(transactions)
+  const totalSpent = calculateTotalSpent(transactions)
+  const coinsSpentToday = calculateCoinsSpentToday(transactions, settings.system.timezone)
+  const transactionsToday = calculateTransactionsToday(transactions, settings.system.timezone)
 
   const add = async (amount: number, description: string, note?: string) => {
-    if (!handlePermissionCheck(user, 'coins', 'write')) return null
+    if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null
     if (isNaN(amount) || amount <= 0) {
       toast({
         title: "Invalid amount",
@@ -64,7 +78,8 @@ export function useCoins() {
       amount,
       description,
       type: 'MANUAL_ADJUSTMENT',
-      note
+      note,
+      userId: user?.id
     })
     setCoins(data)
     toast({ title: "Success", description: `Added ${amount} coins` })
@@ -72,7 +87,7 @@ export function useCoins() {
   }
 
   const remove = async (amount: number, description: string, note?: string) => {
-    if (!handlePermissionCheck(user, 'coins', 'write')) return null
+    if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null
     const numAmount = Math.abs(amount)
     if (isNaN(numAmount) || numAmount <= 0) {
       toast({
@@ -86,7 +101,8 @@ export function useCoins() {
       amount: numAmount,
       description,
       type: 'MANUAL_ADJUSTMENT',
-      note
+      note,
+      userId: user?.id
     })
     setCoins(data)
     toast({ title: "Success", description: `Removed ${numAmount} coins` })
@@ -94,7 +110,7 @@ export function useCoins() {
   }
 
   const updateNote = async (transactionId: string, note: string) => {
-    if (!handlePermissionCheck(user, 'coins', 'write')) return null
+    if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null
     const transaction = coins.transactions.find(t => t.id === transactionId)
     if (!transaction) {
       toast({
@@ -128,7 +144,7 @@ export function useCoins() {
     remove,
     updateNote,
     balance,
-    transactions: coins.transactions,
+    transactions: transactions,
     coinsEarnedToday,
     totalEarned,
     totalSpent,

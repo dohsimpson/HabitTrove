@@ -185,7 +185,7 @@ export async function loadCoinsData(): Promise<CoinsData> {
     const data = await loadData<CoinsData>('coins')
     return {
       ...data,
-      transactions: data.transactions.filter(x => x.userId === user.id)
+      transactions: user.isAdmin ? data.transactions : data.transactions.filter(x => x.userId === user.id)
     }
   } catch {
     return getDefaultCoinsData()
@@ -194,7 +194,7 @@ export async function loadCoinsData(): Promise<CoinsData> {
 
 export async function saveCoinsData(data: CoinsData): Promise<void> {
   const user = await getCurrentUser()
-  
+
   // Create clones of the data
   const newData = _.cloneDeep(data)
   newData.transactions = newData.transactions.map(transaction => ({
@@ -219,12 +219,14 @@ export async function addCoins({
   type = 'MANUAL_ADJUSTMENT',
   relatedItemId,
   note,
+  userId,
 }: {
   amount: number
   description: string
   type?: TransactionType
   relatedItemId?: string
   note?: string
+  userId?: string
 }): Promise<CoinsData> {
   await verifyPermission('coins', type === 'MANUAL_ADJUSTMENT' ? 'write' : 'interact')
   const data = await loadCoinsData()
@@ -235,7 +237,8 @@ export async function addCoins({
     description,
     timestamp: d2t({ dateTime: getNow({}) }),
     ...(relatedItemId && { relatedItemId }),
-    ...(note && note.trim() !== '' && { note })
+    ...(note && note.trim() !== '' && { note }),
+    userId: userId || await getCurrentUserId()
   }
 
   const newData: CoinsData = {
@@ -270,12 +273,14 @@ export async function removeCoins({
   type = 'MANUAL_ADJUSTMENT',
   relatedItemId,
   note,
+  userId,
 }: {
   amount: number
   description: string
   type?: TransactionType
   relatedItemId?: string
   note?: string
+  userId?: string
 }): Promise<CoinsData> {
   await verifyPermission('coins', type === 'MANUAL_ADJUSTMENT' ? 'write' : 'interact')
   const data = await loadCoinsData()
@@ -286,7 +291,8 @@ export async function removeCoins({
     description,
     timestamp: d2t({ dateTime: getNow({}) }),
     ...(relatedItemId && { relatedItemId }),
-    ...(note && note.trim() !== '' && { note })
+    ...(note && note.trim() !== '' && { note }),
+    userId: userId || await getCurrentUserId()
   }
 
   const newData: CoinsData = {
@@ -478,6 +484,6 @@ export async function deleteUser(userId: string): Promise<void> {
 
 export async function loadServerSettings(): Promise<ServerSettings> {
   return {
-    isDemo: !!process.env.NEXT_PUBLIC_DEMO,
+    isDemo: !!process.env.DEMO,
   }
 }

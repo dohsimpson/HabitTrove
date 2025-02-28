@@ -17,6 +17,8 @@ import { TransactionNoteEditor } from './TransactionNoteEditor'
 import { useHelpers } from '@/lib/client-helpers'
 
 export default function CoinsManager() {
+  const { currentUser } = useHelpers()
+  const [selectedUser, setSelectedUser] = useState<string>()
   const {
     add,
     remove,
@@ -28,14 +30,13 @@ export default function CoinsManager() {
     totalSpent,
     coinsSpentToday,
     transactionsToday
-  } = useCoins()
+  } = useCoins({selectedUser})
   const [settings] = useAtom(settingsAtom)
   const [usersData] = useAtom(usersAtom)
   const DEFAULT_AMOUNT = '0'
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
   const [pageSize, setPageSize] = useState(50)
   const [currentPage, setCurrentPage] = useState(1)
-  const { currentUser } = useHelpers()
 
   const [note, setNote] = useState('')
 
@@ -62,7 +63,22 @@ export default function CoinsManager() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Coins Management</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold mr-6">Coins Management</h1>
+        {currentUser?.isAdmin && (
+          <select
+            className="border rounded p-2"
+            value={selectedUser}
+            onChange={(e) => setSelectedUser(e.target.value)}
+          >
+            {usersData.users.map(user => (
+              <option key={user.id} value={user.id}>
+                {user.username}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
