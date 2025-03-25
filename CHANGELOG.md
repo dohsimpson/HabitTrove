@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.5
+
+### Changed
+
+* bumped Nextjs version (cve-2025-29927)
+
 ## Version 0.2.4
 
 ### Added
