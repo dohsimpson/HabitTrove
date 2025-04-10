@@ -1,4 +1,4 @@
-import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer, Plus, Pin } from 'lucide-react'
+import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer, Plus, Pin, Calendar } from 'lucide-react'
 import CompletionCountBadge from './CompletionCountBadge'
 import {
   ContextMenu,
@@ -108,7 +108,7 @@ const ItemSection = ({
             if (a.pinned !== b.pinned) {
               return a.pinned ? -1 : 1;
             }
-            
+
             // Then by completion status
             const aCompleted = todayCompletions.includes(a);
             const bCompleted = todayCompletions.includes(b);
@@ -150,49 +150,56 @@ const ItemSection = ({
                 <span className="flex items-center gap-2 flex-1 min-w-0">
                   <ContextMenu>
                     <ContextMenuTrigger asChild>
-                      <div className="flex-shrink-0">
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (isCompleted) {
-                              undoComplete(habit);
-                            } else {
-                              completeHabit(habit);
-                            }
-                          }}
-                          className="relative hover:opacity-70 transition-opacity w-4 h-4"
-                        >
-                          {isCompleted ? (
-                            <CircleCheck className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <div className="relative h-4 w-4">
-                              <Circle className="absolute h-4 w-4 text-muted-foreground" />
-                              <div
-                                className="absolute h-4 w-4 rounded-full overflow-hidden"
-                                style={{
-                                  background: `conic-gradient(
-                                currentColor ${(completionsToday / target) * 360}deg,
-                                transparent ${(completionsToday / target) * 360}deg 360deg
-                              )`,
-                                  mask: 'radial-gradient(transparent 50%, black 51%)',
-                                  WebkitMask: 'radial-gradient(transparent 50%, black 51%)'
-                                }}
-                              />
-                            </div>
+                      <div className="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
+                        <div className="flex-shrink-0">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (isCompleted) {
+                                undoComplete(habit);
+                              } else {
+                                completeHabit(habit);
+                              }
+                            }}
+                            className="relative hover:opacity-70 transition-opacity w-4 h-4"
+                          >
+                            {isCompleted ? (
+                              <CircleCheck className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <div className="relative h-4 w-4">
+                                <Circle className="absolute h-4 w-4 text-muted-foreground" />
+                                <div
+                                  className="absolute h-4 w-4 rounded-full overflow-hidden"
+                                  style={{
+                                    background: `conic-gradient(
+                                  currentColor ${(completionsToday / target) * 360}deg,
+                                  transparent ${(completionsToday / target) * 360}deg 360deg
+                                )`,
+                                    mask: 'radial-gradient(transparent 50%, black 51%)',
+                                    WebkitMask: 'radial-gradient(transparent 50%, black 51%)'
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </button>
+                        </div>
+                        <span className="flex items-center gap-1">
+                          {habit.pinned && (
+                            <Pin className="h-4 w-4 text-yellow-500" />
                           )}
-                        </button>
+                          <Link
+                            href={`/habits?highlight=${habit.id}`}
+                            className={cn(
+                              isCompleted ? 'line-through' : '',
+                              'break-all hover:text-primary transition-colors'
+                            )}
+                          >
+                            {habit.name}
+                          </Link>
+                        </span>
                       </div>
                     </ContextMenuTrigger>
-                    <span className="flex items-center gap-1">
-                      {habit.pinned && (
-                        <Pin className="h-4 w-4 text-yellow-500" />
-                      )}
-                      <span className={cn(isCompleted ? 'line-through' : '', 'break-all')}>
-                        <Linkify>
-                          {habit.name}
-                        </Linkify>
-                      </span>
-                    </span>
                     <ContextMenuContent className="w-64">
                       <ContextMenuItem onClick={() => {
                         setPomo((prev) => ({
@@ -204,8 +211,16 @@ const ItemSection = ({
                         <Timer className="mr-2 h-4 w-4" />
                         <span>Start Pomodoro</span>
                       </ContextMenuItem>
+                      {habit.isTask && (
+                        <ContextMenuItem onClick={() => {
+                          saveHabit({...habit, frequency: d2t({ dateTime: getNow({ timezone: settings.system.timezone })})})
+                        }}>
+                          <Calendar className="mr-2 h-4 w-4" />
+                          <span>Move to Today</span>
+                        </ContextMenuItem>
+                      )}
                       <ContextMenuItem onClick={() => {
-                        saveHabit({...habit, pinned: !habit.pinned})
+                        saveHabit({ ...habit, pinned: !habit.pinned })
                       }}>
                         {habit.pinned ? (
                           <>
@@ -343,7 +358,7 @@ export default function DailyOverview({
           <div className="space-y-6">
             {/* Tasks Section */}
             {hasTasks && (
-              <ItemSection 
+              <ItemSection
                 title="Daily Tasks"
                 items={dailyTasks}
                 emptyMessage="No tasks due today. Add some tasks to get started!"
@@ -360,7 +375,7 @@ export default function DailyOverview({
             )}
 
             {/* Habits Section */}
-            <ItemSection 
+            <ItemSection
               title="Daily Habits"
               items={dailyHabits}
               emptyMessage="No habits due today. Add some habits to get started!"
