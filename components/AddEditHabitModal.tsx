@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { Habit, SafeUser } from '@/lib/types'
-import { d2s, d2t, getFrequencyDisplayText, getISODate, getNow, parseNaturalLanguageDate, parseNaturalLanguageRRule, parseRRule, serializeRRule } from '@/lib/utils'
+import { convertHumanReadableFrequencyToMachineReadable, convertMachineReadableFrequencyToHumanReadable, d2s, d2t, serializeRRule } from '@/lib/utils'
 import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES, RECURRENCE_RULE_MAP } from '@/lib/constants'
 import * as chrono from 'chrono-node';
 import { DateTime } from 'luxon'
@@ -43,30 +43,41 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
   const [coinReward, setCoinReward] = useState(habit?.coinReward || 1)
   const [targetCompletions, setTargetCompletions] = useState(habit?.targetCompletions || 1)
   const isRecurRule = !isTask
-  const origRuleText = getFrequencyDisplayText(habit?.frequency, isRecurRule, settings.system.timezone)
-  const [ruleText, setRuleText] = useState<string>(origRuleText)
+  // Initialize ruleText with the actual frequency string or default, not the display text
+  const initialRuleText = habit?.frequency ? convertMachineReadableFrequencyToHumanReadable({ 
+    frequency: habit.frequency,
+    isRecurRule, 
+    timezone: settings.system.timezone
+  }) : (isRecurRule ? INITIAL_RECURRENCE_RULE : INITIAL_DUE);
+  const [ruleText, setRuleText] = useState<string>(initialRuleText)
   const { currentUser } = useHelpers()
   const [isQuickDatesOpen, setIsQuickDatesOpen] = useState(false)
+  const [ruleError, setRuleError] = useState<string | null>(null); // State for validation message
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>((habit?.userIds || []).filter(id => id !== currentUser?.id))
   const [usersData] = useAtom(usersAtom)
   const users = usersData.users
 
   function getFrequencyUpdate() {
-    if (ruleText === origRuleText && habit?.frequency) {
-      return habit.frequency
+    if (ruleText === initialRuleText && habit?.frequency) {
+      // If text hasn't changed and original frequency exists, return it
+      return habit.frequency;
     }
-    if (isRecurRule) {
-      const parsedRule = parseNaturalLanguageRRule(ruleText)
-      return serializeRRule(parsedRule)
+
+    const parsedResult = convertHumanReadableFrequencyToMachineReadable({
+      text: ruleText,
+      timezone: settings.system.timezone,
+      isRecurring: isRecurRule
+    });
+
+    if (parsedResult.result) {
+      return isRecurRule
+        ? serializeRRule(parsedResult.result as RRule)
+        : d2t({
+          dateTime: parsedResult.result as DateTime,
+          timezone: settings.system.timezone
+        });
     } else {
-      const parsedDate = parseNaturalLanguageDate({
-        text: ruleText,
-        timezone: settings.system.timezone
-      })
-      return d2t({
-        dateTime: parsedDate,
-        timezone: settings.system.timezone
-      })
+      return 'invalid';
     }
   }
 
@@ -146,6 +157,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
               <Label htmlFor="recurrence" className="text-right">
                 When *
               </Label>
+              {/* date input (task) */}
               <div className="col-span-3 space-y-2">
                 <div className="flex gap-2">
                   <Input
@@ -189,16 +201,26 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
                   )}
                 </div>
               </div>
-              <div className="col-start-2 col-span-3 text-sm text-muted-foreground">
-                <span>
-                  {(() => {
-                    try {
-                      return isRecurRule ? parseNaturalLanguageRRule(ruleText).toText() : d2s({ dateTime: parseNaturalLanguageDate({ text: ruleText, timezone: settings.system.timezone }), timezone: settings.system.timezone, format: DateTime.DATE_MED_WITH_WEEKDAY })
-                    } catch (e: unknown) {
-                      return `Invalid rule: ${e instanceof Error ? e.message : 'Invalid recurrence rule'}`
-                    }
-                  })()}
-                </span>
+              {/* rrule input (habit) */}
+              <div className="col-start-2 col-span-3 text-sm">
+                {(() => {
+                  let displayText = '';
+                  let errorMessage: string | null = null;
+                  const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: ruleText, timezone: settings.system.timezone, isRecurring: isRecurRule });
+                  errorMessage = message;
+                  displayText = convertMachineReadableFrequencyToHumanReadable({ frequency: result, isRecurRule, timezone: settings.system.timezone })
+
+                  return (
+                    <>
+                      <span className={errorMessage ? 'text-destructive' : 'text-muted-foreground'}>
+                        {displayText}
+                      </span>
+                      {errorMessage && (
+                        <p className="text-destructive text-xs mt-1">{errorMessage}</p>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">

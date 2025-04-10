@@ -1,6 +1,6 @@
 import { CheckSquare, Target } from "lucide-react"
 
-export const INITIAL_RECURRENCE_RULE = 'daily'
+export const INITIAL_RECURRENCE_RULE = 'every day'
 export const INITIAL_DUE = 'today'
 
 export const RECURRENCE_RULE_MAP: { [key: string]: string } = {

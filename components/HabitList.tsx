@@ -41,17 +41,22 @@ export default function HabitList() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-             <div className="flex justify-between items-center mb-6">
-         <h1 className="text-3xl font-bold">
-           {isTasksView ? 'My Tasks' : 'My Habits'}
-         </h1>
-         <Button onClick={() => setModalConfig({ isOpen: true, isTask: isTasksView })}>
-           <Plus className="mr-2 h-4 w-4" /> {isTasksView ? 'Add Task' : 'Add Habit'}
-         </Button>
-       </div>
-       <div className='py-4'>
-         <ViewToggle />
-       </div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">
+          {isTasksView ? 'My Tasks' : 'My Habits'}
+        </h1>
+        <span>
+          <Button className="mr-2" onClick={() => setModalConfig({ isOpen: true, isTask: true })}>
+            <Plus className="mr-2 h-4 w-4" /> {'Add Task'}
+          </Button>
+          <Button onClick={() => setModalConfig({ isOpen: true, isTask: false })}>
+            <Plus className="mr-2 h-4 w-4" /> {'Add Habit'}
+          </Button>
+        </span>
+      </div>
+      <div className='py-4'>
+        <ViewToggle />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
         {activeHabits.length === 0 ? (
           <div className="col-span-2">
@@ -62,19 +67,19 @@ export default function HabitList() {
             />
           </div>
         ) : (
-          activeHabits.map((habit: Habit) => (
-            <HabitItem
-              key={habit.id}
-              habit={habit}
-              onEdit={() => {
-                setEditingHabit(habit)
-                setModalConfig({ isOpen: true, isTask: isTasksView })
-              }}
-              onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
-            />
-          ))
-        )}
-        
+            activeHabits.map((habit: Habit) => (
+              <HabitItem
+                key={habit.id}
+                habit={habit}
+                onEdit={() => {
+                  setEditingHabit(habit)
+                  setModalConfig({ isOpen: true, isTask: isTasksView })
+                }}
+                onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
+              />
+            ))
+          )}
+
         {archivedHabits.length > 0 && (
           <>
             <div className="col-span-1 sm:col-span-2 relative flex items-center my-6">

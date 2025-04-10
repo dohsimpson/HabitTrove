@@ -52,13 +52,12 @@ jobs:
           push: true
           tags: |
             ${{ steps.check-version.outputs.EXISTS == 'false' && format('dohsimpson/habittrove:v{0}', steps.package-version.outputs.VERSION) || '' }}
-            ${{ steps.check-version.outputs.EXISTS == 'false' && 'dohsimpson/habittrove:latest' || '' }}
-            dohsimpson/habittrove:dev
+            dohsimpson/habittrove:demo
 
   deploy-demo:
     runs-on: ubuntu-latest
     needs: build-and-push
-    # demo tracks the latest tag
+    # demo tracks the demo tag
     if: needs.build-and-push.outputs.EXISTS == 'false'
     steps:
       - uses: actions/checkout@v4
