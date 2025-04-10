@@ -15,7 +15,7 @@ import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { WishlistItemType } from '@/lib/types'
+import { Settings, WishlistItemType } from '@/lib/types'
 import { Habit } from '@/lib/types'
 import Linkify from './linkify'
 import { useHabits } from '@/hooks/useHabits'
@@ -39,7 +39,7 @@ interface ItemSectionProps {
   addNewItem: () => void;
   badgeType: "tasks" | "habits";
   todayCompletions: Habit[];
-  settings: any;
+  settings: Settings;
   setBrowserSettings: (value: React.SetStateAction<BrowserSettings>) => void;
 }
 
