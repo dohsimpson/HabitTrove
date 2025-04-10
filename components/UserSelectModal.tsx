@@ -99,7 +99,7 @@ function UserSelectionView({
   onCreateUser: () => void
 }) {
   return (
-    <div className="grid grid-cols-3 gap-4 p-2">
+    <div className="grid grid-cols-3 gap-4 p-2 max-h-80 overflow-y-auto">
       {users
         .filter(user => user.id !== currentUser?.id)
         .map((user) => (

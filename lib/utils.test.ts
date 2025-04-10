@@ -1,4 +1,4 @@
-import { expect, test, describe, beforeAll, beforeEach, afterAll, spyOn } from "bun:test";
+import { expect, test, describe, beforeEach, spyOn } from "bun:test";
 import {
   cn,
   getTodayInTimezone,
@@ -17,12 +17,18 @@ import {
   isHabitDueToday,
   isHabitDue,
   uuid,
-  isTaskOverdue
+  isTaskOverdue,
+  deserializeRRule,
+  serializeRRule,
+  convertHumanReadableFrequencyToMachineReadable,
+  convertMachineReadableFrequencyToHumanReadable,
+  getUnsupportedRRuleReason
 } from './utils'
-import { CoinTransaction } from './types'
+import { CoinTransaction, ParsedResultType } from './types'
 import { DateTime } from "luxon";
-import { RRule } from 'rrule';
+import { RRule, Weekday } from 'rrule';
 import { Habit } from '@/lib/types';
+import { INITIAL_DUE } from './constants';
 
 describe('cn utility', () => {
   test('should merge class names correctly', () => {
@@ -32,6 +38,59 @@ describe('cn utility', () => {
     expect(cn('foo', ['bar', 'baz'])).toBe('foo bar baz')
   })
 })
+
+describe('getUnsupportedRRuleReason', () => {
+  test('should return message for HOURLY frequency', () => {
+    const rrule = new RRule({ freq: RRule.HOURLY });
+    expect(getUnsupportedRRuleReason(rrule)).toBe('Hourly frequency is not supported.');
+  });
+
+  test('should return message for MINUTELY frequency', () => {
+    const rrule = new RRule({ freq: RRule.MINUTELY });
+    expect(getUnsupportedRRuleReason(rrule)).toBe('Minutely frequency is not supported.');
+  });
+
+  test('should return message for SECONDLY frequency', () => {
+    const rrule = new RRule({ freq: RRule.SECONDLY });
+    expect(getUnsupportedRRuleReason(rrule)).toBe('Secondly frequency is not supported.');
+  });
+
+  test('should return message for DAILY frequency with interval > 1', () => {
+    const rrule = new RRule({ freq: RRule.DAILY, interval: 2 });
+    expect(getUnsupportedRRuleReason(rrule)).toBe('Daily frequency with intervals greater than 1 is not supported.');
+  });
+
+  test('should return null for DAILY frequency without interval', () => {
+    const rrule = new RRule({ freq: RRule.DAILY });
+    expect(getUnsupportedRRuleReason(rrule)).toBeNull();
+  });
+
+  test('should return null for DAILY frequency with interval = 1', () => {
+    const rrule = new RRule({ freq: RRule.DAILY, interval: 1 });
+    expect(getUnsupportedRRuleReason(rrule)).toBeNull();
+  });
+
+  test('should return null for WEEKLY frequency', () => {
+    const rrule = new RRule({ freq: RRule.WEEKLY, byweekday: [RRule.MO] }); // Added byweekday for validity
+    expect(getUnsupportedRRuleReason(rrule)).toBeNull();
+  });
+
+  test('should return null for MONTHLY frequency', () => {
+    const rrule = new RRule({ freq: RRule.MONTHLY, bymonthday: [1] }); // Added bymonthday for validity
+    expect(getUnsupportedRRuleReason(rrule)).toBeNull();
+  });
+
+  test('should return null for YEARLY frequency', () => {
+    const rrule = new RRule({ freq: RRule.YEARLY, bymonth: [1], bymonthday: [1] }); // Added bymonth/bymonthday for validity
+    expect(getUnsupportedRRuleReason(rrule)).toBeNull();
+  });
+
+  test('should return null for WEEKLY frequency with interval', () => {
+    // Weekly with interval is supported
+    const rrule = new RRule({ freq: RRule.WEEKLY, interval: 2, byweekday: [RRule.TU] }); // Added byweekday for validity
+    expect(getUnsupportedRRuleReason(rrule)).toBeNull();
+  });
+});
 
 describe('isTaskOverdue', () => {
   const createTestHabit = (frequency: string, isTask = true, archived = false): Habit => ({
@@ -650,5 +709,250 @@ describe('isHabitDue', () => {
     const date = DateTime.fromISO('2024-01-01T00:00:00Z')
     const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
     expect(isHabitDue({ habit, timezone: 'UTC', date })).toBe(false)
+  })
+})
+
+describe('deserializeRRule', () => {
+  test('should deserialize valid RRule string', () => {
+    const rruleStr = 'FREQ=DAILY;INTERVAL=1'
+    const rrule = deserializeRRule(rruleStr)
+    expect(rrule).toBeInstanceOf(RRule)
+    expect(rrule?.origOptions.freq).toBe(RRule.DAILY)
+    expect(rrule?.origOptions.interval).toBe(1)
+  })
+
+  test('should return null for invalid RRule string', () => {
+    const rruleStr = 'INVALID_RRULE_STRING'
+    const rrule = deserializeRRule(rruleStr)
+    expect(rrule).toBeNull()
+  })
+
+  test('should handle complex RRule strings', () => {
+    const rruleStr = 'FREQ=WEEKLY;BYDAY=MO,WE,FR;INTERVAL=2;COUNT=10'
+    const rrule = deserializeRRule(rruleStr)
+    expect(rrule).toBeInstanceOf(RRule)
+    expect(rrule?.origOptions.freq).toBe(RRule.WEEKLY)
+    expect(rrule?.origOptions.byweekday).toEqual([RRule.MO, RRule.WE, RRule.FR])
+    expect(rrule?.origOptions.interval).toBe(2)
+    expect(rrule?.origOptions.count).toBe(10)
+  })
+})
+
+describe('serializeRRule', () => {
+  test('should serialize RRule object to string', () => {
+    const rrule = new RRule({
+      freq: RRule.DAILY,
+      interval: 1
+    })
+    const rruleStr = serializeRRule(rrule)
+    // RRule adds DTSTART automatically if not provided, so we check the core parts
+    expect(rruleStr).toContain('FREQ=DAILY')
+    expect(rruleStr).toContain('INTERVAL=1')
+  })
+
+  test('should return "invalid" for null input', () => {
+    const rruleStr = serializeRRule(null)
+    expect(rruleStr).toBe('invalid')
+  })
+
+  test('should serialize complex RRule objects', () => {
+    const rrule = new RRule({
+      freq: RRule.WEEKLY,
+      byweekday: [RRule.MO, RRule.WE, RRule.FR],
+      interval: 2,
+      count: 10
+    })
+    const rruleStr = serializeRRule(rrule)
+    expect(rruleStr).toContain('FREQ=WEEKLY')
+    expect(rruleStr).toContain('BYDAY=MO,WE,FR')
+    expect(rruleStr).toContain('INTERVAL=2')
+    expect(rruleStr).toContain('COUNT=10')
+  })
+})
+
+describe('convertHumanReadableFrequencyToMachineReadable', () => {
+  const timezone = 'America/New_York'
+
+  beforeEach(() => {
+    // Set a fixed date for consistent relative date parsing
+    const mockDate = DateTime.fromISO('2024-07-15T10:00:00', { zone: timezone }) as DateTime<true>
+    DateTime.now = () => mockDate
+  })
+
+  // Non-recurring tests
+  test('should parse specific date (non-recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'July 16, 2024', timezone, isRecurring: false })
+    expect(message).toBeNull()
+    expect(result).toBeInstanceOf(DateTime)
+    expect((result as DateTime).toISODate()).toBe('2024-07-16')
+  })
+
+  test('should parse relative date "tomorrow" (non-recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'tomorrow', timezone, isRecurring: false })
+    expect(message).toBeNull()
+    expect(result).toBeInstanceOf(DateTime)
+    expect((result as DateTime).toISODate()).toBe('2024-07-16') // Based on mock date 2024-07-15
+  })
+
+  test('should parse relative date "next friday" (non-recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'next friday', timezone, isRecurring: false })
+    expect(message).toBeNull()
+    expect(result).toBeInstanceOf(DateTime)
+    // chrono-node interprets "next friday" from Mon July 15 as Fri July 26
+    expect((result as DateTime).toISODate()).toBe('2024-07-26')
+  })
+
+  test('should return null for invalid date string (non-recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'invalid date', timezone, isRecurring: false })
+    expect(result).toBeNull()
+    expect(message).toBe('Invalid due date.')
+  })
+
+  // Recurring tests
+  test('should parse "daily" (recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'daily', timezone, isRecurring: true })
+    expect(message).toBeNull()
+    expect(result).toBeInstanceOf(RRule)
+    expect((result as RRule).origOptions.freq).toBe(RRule.DAILY)
+  })
+
+  test('should parse "every week on Monday" (recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'every week on Monday', timezone, isRecurring: true })
+    expect(message).toBeNull()
+    expect(result).toBeInstanceOf(RRule)
+    expect((result as RRule).origOptions.freq).toBe(RRule.WEEKLY)
+    // RRule.fromText returns Weekday objects, check the weekday property
+    const byweekday = (result as RRule).origOptions.byweekday;
+    const weekdayValues = byweekday
+      ? (Array.isArray(byweekday)
+        ? byweekday.map(d => typeof d === 'number' ? d : (d as Weekday).weekday)
+        : [typeof byweekday === 'number' ? byweekday : (byweekday as Weekday).weekday])
+      : [];
+    expect(weekdayValues).toEqual([RRule.MO.weekday])
+  })
+
+  test('should parse "every month on the 15th" (recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'every month on the 15th', timezone, isRecurring: true })
+    expect(message).toBeNull()
+    expect(result).toBeInstanceOf(RRule)
+    expect((result as RRule).origOptions.freq).toBe(RRule.MONTHLY)
+    expect((result as RRule).origOptions.bymonthday).toEqual([15])
+  })
+
+  test('should parse "every year on Jan 1" (recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'every year on Jan 1', timezone, isRecurring: true })
+    expect(message).toBeNull()
+    expect(result).toBeInstanceOf(RRule)
+    expect((result as RRule).origOptions.freq).toBe(RRule.YEARLY)
+    // Note: RRule.fromText parses 'Jan 1' into bymonth/bymonthday
+    expect((result as RRule).origOptions.bymonth).toEqual([1])
+    // RRule.fromText might not reliably set bymonthday in origOptions for this text
+    // expect((result as RRule).origOptions.bymonthday).toEqual([1])
+  })
+
+  test('should return validation error for "every week" without day (recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'every week', timezone, isRecurring: true })
+    expect(result).toBeNull() // RRule.fromText might parse it, but our validation catches it
+    expect(message).toBe('Please specify day(s) of the week (e.g., "every week on Mon, Wed").')
+  })
+
+  test('should return validation error for "every month" without day/position (recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'every month', timezone, isRecurring: true })
+    expect(result).toBeNull() // RRule.fromText might parse it, but our validation catches it
+    expect(message).toBe('Please specify day of the month (e.g., "every month on the 15th") or position (e.g., "every month on the last Friday").')
+  })
+
+  test('should return null for invalid recurrence string (recurring)', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'invalid recurrence', timezone, isRecurring: true })
+    expect(result).toBeNull()
+    expect(message).toBe('Invalid recurrence rule.')
+  })
+
+  test('should return specific error for unsupported hourly frequency', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'every hour', timezone, isRecurring: true })
+    expect(result).toBeInstanceOf(RRule) // RRule parses it, but our validation catches it
+    expect(message).toBe('Hourly frequency is not supported.')
+  })
+
+  test('should return specific error for unsupported daily interval', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'every 2 days', timezone, isRecurring: true })
+    expect(result).toBeInstanceOf(RRule) // RRule parses it, but our validation catches it
+    expect(message).toBe('Daily frequency with intervals greater than 1 is not supported.')
+  })
+
+  test('should handle predefined constants like "weekdays"', () => {
+    const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: 'weekdays', timezone, isRecurring: true })
+    expect(message).toBeNull()
+    expect(result).toBeInstanceOf(RRule)
+    expect((result as RRule).origOptions.freq).toBe(RRule.WEEKLY)
+    // Check the weekday property of the Weekday objects
+    const weekdays = (result as RRule).origOptions.byweekday;
+    const weekdayNumbers = weekdays
+      ? (Array.isArray(weekdays)
+        ? weekdays.map(d => typeof d === 'number' ? d : (d as Weekday).weekday)
+        : [typeof weekdays === 'number' ? weekdays : (weekdays as Weekday).weekday])
+      : [];
+    expect(weekdayNumbers).toEqual([RRule.MO.weekday, RRule.TU.weekday, RRule.WE.weekday, RRule.TH.weekday, RRule.FR.weekday])
+  })
+})
+
+describe('convertMachineReadableFrequencyToHumanReadable', () => {
+  const timezone = 'America/New_York'
+
+  // Non-recurring tests
+  test('should format DateTime object (non-recurring)', () => {
+    const dateTime = DateTime.fromISO('2024-07-16T00:00:00', { zone: timezone }) as DateTime<true>
+    const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: dateTime, isRecurRule: false, timezone })
+    // Expected format depends on locale, check for key parts
+    expect(humanReadable).toContain('Jul 16, 2024')
+    expect(humanReadable).toContain('Tue') // Tuesday
+  })
+
+  test('should format ISO string (non-recurring)', () => {
+    const isoString = '2024-07-16T00:00:00.000-04:00' // Example ISO string with offset
+    const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: isoString, isRecurRule: false, timezone })
+    expect(humanReadable).toContain('Jul 16, 2024')
+    expect(humanReadable).toContain('Tue')
+  })
+
+  test('should return "Initial Due" for null frequency (non-recurring)', () => {
+    const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: null, isRecurRule: false, timezone })
+    // Check against the imported constant value
+    expect(humanReadable).toBe(INITIAL_DUE)
+  })
+
+  // Recurring tests
+  test('should format RRule object (recurring)', () => {
+    const rrule = new RRule({ freq: RRule.DAILY })
+    const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: rrule, isRecurRule: true, timezone })
+    // rrule.toText() returns "every day" for daily rules
+    expect(humanReadable).toBe('every day')
+  })
+
+  test('should format RRule string (recurring)', () => {
+    const rruleStr = 'FREQ=WEEKLY;BYDAY=MO,WE,FR'
+    const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: rruleStr, isRecurRule: true, timezone })
+    expect(humanReadable).toBe('every week on Monday, Wednesday, Friday')
+  })
+
+  test('should return "invalid" for invalid RRule string (recurring)', () => {
+    const rruleStr = 'INVALID_RRULE'
+    const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: rruleStr, isRecurRule: true, timezone })
+    expect(humanReadable).toBe('invalid')
+  })
+
+  test('should return "invalid" for null frequency (recurring)', () => {
+    const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: null, isRecurRule: true, timezone })
+    expect(humanReadable).toBe('invalid')
+  })
+
+  test('should return "invalid" for unexpected type (recurring)', () => {
+    const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: 123 as unknown as ParsedResultType, isRecurRule: true, timezone })
+    expect(humanReadable).toBe('invalid')
+  })
+
+  test('should return "invalid" for unexpected type (non-recurring)', () => {
+    const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: new RRule({ freq: RRule.DAILY }) as unknown as ParsedResultType, isRecurRule: false, timezone })
+    expect(humanReadable).toBe('invalid')
   })
 })

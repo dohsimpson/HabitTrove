@@ -1,4 +1,6 @@
+import { RRule } from "rrule"
 import { uuid } from "./utils"
+import { DateTime } from "luxon"
 
 export type UserId = string
 
@@ -187,4 +189,12 @@ export interface JotaiHydrateInitialValues {
 
 export interface ServerSettings {
   isDemo: boolean
+}
+
+export type ParsedResultType = DateTime<true> | RRule | string | null // null if invalid
+
+// return rrule / datetime (machine-readable frequency), string (human-readable frequency), or null (invalid)
+export interface ParsedFrequencyResult {
+  message: string | null
+  result: ParsedResultType
 }

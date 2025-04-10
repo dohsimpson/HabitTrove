@@ -1,7 +1,7 @@
 import { Habit, SafeUser, User, Permission } from '@/lib/types'
 import { useAtom } from 'jotai'
 import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, parseRRule, d2s, getCompletionsForToday, isTaskOverdue, getFrequencyDisplayText } from '@/lib/utils'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, d2s, getCompletionsForToday, isTaskOverdue, convertMachineReadableFrequencyToHumanReadable } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer, Archive, ArchiveRestore, Calendar } from 'lucide-react'
@@ -105,7 +105,11 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
       </CardHeader>
       <CardContent className="flex-1">
         <p className={`text-sm ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500'}`}>
-          When: {getFrequencyDisplayText(habit.frequency, isRecurRule, settings.system.timezone)}
+          When: {convertMachineReadableFrequencyToHumanReadable({
+            frequency: habit.frequency,
+            isRecurRule,
+            timezone: settings.system.timezone
+          })}
         </p>
         <div className="flex items-center mt-2">
           <Coins className={`h-4 w-4 mr-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />

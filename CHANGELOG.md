@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.2.6
+
+### Added
+
+* support weekly / monthly intervals for recurring frequency (#99)
+* show error when frequency is unsupported (#56)
+* add task / habit button in habit view
+
+### Fixed
+
+* make user select modal scrollable
+
 ## Version 0.2.5
 
 ### Changed
