@@ -44,6 +44,7 @@ export type Habit = {
   completions: string[] // Array of UTC ISO date strings
   isTask?: boolean // mark the habit as a task
   archived?: boolean // mark the habit as archived
+  pinned?: boolean // mark the habit as pinned
   userIds?: UserId[]
 }
 

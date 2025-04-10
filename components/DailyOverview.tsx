@@ -1,4 +1,4 @@
-import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer, Plus } from 'lucide-react'
+import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer, Plus, Pin } from 'lucide-react'
 import CompletionCountBadge from './CompletionCountBadge'
 import {
   ContextMenu,
@@ -130,7 +130,12 @@ export default function DailyOverview({
               <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${browserSettings.expandedTasks ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
                 {dailyTasks
                   .sort((a, b) => {
-                    // First by completion status
+                    // First by pinned status
+                    if (a.pinned !== b.pinned) {
+                      return a.pinned ? -1 : 1;
+                    }
+                    
+                    // Then by completion status
                     const aCompleted = todayCompletions.includes(a);
                     const bCompleted = todayCompletions.includes(b);
                     if (aCompleted !== bCompleted) {
@@ -204,10 +209,15 @@ export default function DailyOverview({
                                 </button>
                               </div>
                             </ContextMenuTrigger>
-                            <span className={cn(isCompleted ? 'line-through' : '', 'break-all')}>
-                              <Linkify>
-                                {habit.name}
-                              </Linkify>
+                            <span className="flex items-center gap-1">
+                              {habit.pinned && (
+                                <Pin className="h-4 w-4 text-yellow-500" />
+                              )}
+                              <span className={cn(isCompleted ? 'line-through' : '', 'break-all')}>
+                                <Linkify>
+                                  {habit.name}
+                                </Linkify>
+                              </span>
                             </span>
                             <ContextMenuContent className="w-64">
                               <ContextMenuItem onClick={() => {
@@ -219,6 +229,21 @@ export default function DailyOverview({
                               }}>
                                 <Timer className="mr-2 h-4 w-4" />
                                 <span>Start Pomodoro</span>
+                              </ContextMenuItem>
+                              <ContextMenuItem onClick={() => {
+                                saveHabit({...habit, pinned: !habit.pinned})
+                              }}>
+                                {habit.pinned ? (
+                                  <>
+                                    <Pin className="mr-2 h-4 w-4" />
+                                    <span>Unpin</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Pin className="mr-2 h-4 w-4" />
+                                    <span>Pin</span>
+                                  </>
+                                )}
                               </ContextMenuItem>
                             </ContextMenuContent>
                           </ContextMenu>
@@ -335,7 +360,12 @@ export default function DailyOverview({
               <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${browserSettings.expandedHabits ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
                 {dailyHabits
                   .sort((a, b) => {
-                    // First by completion status
+                    // First by pinned status
+                    if (a.pinned !== b.pinned) {
+                      return a.pinned ? -1 : 1;
+                    }
+                    
+                    // Then by completion status
                     const aCompleted = todayCompletions.includes(a);
                     const bCompleted = todayCompletions.includes(b);
                     if (aCompleted !== bCompleted) {
@@ -409,10 +439,15 @@ export default function DailyOverview({
                                 </button>
                               </div>
                             </ContextMenuTrigger>
-                            <span className={cn(isCompleted ? 'line-through' : '', 'break-all')}>
-                              <Linkify>
-                                {habit.name}
-                              </Linkify>
+                            <span className="flex items-center gap-1">
+                              {habit.pinned && (
+                                <Pin className="h-4 w-4 text-yellow-500" />
+                              )}
+                              <span className={cn(isCompleted ? 'line-through' : '', 'break-all')}>
+                                <Linkify>
+                                  {habit.name}
+                                </Linkify>
+                              </span>
                             </span>
                             <ContextMenuContent className="w-64">
                               <ContextMenuItem onClick={() => {
@@ -424,6 +459,21 @@ export default function DailyOverview({
                               }}>
                                 <Timer className="mr-2 h-4 w-4" />
                                 <span>Start Pomodoro</span>
+                              </ContextMenuItem>
+                              <ContextMenuItem onClick={() => {
+                                saveHabit({...habit, pinned: !habit.pinned})
+                              }}>
+                                {habit.pinned ? (
+                                  <>
+                                    <Pin className="mr-2 h-4 w-4" />
+                                    <span>Unpin</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Pin className="mr-2 h-4 w-4" />
+                                    <span>Pin</span>
+                                  </>
+                                )}
                               </ContextMenuItem>
                             </ContextMenuContent>
                           </ContextMenu>

@@ -4,7 +4,7 @@ import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom } from '@/li
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, d2s, getCompletionsForToday, isTaskOverdue, convertMachineReadableFrequencyToHumanReadable } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer, Archive, ArchiveRestore, Calendar } from 'lucide-react'
+import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer, Archive, ArchiveRestore, Calendar, Pin } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -88,7 +88,12 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
       <CardHeader className="flex-none">
         <div className="flex justify-between items-start">
           <CardTitle className={`line-clamp-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''} flex items-center ${isTasksView ? 'w-full' : ''} justify-between`}>
-            <span>{habit.name}</span>
+            <div className="flex items-center gap-1">
+              {habit.pinned && (
+                <Pin className="h-4 w-4 text-yellow-500" />
+              )}
+              <span>{habit.name}</span>
+            </div>
             {isTaskOverdue(habit, settings.system.timezone) && (
               <span className="ml-2 inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/30 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10 dark:ring-red-500/20">
                 Overdue
@@ -212,6 +217,19 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
                       <span>Move to Today</span>
                     </DropdownMenuItem>
                   )}
+                  <DropdownMenuItem disabled={!canWrite} onClick={() => saveHabit({...habit, pinned: !habit.pinned})}>
+                    {habit.pinned ? (
+                      <>
+                        <Archive className="mr-2 h-4 w-4" />
+                        <span>Unpin</span>
+                      </>
+                    ) : (
+                      <>
+                        <Archive className="mr-2 h-4 w-4" />
+                        <span>Pin</span>
+                      </>
+                    )}
+                  </DropdownMenuItem>
                   <DropdownMenuItem disabled={!canWrite} onClick={() => archiveHabit(habit.id)}>
                     <Archive className="mr-2 h-4 w-4" />
                     <span>Archive</span>

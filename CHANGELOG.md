@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.2.7
+
+### Added
+
+* visual pin indicators for pinned habits/tasks
+* pin/unpin options in context menus
+
 ## Version 0.2.6
 
 ### Added
