@@ -22,7 +22,9 @@ export default function HabitList() {
   const habits = habitsData.habits.filter(habit => 
     isTasksView ? habit.isTask : !habit.isTask
   )
-  const activeHabits = habits.filter(h => !h.archived)
+  const activeHabits = habits
+    .filter(h => !h.archived)
+    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
   const archivedHabits = habits.filter(h => h.archived)
   const [settings] = useAtom(settingsAtom)
   const [modalConfig, setModalConfig] = useState<{
