@@ -6,9 +6,9 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
-import { cn, isHabitDueToday, getHabitFreq } from '@/lib/utils'
+import { cn, getHabitFreq } from '@/lib/utils'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAtom } from 'jotai'
 import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings, hasTasksAtom, dailyHabitsAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
@@ -339,7 +339,7 @@ export default function DailyOverview({
     })
 
   const [hasTasks] = useAtom(hasTasksAtom)
-  const [_, setPomo] = useAtom(pomodoroAtom)
+  const [, setPomo] = useAtom(pomodoroAtom)
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean,
     isTask: boolean
