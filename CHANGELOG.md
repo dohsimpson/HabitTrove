@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.8
+
+### Added
+
+* notification for admin users on shared habit / wishlist completion (#92)
+
 ## Version 0.2.7
 
 ### Added

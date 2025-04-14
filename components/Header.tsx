@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAtom } from 'jotai'
 import { coinsAtom, settingsAtom, browserSettingsAtom } from '@/lib/atoms'
 import { useCoins } from '@/hooks/useCoins'
 import { FormattedNumber } from '@/components/FormattedNumber'
-import { Bell, Menu, Settings, User, Info, Coins } from 'lucide-react'
+import { Menu, Settings, User, Info, Coins } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/Logo'
+import NotificationBell from './NotificationBell'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,7 @@ import AboutModal from './AboutModal'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { Profile } from './Profile'
+import { useHelpers } from '@/lib/client-helpers'
 
 interface HeaderProps {
   className?: string
@@ -52,9 +54,7 @@ export default function Header({ className }: HeaderProps) {
                   </div>
                 </div>
               </Link>
-              <Button variant="ghost" size="icon" aria-label="Notifications">
-                <Bell className="h-5 w-5" />
-              </Button>
+              <NotificationBell />
               <Profile />
             </div>
           </div>

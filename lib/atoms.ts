@@ -9,6 +9,7 @@ import {
   getDefaultUsersData,
   CompletionCache,
   getDefaultServerSettings,
+  User,
 } from "./types";
 import {
   getTodayInTimezone,
@@ -110,16 +111,16 @@ export const completionCacheAtom = atom((get) => {
   const habits = get(habitsAtom).habits;
   const timezone = get(settingsAtom).system.timezone;
   const cache: CompletionCache = {};
-  
+
   habits.forEach(habit => {
     habit.completions.forEach(utcTimestamp => {
       const localDate = t2d({ timestamp: utcTimestamp, timezone })
         .toFormat('yyyy-MM-dd');
-      
+
       if (!cache[localDate]) {
         cache[localDate] = {};
       }
-      
+
       cache[localDate][habit.id] = (cache[localDate][habit.id] || 0) + 1;
     });
   });
@@ -173,12 +174,12 @@ export const hasTasksAtom = atom((get) => {
 })
 
 // Atom family for habits by specific date
-export const habitsByDateFamily = atomFamily((dateString: string) => 
+export const habitsByDateFamily = atomFamily((dateString: string) =>
   atom((get) => {
     const habits = get(habitsAtom).habits;
     const settings = get(settingsAtom);
     const timezone = settings.system.timezone;
-    
+
     const date = DateTime.fromISO(dateString).setZone(timezone);
     return habits.filter(habit => isHabitDue({ habit, timezone, date }));
   })
