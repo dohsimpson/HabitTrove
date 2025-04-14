@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react' // Import useEffect, useRef
+import { useSearchParams } from 'next/navigation' // Import useSearchParams
 import { t2d, d2s, getNow, isSameDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { FormattedNumber } from '@/components/FormattedNumber'
@@ -37,8 +38,32 @@ export default function CoinsManager() {
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
   const [pageSize, setPageSize] = useState(50)
   const [currentPage, setCurrentPage] = useState(1)
-
   const [note, setNote] = useState('')
+  const searchParams = useSearchParams()
+  const highlightId = searchParams.get('highlight')
+  const userIdFromQuery = searchParams.get('user') // Get user ID from query
+  const transactionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Effect to set selected user from query param if admin
+  useEffect(() => {
+    if (currentUser?.isAdmin && userIdFromQuery && userIdFromQuery !== selectedUser) {
+      // Check if the user ID from query exists in usersData
+      if (usersData.users.some(u => u.id === userIdFromQuery)) {
+        setSelectedUser(userIdFromQuery);
+      }
+    }
+    // Only run when userIdFromQuery or currentUser changes, avoid re-running on selectedUser change within this effect
+  }, [userIdFromQuery, currentUser, usersData.users]);
+
+  // Effect to scroll to highlighted transaction
+  useEffect(() => {
+    if (highlightId && transactionRefs.current[highlightId]) {
+      transactionRefs.current[highlightId]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [highlightId, transactions]); // Re-run if highlightId or transactions change
 
   const handleSaveNote = async (transactionId: string, note: string) => {
     await updateNote(transactionId, note)
@@ -249,13 +274,17 @@ export default function CoinsManager() {
                         }
                       }
 
+                      const isHighlighted = transaction.id === highlightId;
                       return (
                         <div
                           key={transaction.id}
-                          className="flex justify-between items-center p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                          ref={(el) => { transactionRefs.current[transaction.id] = el; }} // Assign ref correctly
+                          className={`flex justify-between items-center p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                            isHighlighted ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30' : '' // Apply highlight styles
+                          }`}
                         >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
+                          <div className="space-y-1 flex-grow mr-4"> {/* Added flex-grow and margin */}
+                            <div className="flex items-center gap-2 flex-wrap"> {/* Added flex-wrap */}
                               {transaction.relatedItemId ? (
                                 <Link
                                   href={`${transaction.type === 'WISH_REDEMPTION' ? '/wishlist' : '/habits'}?highlight=${transaction.relatedItemId}`}
@@ -274,12 +303,13 @@ export default function CoinsManager() {
                               </span>
                               {transaction.userId && currentUser?.isAdmin && (
                                 <Avatar className="h-6 w-6">
-                                  <AvatarImage 
-                                    src={usersData.users.find(u => u.id === transaction.userId)?.avatarPath && 
-                                      `/api/avatars/${usersData.users.find(u => u.id === transaction.userId)?.avatarPath?.split('/').pop()}` || ""} 
+                                  <AvatarImage
+                                    src={usersData.users.find(u => u.id === transaction.userId)?.avatarPath ?
+                                      `/api/avatars/${usersData.users.find(u => u.id === transaction.userId)?.avatarPath?.split('/').pop()}` : undefined}
+                                    alt={usersData.users.find(u => u.id === transaction.userId)?.username}
                                   />
                                   <AvatarFallback>
-                                    {usersData.users.find(u => u.id === transaction.userId)?.username[0]}
+                                    {usersData.users.find(u => u.id === transaction.userId)?.username?.[0] || '?'}
                                   </AvatarFallback>
                                 </Avatar>
                               )}
@@ -294,14 +324,16 @@ export default function CoinsManager() {
                               onDelete={handleDeleteNote}
                             />
                           </div>
-                          <span
-                            className={`font-mono ${transaction.amount >= 0
-                              ? 'text-green-600 dark:text-green-400'
-                              : 'text-red-600 dark:text-red-400'
-                              }`}
-                          >
-                            {transaction.amount >= 0 ? '+' : ''}{transaction.amount}
-                          </span>
+                          <div className="flex-shrink-0 text-right"> {/* Ensure amount stays on the right */}
+                            <span
+                              className={`font-mono ${transaction.amount >= 0
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-red-600 dark:text-red-400'
+                                }`}
+                            >
+                              {transaction.amount >= 0 ? '+' : ''}{transaction.amount}
+                            </span>
+                          </div>
                         </div>
                       )
                     })}

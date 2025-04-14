@@ -1,7 +1,1 @@
-if git diff --cached --name-only --diff-filter=d | xargs grep -n '🪚'; then
-  echo "Error: Found debug marker 🪚 in these files:"
-  git diff --cached --name-only --diff-filter=d | xargs grep -n '🪚' | awk -F: '{print "  " $1 ":" $2}'
-  exit 1
-fi
-
-npm run typecheck && npm run test
+npm run typecheck && npm run lint && npm run test

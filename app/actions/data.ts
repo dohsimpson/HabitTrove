@@ -44,7 +44,7 @@ async function verifyPermission(
 
   // if (!user) throw new PermissionError('User not authenticated')
   // if (user.isAdmin) return // Admins bypass permission checks
-  
+
   // if (!checkPermission(user.permissions, resource, action)) {
   //   throw new PermissionError(`User does not have ${action} permission for ${resource}`)
   // }
@@ -106,7 +106,7 @@ async function saveData<T>(type: DataType, data: T): Promise<void> {
 export async function loadWishlistData(): Promise<WishlistData> {
   const user = await getCurrentUser()
   if (!user) return getDefaultWishlistData()
-  
+
   const data = await loadData<WishlistData>('wishlist')
   return {
     ...data,
@@ -153,7 +153,7 @@ export async function loadHabitsData(): Promise<HabitsData> {
 
 export async function saveHabitsData(data: HabitsData): Promise<void> {
   await verifyPermission('habit', 'write')
-  
+
   const user = await getCurrentUser()
   // Create clone of input data
   const newData = _.cloneDeep(data)
@@ -229,6 +229,7 @@ export async function addCoins({
   userId?: string
 }): Promise<CoinsData> {
   await verifyPermission('coins', type === 'MANUAL_ADJUSTMENT' ? 'write' : 'interact')
+  const currentUser = await getCurrentUser()
   const data = await loadCoinsData()
   const newTransaction: CoinTransaction = {
     id: uuid(),
@@ -238,7 +239,7 @@ export async function addCoins({
     timestamp: d2t({ dateTime: getNow({}) }),
     ...(relatedItemId && { relatedItemId }),
     ...(note && note.trim() !== '' && { note }),
-    userId: userId || await getCurrentUserId()
+    userId: userId || currentUser?.id
   }
 
   const newData: CoinsData = {
@@ -283,6 +284,7 @@ export async function removeCoins({
   userId?: string
 }): Promise<CoinsData> {
   await verifyPermission('coins', type === 'MANUAL_ADJUSTMENT' ? 'write' : 'interact')
+  const currentUser = await getCurrentUser()
   const data = await loadCoinsData()
   const newTransaction: CoinTransaction = {
     id: uuid(),
@@ -292,7 +294,7 @@ export async function removeCoins({
     timestamp: d2t({ dateTime: getNow({}) }),
     ...(relatedItemId && { relatedItemId }),
     ...(note && note.trim() !== '' && { note }),
-    userId: userId || await getCurrentUserId()
+    userId: userId || currentUser?.id
   }
 
   const newData: CoinsData = {
@@ -368,8 +370,8 @@ export async function createUser(formData: FormData): Promise<User> {
   const username = formData.get('username') as string;
   let password = formData.get('password') as string | undefined;
   const avatarPath = formData.get('avatarPath') as string;
-  const permissions = formData.get('permissions') ? 
-    JSON.parse(formData.get('permissions') as string) as Permission[] : 
+  const permissions = formData.get('permissions') ?
+    JSON.parse(formData.get('permissions') as string) as Permission[] :
     undefined;
 
   if (password === null) password = undefined
@@ -383,7 +385,7 @@ export async function createUser(formData: FormData): Promise<User> {
     throw new Error('Username already exists');
   }
 
-  const hashedPassword = password ? saltAndHashPassword(password) : '';
+  const hashedPassword = password ? saltAndHashPassword(password) : undefined;
 
 
   const newUser: User = {
@@ -392,6 +394,7 @@ export async function createUser(formData: FormData): Promise<User> {
     password: hashedPassword,
     permissions,
     isAdmin: false,
+    lastNotificationReadTimestamp: undefined,
     ...(avatarPath && { avatarPath })
   };
 
@@ -481,6 +484,31 @@ export async function deleteUser(userId: string): Promise<void> {
 
   await saveUsersData(newData)
 }
+
+export async function updateLastNotificationReadTimestamp(userId: string, timestamp: string): Promise<void> {
+  const data = await loadUsersData()
+  const userIndex = data.users.findIndex(user => user.id === userId)
+
+  if (userIndex === -1) {
+    throw new Error('User not found for updating notification timestamp')
+  }
+
+  const updatedUser = {
+    ...data.users[userIndex],
+    lastNotificationReadTimestamp: timestamp
+  }
+
+  const newData: UserData = {
+    users: [
+      ...data.users.slice(0, userIndex),
+      updatedUser,
+      ...data.users.slice(userIndex + 1)
+    ]
+  }
+
+  await saveUsersData(newData)
+}
+
 
 export async function loadServerSettings(): Promise<ServerSettings> {
   return {

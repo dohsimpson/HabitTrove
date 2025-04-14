@@ -31,7 +31,8 @@ export type SafeUser = SessionUser & {
 }
 
 export type User = SafeUser & {
-  password: string
+  password?: string // Optional: Allow users without passwords (e.g., initial setup)
+  lastNotificationReadTimestamp?: string // UTC ISO date string
 }
 
 export type Habit = {
@@ -101,8 +102,9 @@ export const getDefaultUsersData = (): UserData => ({
     {
       id: uuid(),
       username: 'admin',
-      password: '',
+      // password: '', // No default password for admin initially? Or set a secure default?
       isAdmin: true,
+      lastNotificationReadTimestamp: undefined, // Initialize as undefined
     }
   ]
 });
