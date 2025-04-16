@@ -130,7 +130,8 @@ export const getDefaultSettings = (): Settings => ({
   },
   system: {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    weekStartDay: 1 // Monday
+    weekStartDay: 1, // Monday
+    autoBackupEnabled: true, // Add this line (default to true)
   },
   profile: {}
 });
@@ -161,6 +162,7 @@ export type WeekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday, 6 = Saturday
 export interface SystemSettings {
   timezone: string;
   weekStartDay: WeekDay;
+  autoBackupEnabled: boolean; // Add this line
 }
 
 export interface ProfileSettings {

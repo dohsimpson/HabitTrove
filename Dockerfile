@@ -43,8 +43,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Create data directory and set permissions
-RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+# Create data and backups directories and set permissions
+RUN mkdir -p /app/data /app/backups \
+    && chown nextjs:nodejs /app/data /app/backups
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/CHANGELOG.md ./
@@ -61,6 +62,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-VOLUME ["/app/data"]
+VOLUME ["/app/data", "/app/backups"]
 
 CMD ["node", "server.js"]

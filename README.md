@@ -17,6 +17,7 @@ Want to try HabitTrove before installing? Visit the public [demo instance](https
 - 📅 Calendar heatmap to visualize your progress (WIP)
 - 🌙 Dark mode support
 - 📲 Progressive Web App (PWA) support
+- 💾 Automatic daily backups with rotation
 
 ## Usage
 
@@ -39,8 +40,8 @@ The easiest way to run HabitTrove is using our pre-built Docker images from Dock
 1. First, prepare the data directory with correct permissions:
 
 ```bash
-mkdir -p data
-chown -R 1001:1001 data  # Required for the nextjs user in container
+mkdir -p data backups
+chown -R 1001:1001 data backups # Required for the nextjs user in container
 ```
 
 2. Then run using either method:
@@ -51,15 +52,16 @@ export AUTH_SECRET=$(openssl rand -base64 32)
 echo $AUTH_SECRET
 
 # Using docker-compose (recommended)
-## update the AUTH_SECRET environment variable in docker-compose file
+## Update the AUTH_SECRET environment variable in docker-compose.yaml
 nano docker-compose.yaml
-## start the container
+## Start the container
 docker compose up -d
 
 # Or using docker run directly
 docker run -d \
   -p 3000:3000 \
   -v ./data:/app/data \
+  -v ./backups:/app/backups \ # Add this line to map the backups directory
   -e AUTH_SECRET=$AUTH_SECRET \
   dohsimpson/habittrove
 ```
@@ -73,8 +75,10 @@ Available image tags:
 Choose your tag based on needs:
 
 - Use `latest` for general production use
-- Use version tags (e.g., `v0.1.4`) for reproducible deployments
+- Use version tags (e.g., `v0.2.9`) for reproducible deployments
 - Use `dev` for testing new features
+
+**Note on Volumes:** The application stores user data in `/app/data` and backups in `/app/backups` inside the container. The examples above map `./data` and `./backups` from your host machine to these container directories. Ensure these host directories exist and have the correct permissions (`chown -R 1001:1001 data backups`).
 
 ### Building Locally
 

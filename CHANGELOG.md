@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.2.9
+
+### Added
+
+* Auto backup feature: Automatically backs up data
+* Backup rotation: Keeps the last 7 daily backups
+* Setting to enable/disable auto backup.
+
 ## Version 0.2.8
 
 ### Added
