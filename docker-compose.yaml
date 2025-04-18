@@ -3,7 +3,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - "./data:/app/data" # Use a relative path instead of $(pwd)
+      - "./data:/app/data"
+      - "./backups:/app/backups"
     image: dohsimpson/habittrove
     environment:
-      - AUTH_SECRET=your-secret-key-here
+      - AUTH_SECRET=your-secret-key-here # Replace with your actual secret

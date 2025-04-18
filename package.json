@@ -1,6 +1,6 @@
 {
   "name": "habittrove",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -34,6 +34,7 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "@types/canvas-confetti": "^1.9.0",
     "@uiw/react-heat-map": "^2.3.2",
+    "archiver": "^7.0.1",
     "canvas-confetti": "^1.9.3",
     "chrono-node": "^2.7.7",
     "class-variance-authority": "^0.7.1",
@@ -48,6 +49,7 @@
     "next": "15.2.3",
     "next-auth": "^5.0.0-beta.25",
     "next-themes": "^0.4.4",
+    "node-cron": "^3.0.3",
     "react": "^19.0.0",
     "react-confetti": "^6.2.2",
     "react-day-picker": "^8.10.1",
@@ -64,10 +66,12 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/typography": "^0.5.15",
+    "@types/archiver": "^6.0.3",
     "@types/bun": "^1.1.14",
     "@types/lodash": "^4.17.15",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.17.10",
+    "@types/node-cron": "^3.0.11",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/web-push": "^3.6.4",

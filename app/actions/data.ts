@@ -64,6 +64,27 @@ async function ensureDataDir() {
   }
 }
 
+// --- Backup Debug Action ---
+export async function triggerManualBackup(): Promise<{ success: boolean; message: string }> {
+  // Optional: Add extra permission check if needed for debug actions
+  // const user = await getCurrentUser();
+  // if (!user?.isAdmin) {
+  //   return { success: false, message: "Permission denied." };
+  // }
+
+  console.log("Manual backup trigger requested...");
+  try {
+    // Import runBackup locally to avoid potential circular dependencies if moved
+    const { runBackup } = await import('@/lib/backup');
+    await runBackup();
+    console.log("Manual backup trigger completed successfully.");
+    return { success: true, message: "Backup process completed successfully." };
+  } catch (error) {
+    console.error("Manual backup trigger failed:", error);
+    return { success: false, message: `Backup failed: ${error instanceof Error ? error.message : 'Unknown error'}` };
+  }
+}
+
 async function loadData<T>(type: DataType): Promise<T> {
   try {
     await ensureDataDir()

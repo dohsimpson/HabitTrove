@@ -1,19 +1,25 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { DynamicTimeNoSSR } from '@/components/DynamicTimeNoSSR'
-import { useAtom } from 'jotai'
-import { settingsAtom } from '@/lib/atoms'
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { DynamicTimeNoSSR } from '@/components/DynamicTimeNoSSR';
+import { useAtom } from 'jotai';
+import { settingsAtom } from '@/lib/atoms';
 import { Settings, WeekDay } from '@/lib/types'
 import { saveSettings, uploadAvatar } from '../actions/data'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { User } from 'lucide-react'
+import { Button } from '@/components/ui/button';
+import { User, Info } from 'lucide-react'; // Import Info icon
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useAtom(settingsAtom)
+  const [settings, setSettings] = useAtom(settingsAtom);
 
   const updateSettings = async (newSettings: Settings) => {
     await saveSettings(newSettings)
@@ -140,6 +146,46 @@ export default function SettingsPage() {
                 </select>
               </div>
             </div>
+
+            {/* Add this section for Auto Backup */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5">
+                  <Label htmlFor="auto-backup">Auto Backup</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" align="start">
+                        <p className="max-w-xs text-sm">
+                          When enabled, the application data (habits, coins, settings, etc.)
+                          will be automatically backed up daily around 2 AM server time.
+                          Backups are stored as ZIP files in the `backups/` directory
+                          at the project root. Only the last 7 backups are kept; older
+                          ones are automatically deleted.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Automatically back up data daily
+                </div>
+              </div>
+              <Switch
+                id="auto-backup"
+                checked={settings.system.autoBackupEnabled}
+                onCheckedChange={(checked) =>
+                  updateSettings({
+                    ...settings,
+                    system: { ...settings.system, autoBackupEnabled: checked }
+                  })
+                }
+              />
+            </div>
+            {/* End of Auto Backup section */}
+
           </CardContent>
         </Card>
       </div >
