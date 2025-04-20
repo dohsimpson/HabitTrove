@@ -2,14 +2,14 @@ import { useAtom } from 'jotai'
 import { calculateCoinsEarnedToday, calculateCoinsSpentToday, calculateTotalEarned, calculateTotalSpent, calculateTransactionsToday, checkPermission } from '@/lib/utils'
 import {
   coinsAtom,
-  // coinsEarnedTodayAtom,
-  // totalEarnedAtom,
-  // totalSpentAtom,
-  // coinsSpentTodayAtom,
-  // transactionsTodayAtom,
-  // coinsBalanceAtom,
+  coinsEarnedTodayAtom,
+  totalEarnedAtom,
+  totalSpentAtom,
+  coinsSpentTodayAtom,
+  transactionsTodayAtom,
+  coinsBalanceAtom,
   settingsAtom,
-  usersAtom
+  usersAtom,
 } from '@/lib/atoms'
 import { addCoins, removeCoins, saveCoinsData } from '@/app/actions/data'
 import { CoinsData, User } from '@/lib/types'
@@ -29,7 +29,7 @@ function handlePermissionCheck(
     })
     return false
   }
-  
+
   if (!user.isAdmin && !checkPermission(user.permissions, resource, action)) {
     toast({
       title: "Permission Denied",
@@ -38,7 +38,7 @@ function handlePermissionCheck(
     })
     return false
   }
-  
+
   return true
 }
 
@@ -57,12 +57,12 @@ export function useCoins(options?: { selectedUser?: string }) {
   // Filter transactions for the selectd user
   const transactions = coins.transactions.filter(t => t.userId === user?.id)
 
-  const balance = transactions.reduce((sum, t) => sum + t.amount, 0)
-  const coinsEarnedToday = calculateCoinsEarnedToday(transactions, settings.system.timezone)
-  const totalEarned = calculateTotalEarned(transactions)
-  const totalSpent = calculateTotalSpent(transactions)
-  const coinsSpentToday = calculateCoinsSpentToday(transactions, settings.system.timezone)
-  const transactionsToday = calculateTransactionsToday(transactions, settings.system.timezone)
+  const [balance] = useAtom(coinsBalanceAtom)
+  const [coinsEarnedToday] = useAtom(coinsEarnedTodayAtom)
+  const [totalEarned] = useAtom(totalEarnedAtom)
+  const [totalSpent] = useAtom(totalSpentAtom)
+  const [coinsSpentToday] = useAtom(coinsSpentTodayAtom)
+  const [transactionsToday] = useAtom(transactionsTodayAtom)
 
   const add = async (amount: number, description: string, note?: string) => {
     if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null

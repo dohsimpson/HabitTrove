@@ -24,10 +24,12 @@ import {
   getISODate,
   isHabitDueToday,
   getNow,
-  isHabitDue
+  isHabitDue,
+  getHabitFreq
 } from "@/lib/utils";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { DateTime } from "luxon";
+import { Freq } from "./types";
 
 export interface BrowserSettings {
   viewType: ViewType
@@ -50,44 +52,44 @@ export const coinsAtom = atom(getDefaultCoinsData());
 export const wishlistAtom = atom(getDefaultWishlistData());
 export const serverSettingsAtom = atom(getDefaultServerSettings());
 
-// // Derived atom for coins earned today
-// export const coinsEarnedTodayAtom = atom((get) => {
-//   const coins = get(coinsAtom);
-//   const settings = get(settingsAtom);
-//   return calculateCoinsEarnedToday(coins.transactions, settings.system.timezone);
-// });
+// Derived atom for coins earned today
+export const coinsEarnedTodayAtom = atom((get) => {
+  const coins = get(coinsAtom);
+  const settings = get(settingsAtom);
+  return calculateCoinsEarnedToday(coins.transactions, settings.system.timezone);
+});
 
-// // Derived atom for total earned
-// export const totalEarnedAtom = atom((get) => {
-//   const coins = get(coinsAtom);
-//   return calculateTotalEarned(coins.transactions);
-// });
+// Derived atom for total earned
+export const totalEarnedAtom = atom((get) => {
+  const coins = get(coinsAtom);
+  return calculateTotalEarned(coins.transactions);
+});
 
-// // Derived atom for total spent
-// export const totalSpentAtom = atom((get) => {
-//   const coins = get(coinsAtom);
-//   return calculateTotalSpent(coins.transactions);
-// });
+// Derived atom for total spent
+export const totalSpentAtom = atom((get) => {
+  const coins = get(coinsAtom);
+  return calculateTotalSpent(coins.transactions);
+});
 
-// // Derived atom for coins spent today
-// export const coinsSpentTodayAtom = atom((get) => {
-//   const coins = get(coinsAtom);
-//   const settings = get(settingsAtom);
-//   return calculateCoinsSpentToday(coins.transactions, settings.system.timezone);
-// });
+// Derived atom for coins spent today
+export const coinsSpentTodayAtom = atom((get) => {
+  const coins = get(coinsAtom);
+  const settings = get(settingsAtom);
+  return calculateCoinsSpentToday(coins.transactions, settings.system.timezone);
+});
 
-// // Derived atom for transactions today
-// export const transactionsTodayAtom = atom((get) => {
-//   const coins = get(coinsAtom);
-//   const settings = get(settingsAtom);
-//   return calculateTransactionsToday(coins.transactions, settings.system.timezone);
-// });
+// Derived atom for transactions today
+export const transactionsTodayAtom = atom((get) => {
+  const coins = get(coinsAtom);
+  const settings = get(settingsAtom);
+  return calculateTransactionsToday(coins.transactions, settings.system.timezone);
+});
 
-// // Derived atom for current balance from all transactions
-// export const coinsBalanceAtom = atom((get) => {
-//   const coins = get(coinsAtom);
-//   return coins.transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
-// });
+// Derived atom for current balance from all transactions
+export const coinsBalanceAtom = atom((get) => {
+  const coins = get(coinsAtom);
+  return coins.transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+});
 
 /* transient atoms */
 interface PomodoroAtom {
@@ -150,6 +152,15 @@ export const completedHabitsMapAtom = atom((get) => {
   return map;
 });
 
+// Derived atom for habit frequency map
+export const habitFreqMapAtom = atom((get) => {
+  const habits = get(habitsAtom).habits;
+  const map = new Map<string, Freq>();
+  habits.forEach(habit => {
+    map.set(habit.id, getHabitFreq(habit));
+  });
+  return map;
+});
 
 export const pomodoroTodayCompletionsAtom = atom((get) => {
   const pomo = get(pomodoroAtom)
