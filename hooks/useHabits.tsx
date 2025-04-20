@@ -1,5 +1,5 @@
-import { useAtom } from 'jotai'
-import { habitsAtom, coinsAtom, settingsAtom, usersAtom } from '@/lib/atoms'
+import { useAtom, atom } from 'jotai'
+import { habitsAtom, coinsAtom, settingsAtom, usersAtom, habitFreqMapAtom } from '@/lib/atoms'
 import { addCoins, removeCoins, saveHabitsData } from '@/app/actions/data'
 import { Habit, Permission, SafeUser, User } from '@/lib/types'
 import { toast } from '@/hooks/use-toast'
@@ -34,7 +34,7 @@ function handlePermissionCheck(
     })
     return false
   }
-  
+
   if (!user.isAdmin && !checkPermission(user.permissions, resource, action)) {
     toast({
       title: "Permission Denied",
@@ -43,7 +43,7 @@ function handlePermissionCheck(
     })
     return false
   }
-  
+
   return true
 }
 
@@ -54,6 +54,7 @@ export function useHabits() {
   const [habitsData, setHabitsData] = useAtom(habitsAtom)
   const [coins, setCoins] = useAtom(coinsAtom)
   const [settings] = useAtom(settingsAtom)
+  const [habitFreqMap] = useAtom(habitFreqMapAtom)
 
   const completeHabit = async (habit: Habit) => {
     if (!handlePermissionCheck(currentUser, 'habit', 'interact')) return
@@ -313,6 +314,7 @@ export function useHabits() {
     deleteHabit,
     completePastHabit,
     archiveHabit,
-    unarchiveHabit
+    unarchiveHabit,
+    habitFreqMap,
   }
 }

@@ -6,7 +6,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
-import { cn, getHabitFreq } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useAtom } from 'jotai'
@@ -57,7 +57,7 @@ const ItemSection = ({
   settings,
   setBrowserSettings,
 }: ItemSectionProps) => {
-  const { completeHabit, undoComplete, saveHabit } = useHabits();
+  const { completeHabit, undoComplete, saveHabit, habitFreqMap } = useHabits();
   const [_, setPomo] = useAtom(pomodoroAtom);
 
   if (items.length === 0) {
@@ -117,8 +117,8 @@ const ItemSection = ({
             }
 
             // Then by frequency (daily first)
-            const aFreq = getHabitFreq(a);
-            const bFreq = getHabitFreq(b);
+            const aFreq = habitFreqMap.get(a.id) || 'daily';
+            const bFreq = habitFreqMap.get(b.id) || 'daily';
             const freqOrder = ['daily', 'weekly', 'monthly', 'yearly'];
             if (freqOrder.indexOf(aFreq) !== freqOrder.indexOf(bFreq)) {
               return freqOrder.indexOf(aFreq) - freqOrder.indexOf(bFreq);
@@ -213,7 +213,7 @@ const ItemSection = ({
                       </ContextMenuItem>
                       {habit.isTask && (
                         <ContextMenuItem onClick={() => {
-                          saveHabit({...habit, frequency: d2t({ dateTime: getNow({ timezone: settings.system.timezone })})})
+                          saveHabit({ ...habit, frequency: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }) })
                         }}>
                           <Calendar className="mr-2 h-4 w-4" />
                           <span>Move to Today</span>
@@ -243,9 +243,9 @@ const ItemSection = ({
                       {completionsToday}/{target}
                     </span>
                   )}
-                  {getHabitFreq(habit) !== 'daily' && (
+                  {habitFreqMap.get(habit.id) !== 'daily' && (
                     <Badge variant="outline" className="text-xs">
-                      {getHabitFreq(habit)}
+                      {habitFreqMap.get(habit.id)}
                     </Badge>
                   )}
                   <span className="flex items-center">

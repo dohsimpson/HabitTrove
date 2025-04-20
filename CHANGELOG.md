@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.10
+
+### Improved
+
+* performance optimization: faster load time for large data set
+
 ## Version 0.2.9
 
 ### Added
