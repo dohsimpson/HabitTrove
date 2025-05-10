@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react' // Added useMemo, useEffect
-import { Plus, ListTodo, ArrowUpNarrowWide, ArrowDownWideNarrow } from 'lucide-react' // Added sort icons
+import { Plus, ArrowUpNarrowWide, ArrowDownWideNarrow, Search } from 'lucide-react' // Added sort icons, Search icon
 import { useAtom } from 'jotai'
 import { habitsAtom, settingsAtom, browserSettingsAtom } from '@/lib/atoms'
 import EmptyState from './EmptyState'
@@ -142,17 +142,22 @@ export default function HabitList() {
 
       {/* Search and Sort Controls */}
       <div className="flex flex-col sm:flex-row items-center gap-4 my-4">
-        <Input
-          type="search"
-          placeholder={`Search ${isTasksView ? 'tasks' : 'habits'} by name or description...`}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-grow"
-        />
-        <div className="flex items-center gap-2 self-start sm:self-center">
+        <div className="relative flex-grow w-full sm:w-auto">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <Input
+            type="search"
+            placeholder={`Search ${isTasksView ? 'tasks' : 'habits'}...`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 w-full"
+          />
+        </div>
+        <div className="flex items-center gap-2 self-start sm:self-center w-full sm:w-auto">
           <Label htmlFor="sort-by" className="text-sm font-medium whitespace-nowrap sr-only sm:not-sr-only">Sort by:</Label>
           <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortableField)}>
-            <SelectTrigger id="sort-by" className="w-[150px] sm:w-[180px]">
+            <SelectTrigger id="sort-by" className="w-full sm:w-[180px]">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
