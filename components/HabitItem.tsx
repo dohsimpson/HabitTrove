@@ -4,7 +4,7 @@ import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom } from '@/li
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, d2s, getCompletionsForToday, isTaskOverdue, convertMachineReadableFrequencyToHumanReadable } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Coins, Edit, Trash2, Check, Undo2, MoreVertical, Timer, Archive, ArchiveRestore, Calendar, Pin } from 'lucide-react'
+import { Coins, Edit, Check, Undo2, MoreVertical, Pin } from 'lucide-react' // Removed unused icons
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +18,7 @@ import { INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from '@/lib/constants'
 import { DateTime } from 'luxon'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { useHelpers } from '@/lib/client-helpers'
+import { HabitContextMenuItems } from './HabitContextMenuItems'
 
 interface HabitItemProps {
   habit: Habit
@@ -194,70 +195,12 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {!habit.archived && (
-                <DropdownMenuItem onClick={() => {
-                  if (!canInteract) return
-                  setPomo((prev) => ({
-                    ...prev,
-                    show: true,
-                    selectedHabitId: habit.id
-                  }))
-                }}>
-                  <Timer className="mr-2 h-4 w-4" />
-                  <span>Start Pomodoro</span>
-                </DropdownMenuItem>
-              )}
-              {!habit.archived && (
-                <>
-                  {habit.isTask && (
-                    <DropdownMenuItem disabled={!canWrite} onClick={() => {
-                      saveHabit({...habit, frequency: d2t({ dateTime: getNow({ timezone: settings.system.timezone })})})
-                    }}>
-                      <Calendar className="mr-2 h-4 w-4" />
-                      <span>Move to Today</span>
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem disabled={!canWrite} onClick={() => saveHabit({...habit, pinned: !habit.pinned})}>
-                    {habit.pinned ? (
-                      <>
-                        <Archive className="mr-2 h-4 w-4" />
-                        <span>Unpin</span>
-                      </>
-                    ) : (
-                      <>
-                        <Archive className="mr-2 h-4 w-4" />
-                        <span>Pin</span>
-                      </>
-                    )}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem disabled={!canWrite} onClick={() => archiveHabit(habit.id)}>
-                    <Archive className="mr-2 h-4 w-4" />
-                    <span>Archive</span>
-                  </DropdownMenuItem>
-                </>
-              )}
-              {habit.archived && (
-                <DropdownMenuItem disabled={!canWrite} onClick={() => unarchiveHabit(habit.id)}>
-                  <ArchiveRestore className="mr-2 h-4 w-4" />
-                  <span>Unarchive</span>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem
-                onClick={onEdit}
-                className="sm:hidden"
-                disabled={habit.archived}
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="sm:hidden" />
-              <DropdownMenuItem
-                className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400 cursor-pointer"
-                onClick={onDelete}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
+              <HabitContextMenuItems
+                habit={habit}
+                onEditRequest={onEdit}
+                onDeleteRequest={onDelete}
+                context="habit-item"
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

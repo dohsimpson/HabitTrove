@@ -1,4 +1,4 @@
-import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer, Plus, Pin, Calendar, AlertTriangle, Trash2, Archive, Edit } from 'lucide-react'
+import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Plus, Pin, AlertTriangle } from 'lucide-react' // Removed unused icons
 import CompletionCountBadge from './CompletionCountBadge'
 import {
   ContextMenu,
@@ -29,6 +29,7 @@ import { useHabits } from '@/hooks/useHabits'
 import AddEditHabitModal from './AddEditHabitModal'
 import ConfirmDialog from './ConfirmDialog'
 import { Button } from './ui/button'
+import { HabitContextMenuItems } from './HabitContextMenuItems'
 
 interface UpcomingItemsProps {
   habits: Habit[]
@@ -42,13 +43,7 @@ interface ItemSectionProps {
   emptyMessage: string;
   isTask: boolean;
   viewLink: string;
-  expanded: boolean;
-  setExpanded: (value: boolean) => void;
   addNewItem: () => void;
-  badgeType: "tasks" | "habits";
-  todayCompletions: Habit[];
-  settings: Settings;
-  setBrowserSettings: (value: React.SetStateAction<BrowserSettings>) => void;
 }
 
 const ItemSection = ({
@@ -57,16 +52,26 @@ const ItemSection = ({
   emptyMessage,
   isTask,
   viewLink,
-  expanded,
-  setExpanded,
   addNewItem,
-  badgeType,
-  todayCompletions,
-  settings,
-  setBrowserSettings,
 }: ItemSectionProps) => {
   const { completeHabit, undoComplete, saveHabit, deleteHabit, archiveHabit, habitFreqMap } = useHabits();
   const [_, setPomo] = useAtom(pomodoroAtom);
+  const [browserSettings, setBrowserSettings] = useAtom(browserSettingsAtom);
+  const [settings] = useAtom(settingsAtom);
+  const [completedHabitsMap] = useAtom(completedHabitsMapAtom);
+
+  const today = getTodayInTimezone(settings.system.timezone);
+  const currentTodayCompletions = completedHabitsMap.get(today) || [];
+  const currentBadgeType = isTask ? 'tasks' : 'habits';
+
+  const currentExpanded = isTask ? browserSettings.expandedTasks : browserSettings.expandedHabits;
+  const setCurrentExpanded = (value: boolean) => {
+    setBrowserSettings(prev => ({
+      ...prev,
+      [isTask ? 'expandedTasks' : 'expandedHabits']: value
+    }));
+  };
+
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
   const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
   const [habitToEdit, setHabitToEdit] = useState<Habit | null>(null);
@@ -117,7 +122,7 @@ const ItemSection = ({
           <h3 className="font-semibold">{title}</h3>
         </div>
         <div className="flex items-center gap-2">
-          <CompletionCountBadge type={badgeType} />
+          <CompletionCountBadge type={currentBadgeType} />
           <Button
             variant="ghost"
             size="sm"
@@ -129,7 +134,7 @@ const ItemSection = ({
           </Button>
         </div>
       </div>
-      <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${expanded ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
+      <ul className={`grid gap-2 transition-all duration-300 ease-in-out ${currentExpanded ? 'max-h-none' : 'max-h-[200px]'} overflow-hidden`}>
         {items
           .sort((a, b) => {
             // First by pinned status
@@ -138,8 +143,8 @@ const ItemSection = ({
             }
 
             // Then by completion status
-            const aCompleted = todayCompletions.includes(a);
-            const bCompleted = todayCompletions.includes(b);
+            const aCompleted = currentTodayCompletions.includes(a);
+            const bCompleted = currentTodayCompletions.includes(b);
             if (aCompleted !== bCompleted) {
               return aCompleted ? 1 : -1;
             }
@@ -162,7 +167,7 @@ const ItemSection = ({
             const bTarget = b.targetCompletions || 1;
             return bTarget - aTarget;
           })
-          .slice(0, expanded ? undefined : 5)
+          .slice(0, currentExpanded ? undefined : 5)
           .map((habit) => {
             const completionsToday = habit.completions.filter(completion =>
               isSameDate(t2d({ timestamp: completion, timezone: settings.system.timezone }), t2d({ timestamp: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }), timezone: settings.system.timezone }))
@@ -219,6 +224,12 @@ const ItemSection = ({
                           <Link
                             href={`/habits?highlight=${habit.id}`}
                             className="flex items-center gap-1 hover:text-primary transition-colors"
+                            onClick={() => {
+                              const newViewType = isTask ? 'tasks' : 'habits';
+                              if (browserSettings.viewType !== newViewType) {
+                                setBrowserSettings(prev => ({ ...prev, viewType: newViewType }));
+                              }
+                            }}
                           >
                             {isTask && isTaskOverdue(habit, settings.system.timezone) && !isCompleted && (
                               <TooltipProvider>
@@ -246,55 +257,12 @@ const ItemSection = ({
                       </div>
                     </ContextMenuTrigger>
                     <ContextMenuContent className="w-64">
-                      <ContextMenuItem onClick={() => {
-                        setPomo((prev) => ({
-                          ...prev,
-                          show: true,
-                          selectedHabitId: habit.id
-                        }))
-                      }}>
-                        <Timer className="mr-2 h-4 w-4" />
-                        <span>Start Pomodoro</span>
-                      </ContextMenuItem>
-                      {habit.isTask && (
-                        <ContextMenuItem onClick={() => {
-                          saveHabit({ ...habit, frequency: d2t({ dateTime: getNow({ timezone: settings.system.timezone }).plus({ days: 1 }) }) })
-                        }}>
-                          <Calendar className="mr-2 h-4 w-4" />
-                          <span>Move to Tomorrow</span>
-                        </ContextMenuItem>
-                      )}
-                      <ContextMenuItem onClick={() => {
-                        saveHabit({ ...habit, pinned: !habit.pinned })
-                      }}>
-                        {habit.pinned ? (
-                          <>
-                            <Pin className="mr-2 h-4 w-4" />
-                            <span>Unpin</span>
-                          </>
-                        ) : (
-                          <>
-                            <Pin className="mr-2 h-4 w-4" />
-                            <span>Pin</span>
-                          </>
-                        )}
-                      </ContextMenuItem>
-                      <ContextMenuItem onClick={() => handleEditClick(habit)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>Edit</span>
-                      </ContextMenuItem>
-                      <ContextMenuItem onClick={() => archiveHabit(habit.id)}>
-                        <Archive className="mr-2 h-4 w-4" />
-                        <span>Archive</span>
-                      </ContextMenuItem>
-                      <ContextMenuSeparator />
-                      <ContextMenuItem
-                        onClick={() => handleDeleteClick(habit)}
-                        className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        <span>Delete</span>
-                      </ContextMenuItem>
+                      <HabitContextMenuItems
+                        habit={habit}
+                        onEditRequest={() => handleEditClick(habit)}
+                        onDeleteRequest={() => handleDeleteClick(habit)}
+                        context="daily-overview"
+                      />
                     </ContextMenuContent>
                   </ContextMenu>
                 </span>
@@ -332,10 +300,10 @@ const ItemSection = ({
       </ul>
       <div className="flex items-center justify-between">
         <button
-          onClick={() => setExpanded(!expanded)}
+          onClick={() => setCurrentExpanded(!currentExpanded)}
           className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
         >
-          {expanded ? (
+          {currentExpanded ? (
             <>
               Show less
               <ChevronUp className="h-3 w-3" />
@@ -351,10 +319,9 @@ const ItemSection = ({
           href={viewLink}
           className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
           onClick={() => {
-            if (isTask) {
-              setBrowserSettings(prev => ({ ...prev, viewType: 'tasks' }));
-            } else {
-              setBrowserSettings(prev => ({ ...prev, viewType: 'habits' }));
+            const newViewType = isTask ? 'tasks' : 'habits';
+            if (browserSettings.viewType !== newViewType) {
+              setBrowserSettings(prev => ({ ...prev, viewType: newViewType }));
             }
           }}
         >
@@ -457,13 +424,7 @@ export default function DailyOverview({
                 emptyMessage="No tasks due today. Add some tasks to get started!"
                 isTask={true}
                 viewLink="/habits?view=tasks"
-                expanded={browserSettings.expandedTasks}
-                setExpanded={(value) => setBrowserSettings(prev => ({ ...prev, expandedTasks: value }))}
                 addNewItem={() => setModalConfig({ isOpen: true, isTask: true })}
-                badgeType="tasks"
-                todayCompletions={todayCompletions}
-                settings={settings}
-                setBrowserSettings={setBrowserSettings}
               />
             )}
 
@@ -474,13 +435,7 @@ export default function DailyOverview({
               emptyMessage="No habits due today. Add some habits to get started!"
               isTask={false}
               viewLink="/habits"
-              expanded={browserSettings.expandedHabits}
-              setExpanded={(value) => setBrowserSettings(prev => ({ ...prev, expandedHabits: value }))}
               addNewItem={() => setModalConfig({ isOpen: true, isTask: false })}
-              badgeType="habits"
-              todayCompletions={todayCompletions}
-              settings={settings}
-              setBrowserSettings={setBrowserSettings}
             />
 
             <div className="space-y-2">
