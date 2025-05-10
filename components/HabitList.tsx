@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, ListTodo } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react' // Added useMemo, useEffect
+import { Plus, ListTodo, ArrowUpNarrowWide, ArrowDownWideNarrow } from 'lucide-react' // Added sort icons
 import { useAtom } from 'jotai'
 import { habitsAtom, settingsAtom, browserSettingsAtom } from '@/lib/atoms'
 import EmptyState from './EmptyState'
@@ -13,20 +13,100 @@ import { Habit } from '@/lib/types'
 import { useHabits } from '@/hooks/useHabits'
 import { HabitIcon, TaskIcon } from '@/lib/constants'
 import { ViewToggle } from './ViewToggle'
+import { Input } from '@/components/ui/input' // Added
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select' // Added
+import { Label } from '@/components/ui/label' // Added
+import { DateTime } from 'luxon' // Added
+import { getHabitFreq } from '@/lib/utils' // Added
 
 export default function HabitList() {
   const { saveHabit, deleteHabit } = useHabits()
-  const [habitsData, setHabitsData] = useAtom(habitsAtom)
+  const [habitsData] = useAtom(habitsAtom) // setHabitsData removed as it's not used
   const [browserSettings] = useAtom(browserSettingsAtom)
   const isTasksView = browserSettings.viewType === 'tasks'
-  const habits = habitsData.habits.filter(habit => 
-    isTasksView ? habit.isTask : !habit.isTask
-  )
-  const activeHabits = habits
-    .filter(h => !h.archived)
-    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
-  const archivedHabits = habits.filter(h => h.archived)
-  const [settings] = useAtom(settingsAtom)
+  // const [settings] = useAtom(settingsAtom); // settingsAtom is not directly used in HabitList itself.
+
+  type SortableField = 'name' | 'coinReward' | 'dueDate' | 'frequency';
+  type SortOrder = 'asc' | 'desc';
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<SortableField>('name');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
+  useEffect(() => {
+    if (isTasksView && sortBy === 'frequency') {
+      setSortBy('name');
+    } else if (!isTasksView && sortBy === 'dueDate') {
+      setSortBy('name');
+    }
+  }, [isTasksView, sortBy]);
+
+  const compareHabits = useMemo(() => {
+    return (a: Habit, b: Habit, currentSortBy: SortableField, currentSortOrder: SortOrder, tasksView: boolean): number => {
+      let comparison = 0;
+      switch (currentSortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'coinReward':
+          comparison = a.coinReward - b.coinReward;
+          break;
+        case 'dueDate':
+          if (tasksView && a.isTask && b.isTask) {
+            const dateA = DateTime.fromISO(a.frequency);
+            const dateB = DateTime.fromISO(b.frequency);
+            if (dateA.isValid && dateB.isValid) comparison = dateA.toMillis() - dateB.toMillis();
+            else if (dateA.isValid) comparison = -1; // Valid dates first
+            else if (dateB.isValid) comparison = 1;
+            // If both invalid, comparison remains 0
+          }
+          break;
+        case 'frequency':
+          if (!tasksView && !a.isTask && !b.isTask) {
+            const freqOrder = ['daily', 'weekly', 'monthly', 'yearly'];
+            const freqAVal = getHabitFreq(a);
+            const freqBVal = getHabitFreq(b);
+            comparison = freqOrder.indexOf(freqAVal) - freqOrder.indexOf(freqBVal);
+          }
+          break;
+      }
+      return currentSortOrder === 'asc' ? comparison : -comparison;
+    };
+  }, []);
+
+  const allHabitsInView = useMemo(() => {
+    return habitsData.habits.filter(habit =>
+      isTasksView ? habit.isTask : !habit.isTask
+    );
+  }, [habitsData.habits, isTasksView]);
+
+  const searchedHabits = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return allHabitsInView;
+    }
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    return allHabitsInView.filter(habit =>
+      habit.name.toLowerCase().includes(lowercasedSearchTerm) ||
+      (habit.description && habit.description.toLowerCase().includes(lowercasedSearchTerm))
+    );
+  }, [allHabitsInView, searchTerm]);
+
+  const activeHabits = useMemo(() => {
+    return searchedHabits
+      .filter(h => !h.archived)
+      .sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        // For items in the same pinned group (both pinned or both not pinned), apply general sort
+        return compareHabits(a, b, sortBy, sortOrder, isTasksView);
+      });
+  }, [searchedHabits, sortBy, sortOrder, isTasksView, compareHabits]);
+
+  const archivedHabits = useMemo(() => {
+    return searchedHabits
+      .filter(h => h.archived)
+      .sort((a, b) => compareHabits(a, b, sortBy, sortOrder, isTasksView));
+  }, [searchedHabits, sortBy, sortOrder, isTasksView, compareHabits]);
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean,
     isTask: boolean
@@ -59,8 +139,42 @@ export default function HabitList() {
       <div className='py-4'>
         <ViewToggle />
       </div>
+
+      {/* Search and Sort Controls */}
+      <div className="flex flex-col sm:flex-row items-center gap-4 my-4">
+        <Input
+          type="search"
+          placeholder={`Search ${isTasksView ? 'tasks' : 'habits'} by name or description...`}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-grow"
+        />
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          <Label htmlFor="sort-by" className="text-sm font-medium whitespace-nowrap sr-only sm:not-sr-only">Sort by:</Label>
+          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortableField)}>
+            <SelectTrigger id="sort-by" className="w-[150px] sm:w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="coinReward">Coin Reward</SelectItem>
+              {isTasksView && <SelectItem value="dueDate">Due Date</SelectItem>}
+              {!isTasksView && <SelectItem value="frequency">Frequency</SelectItem>}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="icon" onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}>
+            {sortOrder === 'asc' ? <ArrowUpNarrowWide className="h-4 w-4" /> : <ArrowDownWideNarrow className="h-4 w-4" />}
+            <span className="sr-only">Toggle sort order</span>
+          </Button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-        {activeHabits.length === 0 ? (
+        {activeHabits.length === 0 && searchTerm.trim() ? (
+          <div className="col-span-2 text-center text-muted-foreground py-8">
+            No {isTasksView ? 'tasks' : 'habits'} found matching your search.
+          </div>
+        ) : activeHabits.length === 0 ? (
           <div className="col-span-2">
             <EmptyState
               icon={isTasksView ? TaskIcon : HabitIcon}
