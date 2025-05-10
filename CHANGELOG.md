@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 0.2.11
+
+### Added
+
+* support searching and sorting in habit list
+
+### Improved
+
+* Show overdue tasks in daily overview
+* Context menu option for tasks changed from "Move to Today" to "Move to Tomorrow"
+* More context menu items in daily overview
+* code refactor for context menu and daily overview item section
+
+
 ## Version 0.2.10
 
 ### Improved

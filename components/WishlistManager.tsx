@@ -88,9 +88,9 @@ export default function WishlistManager() {
           <Plus className="mr-2 h-4 w-4" /> Add Reward
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
         {activeItems.length === 0 ? (
-          <div className="col-span-2">
+          <div className="col-span-1 lg:col-span-2">
             <EmptyState
               icon={Gift}
               title="Your wishlist is empty"
@@ -127,7 +127,7 @@ export default function WishlistManager() {
         
         {archivedItems.length > 0 && (
           <>
-            <div className="col-span-2 relative flex items-center my-6">
+            <div className="col-span-1 lg:col-span-2 relative flex items-center my-6">
               <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
               <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">Archived</span>
               <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
