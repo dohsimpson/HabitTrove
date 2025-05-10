@@ -6,7 +6,7 @@ HabitTrove is a gamified habit tracking application that helps you build and mai
 
 ## Try the Demo
 
-Want to try HabitTrove before installing? Visit the public [demo instance](https://habittrove.app.enting.org) to experience all features without any setup required. (do not store personal info. Data on the demo instance is reset daily)
+Want to try HabitTrove before installing? Visit the public [demo instance](https://demo.habittrove.com) to experience all features without any setup required. (do not store personal info. Data on the demo instance is reset daily)
 
 ## Features
 
