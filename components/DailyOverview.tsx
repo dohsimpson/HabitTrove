@@ -1,25 +1,33 @@
-import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer, Plus, Pin, Calendar } from 'lucide-react'
+import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Timer, Plus, Pin, Calendar, AlertTriangle, Trash2, Archive, Edit } from 'lucide-react'
 import CompletionCountBadge from './CompletionCountBadge'
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useAtom } from 'jotai'
-import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings, hasTasksAtom, dailyHabitsAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow } from '@/lib/utils'
+import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings, hasTasksAtom } from '@/lib/atoms'
+import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, isHabitDue, isTaskOverdue } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Progress } from '@/components/ui/progress'
 import { Settings, WishlistItemType } from '@/lib/types'
 import { Habit } from '@/lib/types'
 import Linkify from './linkify'
 import { useHabits } from '@/hooks/useHabits'
 import AddEditHabitModal from './AddEditHabitModal'
+import ConfirmDialog from './ConfirmDialog'
 import { Button } from './ui/button'
 
 interface UpcomingItemsProps {
@@ -57,8 +65,28 @@ const ItemSection = ({
   settings,
   setBrowserSettings,
 }: ItemSectionProps) => {
-  const { completeHabit, undoComplete, saveHabit, habitFreqMap } = useHabits();
+  const { completeHabit, undoComplete, saveHabit, deleteHabit, archiveHabit, habitFreqMap } = useHabits();
   const [_, setPomo] = useAtom(pomodoroAtom);
+  const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
+  const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
+  const [habitToEdit, setHabitToEdit] = useState<Habit | null>(null);
+
+  const handleDeleteClick = (habit: Habit) => {
+    setHabitToDelete(habit);
+    setIsConfirmDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (habitToDelete) {
+      await deleteHabit(habitToDelete.id);
+      setHabitToDelete(null);
+      setIsConfirmDeleteDialogOpen(false);
+    }
+  };
+
+  const handleEditClick = (habit: Habit) => {
+    setHabitToEdit(habit);
+  };
 
   if (items.length === 0) {
     return (
@@ -190,12 +218,29 @@ const ItemSection = ({
                           )}
                           <Link
                             href={`/habits?highlight=${habit.id}`}
-                            className={cn(
-                              isCompleted ? 'line-through' : '',
-                              'break-all hover:text-primary transition-colors'
-                            )}
+                            className="flex items-center gap-1 hover:text-primary transition-colors"
                           >
-                            {habit.name}
+                            {isTask && isTaskOverdue(habit, settings.system.timezone) && !isCompleted && (
+                              <TooltipProvider>
+                                <Tooltip delayDuration={0}>
+                                  <TooltipTrigger asChild>
+                                    {/* The AlertTriangle itself doesn't need hover styles if the parent Link handles it */}
+                                    <AlertTriangle className="h-4 w-4 flex-shrink-0 text-red-600 dark:text-red-500" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Overdue</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                            <span
+                              className={cn(
+                                isCompleted ? 'line-through' : '',
+                                'break-all' // Text specific styles
+                              )}
+                            >
+                              {habit.name}
+                            </span>
                           </Link>
                         </span>
                       </div>
@@ -213,10 +258,10 @@ const ItemSection = ({
                       </ContextMenuItem>
                       {habit.isTask && (
                         <ContextMenuItem onClick={() => {
-                          saveHabit({ ...habit, frequency: d2t({ dateTime: getNow({ timezone: settings.system.timezone }) }) })
+                          saveHabit({ ...habit, frequency: d2t({ dateTime: getNow({ timezone: settings.system.timezone }).plus({ days: 1 }) }) })
                         }}>
                           <Calendar className="mr-2 h-4 w-4" />
-                          <span>Move to Today</span>
+                          <span>Move to Tomorrow</span>
                         </ContextMenuItem>
                       )}
                       <ContextMenuItem onClick={() => {
@@ -233,6 +278,22 @@ const ItemSection = ({
                             <span>Pin</span>
                           </>
                         )}
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => handleEditClick(habit)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>Edit</span>
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => archiveHabit(habit.id)}>
+                        <Archive className="mr-2 h-4 w-4" />
+                        <span>Archive</span>
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem
+                        onClick={() => handleDeleteClick(habit)}
+                        className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete</span>
                       </ContextMenuItem>
                     </ContextMenuContent>
                   </ContextMenu>
@@ -301,6 +362,27 @@ const ItemSection = ({
           <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
+      {habitToDelete && (
+        <ConfirmDialog
+          isOpen={isConfirmDeleteDialogOpen}
+          onClose={() => setIsConfirmDeleteDialogOpen(false)}
+          onConfirm={confirmDelete}
+          title={`Delete ${isTask ? 'Task' : 'Habit'}`}
+          message={`Are you sure you want to delete "${habitToDelete.name}"? This action cannot be undone.`}
+          confirmText="Delete"
+        />
+      )}
+      {habitToEdit && (
+        <AddEditHabitModal
+          onClose={() => setHabitToEdit(null)}
+          onSave={async (updatedHabit) => {
+            await saveHabit({ ...habitToEdit, ...updatedHabit });
+            setHabitToEdit(null);
+          }}
+          habit={habitToEdit}
+          isTask={habitToEdit.isTask || false}
+        />
+      )}
     </div>
   );
 };
@@ -313,13 +395,24 @@ export default function DailyOverview({
   const { completeHabit, undoComplete } = useHabits()
   const [settings] = useAtom(settingsAtom)
   const [completedHabitsMap] = useAtom(completedHabitsMapAtom)
-  const [dailyItems] = useAtom(dailyHabitsAtom)
   const [browserSettings, setBrowserSettings] = useAtom(browserSettingsAtom)
-  const dailyTasks = dailyItems.filter(habit => habit.isTask)
-  const dailyHabits = dailyItems.filter(habit => !habit.isTask)
   const today = getTodayInTimezone(settings.system.timezone)
   const todayCompletions = completedHabitsMap.get(today) || []
   const { saveHabit } = useHabits()
+
+  const timezone = settings.system.timezone
+  const todayDateObj = getNow({ timezone })
+
+  const dailyTasks = habits.filter(habit =>
+    habit.isTask &&
+    !habit.archived &&
+    (isHabitDue({ habit, timezone, date: todayDateObj }) || isTaskOverdue(habit, timezone))
+  )
+  const dailyHabits = habits.filter(habit =>
+    !habit.isTask &&
+    !habit.archived &&
+    isHabitDue({ habit, timezone, date: todayDateObj })
+  )
 
   // Get all wishlist items sorted by redeemable status (non-redeemable first) then by coin cost
   // Filter out archived wishlist items
