@@ -44,6 +44,7 @@
     "js-confetti": "^0.12.0",
     "linkify": "^0.2.1",
     "linkify-react": "^4.2.0",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.469.0",
     "luxon": "^3.5.0",
     "next": "15.2.3",
