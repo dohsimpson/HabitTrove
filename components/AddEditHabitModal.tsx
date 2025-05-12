@@ -52,7 +52,6 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
   const [ruleText, setRuleText] = useState<string>(initialRuleText)
   const { currentUser } = useHelpers()
   const [isQuickDatesOpen, setIsQuickDatesOpen] = useState(false)
-  const [ruleError, setRuleError] = useState<string | null>(null); // State for validation message
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>((habit?.userIds || []).filter(id => id !== currentUser?.id))
   const [usersData] = useAtom(usersAtom)
   const users = usersData.users
@@ -93,6 +92,8 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
       userIds: selectedUserIds.length > 0 ? selectedUserIds.concat(currentUser?.id || []) : (currentUser && [currentUser.id])
     })
   }
+
+  const { result, message: errorMessage } = convertHumanReadableFrequencyToMachineReadable({ text: ruleText, timezone: settings.system.timezone, isRecurring: isRecurRule });
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -203,24 +204,9 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
               </div>
               {/* rrule input (habit) */}
               <div className="col-start-2 col-span-3 text-sm">
-                {(() => {
-                  let displayText = '';
-                  let errorMessage: string | null = null;
-                  const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: ruleText, timezone: settings.system.timezone, isRecurring: isRecurRule });
-                  errorMessage = message;
-                  displayText = convertMachineReadableFrequencyToHumanReadable({ frequency: result, isRecurRule, timezone: settings.system.timezone })
-
-                  return (
-                    <>
-                      <span className={errorMessage ? 'text-destructive' : 'text-muted-foreground'}>
-                        {displayText}
-                      </span>
-                      {errorMessage && (
-                        <p className="text-destructive text-xs mt-1">{errorMessage}</p>
-                      )}
-                    </>
-                  );
-                })()}
+                <span className={errorMessage ? 'text-destructive' : 'text-muted-foreground'}>
+                  {errorMessage ? errorMessage : convertMachineReadableFrequencyToHumanReadable({ frequency: result, isRecurRule, timezone: settings.system.timezone })}
+                </span>
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -338,7 +324,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
             )}
           </div>
           <DialogFooter>
-            <Button type="submit">{habit ? 'Save Changes' : `Add ${isTask ? 'Task' : 'Habit'}`}</Button>
+            <Button type="submit" disabled={errorMessage !== null}>{habit ? 'Save Changes' : `Add ${isTask ? 'Task' : 'Habit'}`}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
