@@ -1,20 +1,20 @@
 'use client'
 
+import { signOut } from "@/app/actions/user"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Settings, Info, User, Moon, Sun, Palette, ArrowRightLeft, LogOut, Crown } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
+import { settingsAtom, userSelectAtom } from "@/lib/atoms"
+import { useHelpers } from "@/lib/client-helpers"
+import { useAtom } from "jotai"
+import { ArrowRightLeft, Crown, Info, LogOut, Moon, Palette, Settings, Sun, User } from "lucide-react"
+import { useTheme } from "next-themes"
+import Link from "next/link"
+import { useState } from "react"
+import AboutModal from "./AboutModal"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import UserForm from './UserForm'
-import Link from "next/link"
-import { useAtom } from "jotai"
-import { settingsAtom, userSelectAtom } from "@/lib/atoms"
-import AboutModal from "./AboutModal"
-import { useEffect, useState } from "react"
-import { useTheme } from "next-themes"
-import { signOut } from "@/app/actions/user"
-import { toast } from "@/hooks/use-toast"
-import { useHelpers } from "@/lib/client-helpers"
 
 export function Profile() {
   const [settings] = useAtom(settingsAtom)

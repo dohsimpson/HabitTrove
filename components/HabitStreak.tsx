@@ -1,11 +1,11 @@
 'use client'
 
-import { Habit } from '@/lib/types'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { d2s, getNow, t2d } from '@/lib/utils' // Removed getCompletedHabitsForDate
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { completedHabitsMapAtom, hasTasksAtom, settingsAtom } from '@/lib/atoms'; // Added completedHabitsMapAtom
+import { Habit } from '@/lib/types'
+import { d2s, getNow } from '@/lib/utils'; // Removed getCompletedHabitsForDate
 import { useAtom } from 'jotai'
-import { settingsAtom, hasTasksAtom, completedHabitsMapAtom } from '@/lib/atoms' // Added completedHabitsMapAtom
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 interface HabitStreakProps {
   habits: Habit[]

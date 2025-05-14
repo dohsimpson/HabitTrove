@@ -1,14 +1,13 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Play, Pause, RotateCw, Minus, X, Clock, SkipForward } from 'lucide-react'
-import { cn, getCompletionsForToday } from '@/lib/utils'
-import { useAtom } from 'jotai'
-import { settingsAtom, pomodoroAtom, habitsAtom, pomodoroTodayCompletionsAtom } from '@/lib/atoms'
-import { getCompletionsForDate, getTodayInTimezone } from '@/lib/utils'
 import { useHabits } from '@/hooks/useHabits'
+import { habitsAtom, pomodoroAtom, pomodoroTodayCompletionsAtom, settingsAtom } from '@/lib/atoms'
+import { cn } from '@/lib/utils'
+import { useAtom } from 'jotai'
+import { Clock, Minus, Pause, Play, RotateCw, SkipForward, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 interface PomoConfig {
   labels: string[]
@@ -135,7 +134,19 @@ export default function PomodoroTimer() {
         const remaining = Math.floor((targetEndTime - Date.now()) / 1000)
 
         if (remaining <= 0) {
-          handleTimerEnd()
+          setState("stopped")
+          const currentTimerType = currentTimer.current.type
+          currentTimer.current = currentTimerType === 'focus' ? PomoConfigs.break : PomoConfigs.focus
+          setTimeLeft(currentTimer.current.duration)
+          setCurrentLabel(
+            currentTimer.current.labels[Math.floor(Math.random() * currentTimer.current.labels.length)]
+          )
+
+          // update habits only after focus sessions
+          if (selectedHabit && currentTimerType === 'focus') {
+            completeHabit(selectedHabit)
+            // The atom will automatically update with the new completions
+          }
         } else {
           setTimeLeft(remaining)
         }
@@ -146,23 +157,7 @@ export default function PomodoroTimer() {
     return () => {
       if (interval) clearInterval(interval)
     }
-  }, [state])
-
-  const handleTimerEnd = async () => {
-    setState("stopped")
-    const currentTimerType = currentTimer.current.type
-    currentTimer.current = currentTimerType === 'focus' ? PomoConfigs.break : PomoConfigs.focus
-    setTimeLeft(currentTimer.current.duration)
-    setCurrentLabel(
-      currentTimer.current.labels[Math.floor(Math.random() * currentTimer.current.labels.length)]
-    )
-
-    // update habits only after focus sessions
-    if (selectedHabit && currentTimerType === 'focus') {
-      await completeHabit(selectedHabit)
-      // The atom will automatically update with the new completions
-    }
-  }
+  }, [state, timeLeft, completeHabit, selectedHabit])
 
   const toggleTimer = () => {
     setState(prev => prev === 'started' ? 'paused' : 'started')

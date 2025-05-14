@@ -1,14 +1,13 @@
-import './globals.css'
-import { Inter } from 'next/font/google'
-import { DM_Sans } from 'next/font/google'
-import { JotaiProvider } from '@/components/jotai-providers'
-import { Suspense } from 'react'
 import { JotaiHydrate } from '@/components/jotai-hydrate'
-import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData, loadUsersData, loadServerSettings } from './actions/data'
+import { JotaiProvider } from '@/components/jotai-providers'
 import Layout from '@/components/Layout'
-import { Toaster } from '@/components/ui/toaster'
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from '@/components/ui/toaster'
 import { SessionProvider } from 'next-auth/react'
+import { DM_Sans } from 'next/font/google'
+import { Suspense } from 'react'
+import { loadCoinsData, loadHabitsData, loadServerSettings, loadSettings, loadUsersData, loadWishlistData } from './actions/data'
+import './globals.css'
 
 
 // Inter (clean, modern, excellent readability)

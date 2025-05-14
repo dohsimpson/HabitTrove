@@ -1,22 +1,19 @@
 'use client';
 
+import { signIn } from '@/app/actions/user';
+import { toast } from '@/hooks/use-toast';
+import { usersAtom } from '@/lib/atoms';
+import { useHelpers } from '@/lib/client-helpers';
+import { SafeUser, User } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { Description } from '@radix-ui/react-dialog';
+import { useAtom } from 'jotai';
+import { Crown, Plus, User as UserIcon, UserRoundPen } from 'lucide-react';
 import { useState } from 'react';
 import PasswordEntryForm from './PasswordEntryForm';
 import UserForm from './UserForm';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Crown, Pencil, Plus, User as UserIcon, UserRoundPen } from 'lucide-react';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { useAtom } from 'jotai';
-import { usersAtom } from '@/lib/atoms';
-import { signIn } from '@/app/actions/user';
-import { createUser } from '@/app/actions/data';
-import { toast } from '@/hooks/use-toast';
-import { Description } from '@radix-ui/react-dialog';
-import { SafeUser, User } from '@/lib/types';
-import { cn } from '@/lib/utils';
-import { useHelpers } from '@/lib/client-helpers';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 
 function UserCard({ 
   user, 

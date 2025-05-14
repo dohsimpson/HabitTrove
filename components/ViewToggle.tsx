@@ -1,12 +1,10 @@
 'use client'
 
-import { cn } from '@/lib/utils'
-import { useAtom } from 'jotai'
-import { CheckSquare, ListChecks } from 'lucide-react'
 import { browserSettingsAtom, habitsAtom, settingsAtom } from '@/lib/atoms'
-import type { ViewType } from '@/lib/types'
 import { HabitIcon, TaskIcon } from '@/lib/constants'
-import { isHabitDueToday } from '@/lib/utils'
+import type { ViewType } from '@/lib/types'
+import { cn, isHabitDueToday } from '@/lib/utils'
+import { useAtom } from 'jotai'
 import { NotificationBadge } from './ui/notification-badge'
 
 interface ViewToggleProps {

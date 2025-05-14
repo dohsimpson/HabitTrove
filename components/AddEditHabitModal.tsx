@@ -1,33 +1,24 @@
 'use client'
 
-import { useState } from 'react'
-import { RRule, RRuleSet, rrulestr } from 'rrule'
-import { useAtom } from 'jotai'
-import { settingsAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Switch } from '@/components/ui/switch'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Info, SmilePlus, Zap } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Textarea } from '@/components/ui/textarea'
+import { settingsAtom, usersAtom } from '@/lib/atoms'
+import { useHelpers } from '@/lib/client-helpers'
+import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES } from '@/lib/constants'
+import { Habit } from '@/lib/types'
+import { convertHumanReadableFrequencyToMachineReadable, convertMachineReadableFrequencyToHumanReadable, d2t, serializeRRule } from '@/lib/utils'
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
-import { Habit, SafeUser } from '@/lib/types'
-import { convertHumanReadableFrequencyToMachineReadable, convertMachineReadableFrequencyToHumanReadable, d2s, d2t, serializeRRule } from '@/lib/utils'
-import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES, RECURRENCE_RULE_MAP } from '@/lib/constants'
-import * as chrono from 'chrono-node';
+import { useAtom } from 'jotai'
+import { SmilePlus, Zap } from 'lucide-react'
 import { DateTime } from 'luxon'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { useHelpers } from '@/lib/client-helpers'
+import { useState } from 'react'
+import { RRule } from 'rrule'
 
 interface AddEditHabitModalProps {
   onClose: () => void

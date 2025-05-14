@@ -1,35 +1,30 @@
-import { atom } from "jotai";
 import {
-  getDefaultSettings,
-  getDefaultHabitsData,
-  getDefaultCoinsData,
-  getDefaultWishlistData,
-  Habit,
-  ViewType,
-  getDefaultUsersData,
-  CompletionCache,
-  getDefaultServerSettings,
-  User,
-} from "./types";
-import {
-  getTodayInTimezone,
-  isSameDate,
-  t2d,
   calculateCoinsEarnedToday,
+  calculateCoinsSpentToday,
   calculateTotalEarned,
   calculateTotalSpent,
-  calculateCoinsSpentToday,
   calculateTransactionsToday,
   getCompletionsForToday,
-  getISODate,
-  isHabitDueToday,
-  getNow,
+  getHabitFreq,
+  getTodayInTimezone,
   isHabitDue,
-  getHabitFreq
+  t2d
 } from "@/lib/utils";
+import { atom } from "jotai";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { DateTime } from "luxon";
-import { Freq } from "./types";
+import {
+  CompletionCache,
+  Freq,
+  getDefaultCoinsData,
+  getDefaultHabitsData,
+  getDefaultServerSettings,
+  getDefaultSettings,
+  getDefaultUsersData,
+  getDefaultWishlistData,
+  Habit,
+  ViewType
+} from "./types";
 
 export interface BrowserSettings {
   viewType: ViewType

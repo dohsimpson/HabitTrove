@@ -1,21 +1,21 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react' // Import useEffect, useRef
-import { useSearchParams } from 'next/navigation' // Import useSearchParams
-import { t2d, d2s, getNow, isSameDate } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { FormattedNumber } from '@/components/FormattedNumber'
-import { History, Pencil } from 'lucide-react'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import EmptyState from './EmptyState'
-import { Input } from '@/components/ui/input'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { settingsAtom, usersAtom } from '@/lib/atoms'
-import Link from 'next/link'
-import { useAtom } from 'jotai'
+import { Input } from '@/components/ui/input'
 import { useCoins } from '@/hooks/useCoins'
-import { TransactionNoteEditor } from './TransactionNoteEditor'
+import { settingsAtom, usersAtom } from '@/lib/atoms'
 import { useHelpers } from '@/lib/client-helpers'
+import { d2s, t2d } from '@/lib/utils'
+import { useAtom } from 'jotai'
+import { History } from 'lucide-react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams
+import { useEffect, useRef, useState } from 'react'; // Import useEffect, useRef
+import EmptyState from './EmptyState'
+import { TransactionNoteEditor } from './TransactionNoteEditor'
 
 export default function CoinsManager() {
   const { currentUser } = useHelpers()
@@ -53,7 +53,7 @@ export default function CoinsManager() {
       }
     }
     // Only run when userIdFromQuery or currentUser changes, avoid re-running on selectedUser change within this effect
-  }, [userIdFromQuery, currentUser, usersData.users]);
+  }, [userIdFromQuery, currentUser, usersData.users, selectedUser]);
 
   // Effect to scroll to highlighted transaction
   useEffect(() => {

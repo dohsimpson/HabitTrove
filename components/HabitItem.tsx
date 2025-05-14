@@ -1,24 +1,20 @@
-import { Habit, SafeUser, User, Permission } from '@/lib/types'
-import { useAtom } from 'jotai'
-import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, d2s, getCompletionsForToday, isTaskOverdue, convertMachineReadableFrequencyToHumanReadable } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Coins, Edit, Check, Undo2, MoreVertical, Pin } from 'lucide-react' // Removed unused icons
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { useEffect, useState } from 'react'
 import { useHabits } from '@/hooks/useHabits'
-import { INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from '@/lib/constants'
-import { DateTime } from 'luxon'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { browserSettingsAtom, settingsAtom, usersAtom } from '@/lib/atoms'
 import { useHelpers } from '@/lib/client-helpers'
+import { Habit, User } from '@/lib/types'
+import { convertMachineReadableFrequencyToHumanReadable, getCompletionsForToday, isTaskOverdue } from '@/lib/utils'
+import { useAtom } from 'jotai'
+import { Check, Coins, Edit, MoreVertical, Pin, Undo2 } from 'lucide-react'; // Removed unused icons
+import { useEffect, useState } from 'react'
 import { HabitContextMenuItems } from './HabitContextMenuItems'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 interface HabitItemProps {
   habit: Habit
@@ -49,7 +45,6 @@ const renderUserAvatars = (habit: Habit, currentUser: User | null, usersData: { 
 export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const { completeHabit, undoComplete, archiveHabit, unarchiveHabit, saveHabit } = useHabits()
   const [settings] = useAtom(settingsAtom)
-  const [_, setPomo] = useAtom(pomodoroAtom)
   const completionsToday = getCompletionsForToday({ habit, timezone: settings.system.timezone })
   const target = habit.targetCompletions || 1
   const isCompletedToday = completionsToday >= target
