@@ -1,17 +1,15 @@
 'use client'
 
+import { useCoins } from '@/hooks/useCoins'
+import { habitsAtom, wishlistAtom } from '@/lib/atoms'
 import { useAtom } from 'jotai'
-import { wishlistAtom, habitsAtom, settingsAtom } from '@/lib/atoms'
+import CoinBalance from './CoinBalance'
 import DailyOverview from './DailyOverview'
 import HabitStreak from './HabitStreak'
-import CoinBalance from './CoinBalance'
-import { useHabits } from '@/hooks/useHabits'
-import { useCoins } from '@/hooks/useCoins'
 
 export default function Dashboard() {
   const [habitsData] = useAtom(habitsAtom)
   const habits = habitsData.habits
-  const [settings] = useAtom(settingsAtom)
   const { balance } = useCoins()
   const [wishlist] = useAtom(wishlistAtom)
   const wishlistItems = wishlist.items

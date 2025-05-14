@@ -1,13 +1,13 @@
 'use client'
 
-import Link from 'next/link'
-import { Home, Calendar, List, Gift, Coins, Settings, Info, CheckSquare } from 'lucide-react'
-import { useAtom } from 'jotai'
 import { browserSettingsAtom } from '@/lib/atoms'
+import { useHelpers } from '@/lib/client-helpers'
+import { HabitIcon, TaskIcon } from '@/lib/constants'
+import { useAtom } from 'jotai'
+import { Calendar, Coins, Gift, Home } from 'lucide-react'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import AboutModal from './AboutModal'
-import { HabitIcon, TaskIcon } from '@/lib/constants'
-import { useHelpers } from '@/lib/client-helpers'
 
 type ViewPort = 'main' | 'mobile'
 

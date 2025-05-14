@@ -1,23 +1,23 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react' // Added useMemo, useEffect
-import { Plus, ArrowUpNarrowWide, ArrowDownWideNarrow, Search } from 'lucide-react' // Added sort icons, Search icon
-import { useAtom } from 'jotai'
-import { habitsAtom, settingsAtom, browserSettingsAtom } from '@/lib/atoms'
-import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
-import HabitItem from './HabitItem'
+import { Input } from '@/components/ui/input'; // Added
+import { Label } from '@/components/ui/label'; // Added
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Added
+import { useHabits } from '@/hooks/useHabits'
+import { browserSettingsAtom, habitsAtom } from '@/lib/atoms'
+import { HabitIcon, TaskIcon } from '@/lib/constants'
+import { Habit } from '@/lib/types'
+import { getHabitFreq } from '@/lib/utils'; // Added
+import { useAtom } from 'jotai'
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, Plus, Search } from 'lucide-react'; // Added sort icons, Search icon
+import { DateTime } from 'luxon'; // Added
+import { useEffect, useMemo, useState } from 'react'; // Added useMemo, useEffect
 import AddEditHabitModal from './AddEditHabitModal'
 import ConfirmDialog from './ConfirmDialog'
-import { Habit } from '@/lib/types'
-import { useHabits } from '@/hooks/useHabits'
-import { HabitIcon, TaskIcon } from '@/lib/constants'
+import EmptyState from './EmptyState'
+import HabitItem from './HabitItem'
 import { ViewToggle } from './ViewToggle'
-import { Input } from '@/components/ui/input' // Added
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select' // Added
-import { Label } from '@/components/ui/label' // Added
-import { DateTime } from 'luxon' // Added
-import { getHabitFreq } from '@/lib/utils' // Added
 
 export default function HabitList() {
   const { saveHabit, deleteHabit } = useHabits()

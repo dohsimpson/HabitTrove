@@ -1,26 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useAtom } from 'jotai'
-import { coinsAtom, settingsAtom, browserSettingsAtom } from '@/lib/atoms'
-import { useCoins } from '@/hooks/useCoins'
 import { FormattedNumber } from '@/components/FormattedNumber'
-import { Menu, Settings, User, Info, Coins } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/Logo'
-import NotificationBell from './NotificationBell'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import AboutModal from './AboutModal'
-import Link from 'next/link'
+import { useCoins } from '@/hooks/useCoins'
+import { settingsAtom } from '@/lib/atoms'
+import { useAtom } from 'jotai'
+import { Coins } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
+import NotificationBell from './NotificationBell'
 import { Profile } from './Profile'
-import { useHelpers } from '@/lib/client-helpers'
 
 interface HeaderProps {
   className?: string
@@ -30,7 +19,6 @@ const TodayEarnedCoins = dynamic(() => import('./TodayEarnedCoins'), { ssr: fals
 
 export default function Header({ className }: HeaderProps) {
   const [settings] = useAtom(settingsAtom)
-  const [browserSettings] = useAtom(browserSettingsAtom)
   const { balance } = useCoins()
   return (
     <>

@@ -1,35 +1,31 @@
-import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Plus, Pin, AlertTriangle } from 'lucide-react' // Removed unused icons
-import CompletionCountBadge from './CompletionCountBadge'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   ContextMenu,
   ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
+  ContextMenuTrigger
 } from "@/components/ui/context-menu"
-import { cn } from '@/lib/utils'
-import Link from 'next/link'
-import { useState } from 'react'
-import { useAtom } from 'jotai'
-import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings, hasTasksAtom } from '@/lib/atoms'
-import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, isHabitDue, isTaskOverdue } from '@/lib/utils'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Progress } from '@/components/ui/progress'
-import { Settings, WishlistItemType } from '@/lib/types'
-import { Habit } from '@/lib/types'
-import Linkify from './linkify'
 import { useHabits } from '@/hooks/useHabits'
+import { browserSettingsAtom, completedHabitsMapAtom, hasTasksAtom, pomodoroAtom, settingsAtom } from '@/lib/atoms'
+import { Habit, WishlistItemType } from '@/lib/types'
+import { cn, d2t, getNow, getTodayInTimezone, isHabitDue, isSameDate, isTaskOverdue, t2d } from '@/lib/utils'
+import { useAtom } from 'jotai'
+import { AlertTriangle, ArrowRight, ChevronDown, ChevronUp, Circle, CircleCheck, Coins, Pin, Plus } from 'lucide-react'; // Removed unused icons
+import Link from 'next/link'
+import { useState } from 'react'
 import AddEditHabitModal from './AddEditHabitModal'
+import CompletionCountBadge from './CompletionCountBadge'
 import ConfirmDialog from './ConfirmDialog'
-import { Button } from './ui/button'
 import { HabitContextMenuItems } from './HabitContextMenuItems'
+import Linkify from './linkify'
+import { Button } from './ui/button'
 
 interface UpcomingItemsProps {
   habits: Habit[]

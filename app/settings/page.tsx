@@ -1,22 +1,20 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch';
+import { DynamicTimeNoSSR } from '@/components/DynamicTimeNoSSR';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { DynamicTimeNoSSR } from '@/components/DynamicTimeNoSSR';
-import { useAtom } from 'jotai';
 import { settingsAtom } from '@/lib/atoms';
-import { Settings, WeekDay } from '@/lib/types'
-import { saveSettings, uploadAvatar } from '../actions/data'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button';
-import { User, Info } from 'lucide-react'; // Import Info icon
+import { Settings, WeekDay } from '@/lib/types';
+import { useAtom } from 'jotai';
+import { Info } from 'lucide-react'; // Import Info icon
+import { saveSettings } from '../actions/data';
 
 export default function SettingsPage() {
   const [settings, setSettings] = useAtom(settingsAtom);

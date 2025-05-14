@@ -1,36 +1,32 @@
 'use server'
 
-import fs from 'fs/promises'
-import path from 'path'
+import { getCurrentUser, saltAndHashPassword, verifyPassword } from "@/lib/server-helpers";
 import {
-  HabitsData,
   CoinsData,
   CoinTransaction,
-  TransactionType,
-  WishlistItemType,
-  WishlistData,
-  Settings,
-  DataType,
   DATA_DEFAULTS,
-  getDefaultSettings,
-  UserData,
-  getDefaultUsersData,
-  User,
-  getDefaultWishlistData,
-  getDefaultHabitsData,
+  DataType,
   getDefaultCoinsData,
+  getDefaultHabitsData,
+  getDefaultSettings,
+  getDefaultUsersData,
+  getDefaultWishlistData,
+  HabitsData,
   Permission,
-  ServerSettings
-} from '@/lib/types'
-import { d2t, deepMerge, getNow, checkPermission, uuid } from '@/lib/utils';
-import { verifyPassword } from "@/lib/server-helpers";
-import { saltAndHashPassword } from "@/lib/server-helpers";
+  ServerSettings,
+  Settings,
+  TransactionType,
+  User,
+  UserData,
+  WishlistData,
+  WishlistItemType
+} from '@/lib/types';
+import { d2t, getNow, uuid } from '@/lib/utils';
 import { signInSchema } from '@/lib/zod';
-import { auth } from '@/auth';
+import fs from 'fs/promises';
 import _ from 'lodash';
-import { getCurrentUser, getCurrentUserId } from '@/lib/server-helpers'
+import path from 'path';
 
-import { PermissionError } from '@/lib/exceptions'
 
 type ResourceType = 'habit' | 'wishlist' | 'coins'
 type ActionType = 'write' | 'interact'

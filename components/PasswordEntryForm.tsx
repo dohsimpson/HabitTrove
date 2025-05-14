@@ -1,13 +1,13 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { Label } from './ui/label';
-import { User as UserIcon } from 'lucide-react';
-import { Permission, User } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
+import { User } from '@/lib/types';
+import { User as UserIcon } from 'lucide-react';
 import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 interface PasswordEntryFormProps {
   user: User;

@@ -1,6 +1,4 @@
-import Layout from '@/components/Layout'
 import HabitList from '@/components/HabitList'
-import { ViewToggle } from '@/components/ViewToggle'
 
 export default function HabitsPage() {
   return (

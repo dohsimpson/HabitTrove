@@ -1,18 +1,17 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import CompletionCountBadge from '@/components/CompletionCountBadge'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import CompletionCountBadge from '@/components/CompletionCountBadge'
-import { Button } from '@/components/ui/button'
-import { Check, Circle, CircleCheck } from 'lucide-react'
-import { d2s, getNow, t2d, getCompletedHabitsForDate, isHabitDue, getISODate, getCompletionsForToday, getCompletionsForDate } from '@/lib/utils'
-import { useAtom } from 'jotai'
 import { useHabits } from '@/hooks/useHabits'
-import { habitsAtom, settingsAtom, completedHabitsMapAtom, hasTasksAtom } from '@/lib/atoms'
-import { DateTime } from 'luxon'
-import Linkify from './linkify'
+import { completedHabitsMapAtom, habitsAtom, hasTasksAtom, settingsAtom } from '@/lib/atoms'
 import { Habit } from '@/lib/types'
+import { d2s, getCompletionsForDate, getISODate, getNow, isHabitDue } from '@/lib/utils'
+import { useAtom } from 'jotai'
+import { Circle, CircleCheck } from 'lucide-react'
+import { DateTime } from 'luxon'
+import { useCallback, useMemo, useState } from 'react'
+import Linkify from './linkify'
 
 export default function HabitCalendar() {
   const { completePastHabit } = useHabits()

@@ -1,12 +1,5 @@
-import { WishlistItemType, User, Permission } from '@/lib/types'
-import { useAtom } from 'jotai'
-import { usersAtom } from '@/lib/atoms'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { useHelpers } from '@/lib/client-helpers'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
-import { Coins, Edit, Trash2, Gift, MoreVertical, Archive, ArchiveRestore } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +7,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { usersAtom } from '@/lib/atoms'
+import { useHelpers } from '@/lib/client-helpers'
+import { User, WishlistItemType } from '@/lib/types'
+import { useAtom } from 'jotai'
+import { Archive, ArchiveRestore, Coins, Edit, Gift, MoreVertical, Trash2 } from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 interface WishlistItemProps {
   item: WishlistItemType

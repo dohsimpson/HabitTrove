@@ -1,22 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { createUser, updateUser, updateUserPassword, uploadAvatar } from '@/app/actions/data';
+import { toast } from '@/hooks/use-toast';
+import { serverSettingsAtom, usersAtom } from '@/lib/atoms';
+import { useHelpers } from '@/lib/client-helpers';
+import { Permission } from '@/lib/types';
 import { passwordSchema, usernameSchema } from '@/lib/zod';
-import { Input } from './ui/input';
+import { useAtom, useAtomValue } from 'jotai';
+import _ from 'lodash';
+import { User as UserIcon } from 'lucide-react';
+import { useState } from 'react';
+import { PermissionSelector } from './PermissionSelector';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
+import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Switch } from './ui/switch';
-import { Permission } from '@/lib/types';
-import { toast } from '@/hooks/use-toast';
-import { useAtom, useAtomValue } from 'jotai';
-import { serverSettingsAtom, usersAtom } from '@/lib/atoms';
-import { createUser, updateUser, updateUserPassword, uploadAvatar } from '@/app/actions/data';
-import { SafeUser, User } from '@/lib/types';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { User as UserIcon } from 'lucide-react';
-import _ from 'lodash';
-import { PermissionSelector } from './PermissionSelector';
-import { useHelpers } from '@/lib/client-helpers';
 
 interface UserFormProps {
   userId?: string;  // if provided, we're editing; if not, we're creating

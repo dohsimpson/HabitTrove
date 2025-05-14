@@ -18,7 +18,7 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
     if (!currentUserId && !userSelect) {
       setUserSelect(true)
     }
-  }, [currentUserId, status, userSelect])
+  }, [currentUserId, status, userSelect, setUserSelect])
 
   return (
     <>

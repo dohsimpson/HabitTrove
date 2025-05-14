@@ -1,18 +1,17 @@
-import React from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CoinsData, HabitsData, WishlistData, UserData, User, CoinTransaction } from '@/lib/types';
-import { t2d } from '@/lib/utils';
-import Link from 'next/link';
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
-import { Info } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { CoinTransaction, HabitsData, User, UserData, WishlistData } from '@/lib/types';
+import { t2d } from '@/lib/utils';
+import { Info } from 'lucide-react';
+import Link from 'next/link';
 
 interface NotificationDropdownProps {
   currentUser: User | null;

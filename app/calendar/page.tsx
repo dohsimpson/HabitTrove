@@ -1,7 +1,4 @@
-import Layout from '@/components/Layout'
 import HabitCalendar from '@/components/HabitCalendar'
-import { ViewToggle } from '@/components/ViewToggle'
-import CompletionCountBadge from '@/components/CompletionCountBadge'
 
 export default function CalendarPage() {
   return (
