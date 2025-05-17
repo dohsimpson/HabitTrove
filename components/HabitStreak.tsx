@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { d2s, getNow, t2d } from '@/lib/utils' // Removed getCompletedHabitsForDate
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { settingsAtom, hasTasksAtom, completedHabitsMapAtom } from '@/lib/atoms' // Added completedHabitsMapAtom
 
 interface HabitStreakProps {
@@ -12,6 +13,7 @@ interface HabitStreakProps {
 }
 
 export default function HabitStreak({ habits }: HabitStreakProps) {
+  const t = useTranslations('HabitStreak');
   const [settings] = useAtom(settingsAtom)
   const [hasTasks] = useAtom(hasTasksAtom)
   const [completedHabitsMap] = useAtom(completedHabitsMapAtom) // Use the atom
@@ -40,7 +42,7 @@ export default function HabitStreak({ habits }: HabitStreakProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Daily Completion Streak</CardTitle>
+        <CardTitle>{t('dailyCompletionStreakTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="w-full aspect-[2/1]">
@@ -56,11 +58,14 @@ export default function HabitStreak({ habits }: HabitStreakProps) {
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip formatter={(value, name) => [`${value} ${name}`, 'Completed']} />
+              <YAxis allowDecimals={false} />
+              <Tooltip formatter={(value, name) => {
+                const translatedName = name === 'habits' ? t('tooltipHabitsLabel') : t('tooltipTasksLabel');
+                return [`${value} ${translatedName}`, t('tooltipCompletedLabel')];
+              }} />
               <Line
                 type="monotone"
-                name="habits"
+                name={t('tooltipHabitsLabel')}
                 dataKey="habits"
                 stroke="#14b8a6"
                 strokeWidth={2}
@@ -69,7 +74,7 @@ export default function HabitStreak({ habits }: HabitStreakProps) {
               {hasTasks && (
                 <Line
                   type="monotone"
-                  name="tasks"
+                  name={t('tooltipTasksLabel')}
                   dataKey="tasks"
                   stroke="#f59e0b"
                   strokeWidth={2}

@@ -5,6 +5,7 @@ import { Button } from "./ui/button"
 import { Star, History } from "lucide-react"
 import packageJson from '../package.json'
 import { DialogTitle } from "@radix-ui/react-dialog"
+import { useTranslations } from "next-intl"
 import { Logo } from "./Logo"
 import ChangelogModal from "./ChangelogModal"
 import { useState } from "react"
@@ -15,6 +16,7 @@ interface AboutModalProps {
 }
 
 export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
+  const t = useTranslations('AboutModal')
   const version = packageJson.version
   const [changelogOpen, setChangelogOpen] = useState(false)
 
@@ -22,7 +24,7 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle aria-label="about"></DialogTitle>
+          <DialogTitle aria-label={t('dialogArisLabel')}></DialogTitle>
         </DialogHeader>
         <div className="space-y-6 text-center py-4">
           <div>
@@ -40,14 +42,14 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
                 onClick={() => setChangelogOpen(true)}
               >
                 <History className="w-3 h-3 mr-1" />
-                Changelog
+                {t('changelogButton')}
               </Button>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="text-sm">
-              Created with ❤️ by{' '}
+              {t('createdByPrefix')}{' '}
               <a
                 href="https://github.com/dohsimpson"
                 target="_blank"
@@ -66,7 +68,7 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
               >
                 <Button variant="outline" size="sm">
                   <Star className="w-4 h-4 mr-2" />
-                  Star on GitHub
+                  {t('starOnGitHubButton')}
                 </Button>
               </a>
             </div>

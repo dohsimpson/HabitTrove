@@ -12,14 +12,15 @@ import { useAtom } from 'jotai';
 import { usersAtom } from '@/lib/atoms';
 import { signIn } from '@/app/actions/user';
 import { createUser } from '@/app/actions/data';
+import { useTranslations } from 'next-intl';
 import { toast } from '@/hooks/use-toast';
 import { Description } from '@radix-ui/react-dialog';
 import { SafeUser, User } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useHelpers } from '@/lib/client-helpers';
 
-function UserCard({ 
-  user, 
+function UserCard({
+  user,
   onSelect,
   onEdit,
   showEdit,
@@ -41,9 +42,9 @@ function UserCard({
         )}
       >
         <Avatar className="h-16 w-16">
-          <AvatarImage 
+          <AvatarImage
             src={user.avatarPath && `/api/avatars/${user.avatarPath.split('/').pop()}`}
-            alt={user.username} 
+            alt={user.username}
           />
           <AvatarFallback>
             <UserIcon className="h-8 w-8" />
@@ -70,6 +71,7 @@ function UserCard({
 }
 
 function AddUserButton({ onClick }: { onClick: () => void }) {
+  const t = useTranslations('UserSelectModal');
   return (
     <button
       onClick={onClick}
@@ -80,7 +82,7 @@ function AddUserButton({ onClick }: { onClick: () => void }) {
           <Plus className="h-8 w-8" />
         </AvatarFallback>
       </Avatar>
-      <span className="text-sm font-medium">Add User</span>
+      <span className="text-sm font-medium">{t('addUserButton')}</span>
     </button>
   );
 }
@@ -90,13 +92,13 @@ function UserSelectionView({
   currentUser,
   onUserSelect,
   onEditUser,
-  onCreateUser
+  onCreateUser,
 }: {
   users: User[],
   currentUser?: SafeUser,
   onUserSelect: (userId: string) => void,
   onEditUser: (userId: string) => void,
-  onCreateUser: () => void
+  onCreateUser: () => void,
 }) {
   return (
     <div className="grid grid-cols-3 gap-4 p-2 max-h-80 overflow-y-auto">
@@ -111,20 +113,21 @@ function UserSelectionView({
             showEdit={!!currentUser?.isAdmin}
             isCurrentUser={false}
           />
-      ))}
+        ))}
       {currentUser?.isAdmin && <AddUserButton onClick={onCreateUser} />}
     </div>
   );
 }
 
 export default function UserSelectModal({ onClose }: { onClose: () => void }) {
+  const t = useTranslations('UserSelectModal');
   const [selectedUser, setSelectedUser] = useState<string>();
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
   const [usersData] = useAtom(usersAtom);
   const users = usersData.users;
-const {currentUser} = useHelpers();
+  const { currentUser } = useHelpers();
 
   const handleUserSelect = (userId: string) => {
     setSelectedUser(userId);
@@ -159,7 +162,7 @@ const {currentUser} = useHelpers();
       <DialogContent className="sm:max-w-md">
         <Description></Description>
         <DialogHeader>
-          <DialogTitle>{isCreating ? 'Create New User' : 'Select User'}</DialogTitle>
+          <DialogTitle>{isCreating ? t('createNewUserTitle') : t('selectUserTitle')}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
@@ -187,19 +190,19 @@ const {currentUser} = useHelpers();
                   const user = users.find(u => u.id === selectedUser);
                   if (!user) throw new Error("User not found");
                   await signIn(user.username, password);
-                  
+
                   setError('');
                   onClose();
 
                   toast({
-                    title: "Signed in successfully",
-                    description: `Welcome back, ${user.username}!`,
+                    title: t('signInSuccessTitle'),
+                    description: t('signInSuccessDescription', { username: user.username }),
                     variant: "default"
                   });
 
                   setTimeout(() => window.location.reload(), 300);
                 } catch (err) {
-                  setError('invalid password');
+                  setError(t('errorInvalidPassword'));
                   throw err;
                 }
               }}

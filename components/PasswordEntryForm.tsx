@@ -8,6 +8,7 @@ import { User as UserIcon } from 'lucide-react';
 import { Permission, User } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface PasswordEntryFormProps {
   user: User;
@@ -22,6 +23,7 @@ export default function PasswordEntryForm({
   onSubmit,
   error 
 }: PasswordEntryFormProps) {
+  const t = useTranslations('PasswordEntryForm');
   const hasPassword = !!user.password;
   const [password, setPassword] = useState('');
 
@@ -31,8 +33,8 @@ export default function PasswordEntryForm({
       await onSubmit(password);
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : 'Login failed',
+        title: t('loginErrorToastTitle'),
+        description: err instanceof Error ? err.message : t('loginFailedErrorToastDescription'),
         variant: "destructive"
       });
     }
@@ -58,18 +60,18 @@ export default function PasswordEntryForm({
             onClick={onCancel}
             className="text-sm text-blue-500 hover:text-blue-600 mt-1"
           >
-            Not you?
+            {t('notYouButton')}
           </button>
         </div>
       </div>
 
       {hasPassword && <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t('passwordLabel')}</Label>
           <Input
             id="password"
             type="password"
-            placeholder="Enter password"
+            placeholder={t('passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={error ? 'border-red-500' : ''}
@@ -82,10 +84,10 @@ export default function PasswordEntryForm({
 
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t('cancelButton')}
         </Button>
         <Button type="submit" disabled={hasPassword && !password}>
-          Login
+          {t('loginButton')}
         </Button>
       </div>
     </form>

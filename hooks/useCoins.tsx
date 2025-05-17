@@ -1,4 +1,5 @@
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { calculateCoinsEarnedToday, calculateCoinsSpentToday, calculateTotalEarned, calculateTotalSpent, calculateTransactionsToday, checkPermission } from '@/lib/utils'
 import {
   coinsAtom,
@@ -19,12 +20,13 @@ import { useHelpers } from '@/lib/client-helpers'
 function handlePermissionCheck(
   user: User | undefined,
   resource: 'habit' | 'wishlist' | 'coins',
-  action: 'write' | 'interact'
+  action: 'write' | 'interact',
+  tCommon: (key: string, values?: Record<string, any>) => string
 ): boolean {
   if (!user) {
     toast({
-      title: "Authentication Required",
-      description: "Please sign in to continue.",
+      title: tCommon("authenticationRequiredTitle"),
+      description: tCommon("authenticationRequiredDescription"),
       variant: "destructive",
     })
     return false
@@ -32,8 +34,8 @@ function handlePermissionCheck(
 
   if (!user.isAdmin && !checkPermission(user.permissions, resource, action)) {
     toast({
-      title: "Permission Denied",
-      description: `You don't have ${action} permission for ${resource}s.`,
+      title: tCommon("permissionDeniedTitle"),
+      description: tCommon("permissionDeniedDescription", { action, resource }),
       variant: "destructive",
     })
     return false
@@ -43,6 +45,8 @@ function handlePermissionCheck(
 }
 
 export function useCoins(options?: { selectedUser?: string }) {
+  const t = useTranslations('useCoins');
+  const tCommon = useTranslations('Common');
   const [coins, setCoins] = useAtom(coinsAtom)
   const [settings] = useAtom(settingsAtom)
   const [users] = useAtom(usersAtom)
@@ -65,11 +69,11 @@ export function useCoins(options?: { selectedUser?: string }) {
   const [transactionsToday] = useAtom(transactionsTodayAtom)
 
   const add = async (amount: number, description: string, note?: string) => {
-    if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null
+    if (!handlePermissionCheck(currentUser, 'coins', 'write', tCommon)) return null
     if (isNaN(amount) || amount <= 0) {
       toast({
-        title: "Invalid amount",
-        description: "Please enter a valid positive number"
+        title: t("invalidAmountTitle"),
+        description: t("invalidAmountDescription")
       })
       return null
     }
@@ -82,17 +86,17 @@ export function useCoins(options?: { selectedUser?: string }) {
       userId: user?.id
     })
     setCoins(data)
-    toast({ title: "Success", description: `Added ${amount} coins` })
+    toast({ title: t("successTitle"), description: t("addedCoinsDescription", { amount }) })
     return data
   }
 
   const remove = async (amount: number, description: string, note?: string) => {
-    if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null
+    if (!handlePermissionCheck(currentUser, 'coins', 'write', tCommon)) return null
     const numAmount = Math.abs(amount)
     if (isNaN(numAmount) || numAmount <= 0) {
       toast({
-        title: "Invalid amount",
-        description: "Please enter a valid positive number"
+        title: t("invalidAmountTitle"),
+        description: t("invalidAmountDescription")
       })
       return null
     }
@@ -105,17 +109,17 @@ export function useCoins(options?: { selectedUser?: string }) {
       userId: user?.id
     })
     setCoins(data)
-    toast({ title: "Success", description: `Removed ${numAmount} coins` })
+    toast({ title: t("successTitle"), description: t("removedCoinsDescription", { amount: numAmount }) })
     return data
   }
 
   const updateNote = async (transactionId: string, note: string) => {
-    if (!handlePermissionCheck(currentUser, 'coins', 'write')) return null
+    if (!handlePermissionCheck(currentUser, 'coins', 'write', tCommon)) return null
     const transaction = coins.transactions.find(t => t.id === transactionId)
     if (!transaction) {
       toast({
-        title: "Error",
-        description: "Transaction not found"
+        title: tCommon("errorTitle"),
+        description: t("transactionNotFoundDescription")
       })
       return null
     }

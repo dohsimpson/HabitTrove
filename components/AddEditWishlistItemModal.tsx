@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { usersAtom } from '@/lib/atoms'
 import { useHelpers } from '@/lib/client-helpers'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
@@ -32,6 +33,7 @@ export default function AddEditWishlistItemModal({
   addWishlistItem,
   editWishlistItem
 }: AddEditWishlistItemModalProps) {
+  const t = useTranslations('AddEditWishlistItemModal')
   const [name, setName] = useState(editingItem?.name || '')
   const [description, setDescription] = useState(editingItem?.description || '')
   const [coinCost, setCoinCost] = useState(editingItem?.coinCost || 1)
@@ -62,16 +64,16 @@ export default function AddEditWishlistItemModal({
   const validate = () => {
     const newErrors: { [key: string]: string } = {}
     if (!name.trim()) {
-      newErrors.name = 'Name is required'
+      newErrors.name = t('errorNameRequired')
     }
     if (coinCost < 1) {
-      newErrors.coinCost = 'Coin cost must be at least 1'
+      newErrors.coinCost = t('errorCoinCostMin')
     }
     if (targetCompletions !== undefined && targetCompletions < 1) {
-      newErrors.targetCompletions = 'Target completions must be at least 1'
+      newErrors.targetCompletions = t('errorTargetCompletionsMin')
     }
     if (link && !isValidUrl(link)) {
-      newErrors.link = 'Please enter a valid URL'
+      newErrors.link = t('errorInvalidUrl')
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -118,13 +120,13 @@ export default function AddEditWishlistItemModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{editingItem ? 'Edit Reward' : 'Add New Reward'}</DialogTitle>
+          <DialogTitle>{editingItem ? t('editTitle') : t('addTitle')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSave}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
-                Name *
+                {t('nameLabel')}
               </Label>
               <div className="col-span-3 flex gap-2">
                 <Input
@@ -161,7 +163,7 @@ export default function AddEditWishlistItemModal({
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="description" className="text-right">
-                Description
+                {t('descriptionLabel')}
               </Label>
               <Textarea
                 id="description"
@@ -173,7 +175,7 @@ export default function AddEditWishlistItemModal({
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="flex items-center gap-2 justify-end">
                 <Label htmlFor="coinReward">
-                  Cost
+                  {t('costLabel')}
                 </Label>
               </div>
               <div className="col-span-3">
@@ -204,7 +206,7 @@ export default function AddEditWishlistItemModal({
                     </button>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    coins
+                    {t('coinsSuffix')}
                   </span>
                 </div>
               </div>
@@ -212,7 +214,7 @@ export default function AddEditWishlistItemModal({
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="flex items-center gap-2 justify-end">
                 <Label htmlFor="targetCompletions">
-                  Redeemable
+                  {t('redeemableLabel')}
                 </Label>
               </div>
               <div className="col-span-3">
@@ -246,7 +248,7 @@ export default function AddEditWishlistItemModal({
                     </button>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    times
+                    {t('timesSuffix')}
                   </span>
                 </div>
                 {errors.targetCompletions && (
@@ -258,7 +260,7 @@ export default function AddEditWishlistItemModal({
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="link" className="text-right">
-                Link
+                {t('linkLabel')}
               </Label>
               <div className="col-span-3">
                 <Input
@@ -279,7 +281,7 @@ export default function AddEditWishlistItemModal({
             {usersData.users && usersData.users.length > 1 && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <div className="flex items-center justify-end gap-2">
-                  <Label htmlFor="sharing-toggle">Share</Label>
+                  <Label htmlFor="sharing-toggle">{t('shareLabel')}</Label>
                 </div>
                 <div className="col-span-3">
                   <div className="flex flex-wrap gap-2">
@@ -310,7 +312,7 @@ export default function AddEditWishlistItemModal({
             )}
           </div>
           <DialogFooter>
-            <Button type="submit">{editingItem ? 'Save Changes' : 'Add Reward'}</Button>
+            <Button type="submit">{editingItem ? t('saveButton') : t('addButton')}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

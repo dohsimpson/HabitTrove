@@ -7,6 +7,7 @@ import { DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdow
 import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu';
 import { Timer, Calendar, Pin, Edit, Archive, ArchiveRestore, Trash2 } from 'lucide-react';
 import { useHelpers } from '@/lib/client-helpers'; // For permission checks if needed, though useHabits handles most
+import { useTranslations } from 'next-intl';
 
 interface HabitContextMenuItemsProps {
   habit: Habit;
@@ -23,6 +24,7 @@ export function HabitContextMenuItems({
   context = 'habit-item',
   onClose,
 }: HabitContextMenuItemsProps) {
+  const t = useTranslations('HabitContextMenuItems');
   const { saveHabit, archiveHabit, unarchiveHabit } = useHabits();
   const [settings] = useAtom(settingsAtom);
   const [, setPomo] = useAtom(pomodoroAtom);
@@ -55,7 +57,7 @@ export function HabitContextMenuItems({
           })}
         >
           <Timer className="mr-2 h-4 w-4" />
-          <span>Start Pomodoro</span>
+          <span>{t('startPomodoro')}</span>
         </MenuItemComponent>
       )}
 
@@ -69,7 +71,7 @@ export function HabitContextMenuItems({
           })}
         >
           <Calendar className="mr-2 h-4 w-4" />
-          <span>Move to Today</span>
+          <span>{t('moveToToday')}</span>
         </MenuItemComponent>
       )}
 
@@ -83,7 +85,7 @@ export function HabitContextMenuItems({
           })}
         >
           <Calendar className="mr-2 h-4 w-4" />
-          <span>Move to Tomorrow</span>
+          <span>{t('moveToTomorrow')}</span>
         </MenuItemComponent>
       )}
 
@@ -93,7 +95,7 @@ export function HabitContextMenuItems({
           onClick={() => handleAction(() => saveHabit({ ...habit, pinned: !habit.pinned }))}
         >
           <Pin className="mr-2 h-4 w-4" />
-          <span>{habit.pinned ? 'Unpin' : 'Pin'}</span>
+          <span>{t(habit.pinned ? 'unpin' : 'pin')}</span>
         </MenuItemComponent>
       )}
 
@@ -104,7 +106,7 @@ export function HabitContextMenuItems({
           disabled={!canWrite}
         >
           <Edit className="mr-2 h-4 w-4" />
-          <span>Edit</span>
+          <span>{t('edit')}</span>
         </MenuItemComponent>
       )}
 
@@ -114,7 +116,7 @@ export function HabitContextMenuItems({
           disabled={!canWrite}
         >
           <Edit className="mr-2 h-4 w-4" />
-          <span>Edit</span>
+          <span>{t('edit')}</span>
         </MenuItemComponent>
       )}
 
@@ -125,7 +127,7 @@ export function HabitContextMenuItems({
           onClick={() => handleAction(() => archiveHabit(habit.id))}
         >
           <Archive className="mr-2 h-4 w-4" />
-          <span>Archive</span>
+          <span>{t('archive')}</span>
         </MenuItemComponent>
       )}
 
@@ -135,7 +137,7 @@ export function HabitContextMenuItems({
           onClick={() => handleAction(() => unarchiveHabit(habit.id))}
         >
           <ArchiveRestore className="mr-2 h-4 w-4" />
-          <span>Unarchive</span>
+          <span>{t('unarchive')}</span>
         </MenuItemComponent>
       )}
       
@@ -150,7 +152,7 @@ export function HabitContextMenuItems({
         disabled={!canWrite} // Assuming delete is a write operation
       >
         <Trash2 className="mr-2 h-4 w-4" />
-        <span>Delete</span>
+        <span>{t('delete')}</span>
       </MenuItemComponent>
     </>
   );

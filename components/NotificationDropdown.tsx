@@ -7,6 +7,7 @@ import { t2d } from '@/lib/utils';
 import Link from 'next/link';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Info } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   Tooltip,
   TooltipContent,
@@ -18,26 +19,10 @@ interface NotificationDropdownProps {
   currentUser: User | null;
   unreadNotifications: CoinTransaction[];
   displayedReadNotifications: CoinTransaction[];
-  habitsData: HabitsData; // Keep needed props
+  habitsData: HabitsData; 
   wishlistData: WishlistData;
   usersData: UserData;
 }
-
-// Helper function to generate notification message
-const getNotificationMessage = (tx: CoinTransaction, triggeringUser?: User, relatedItemName?: string): string => {
-  const username = triggeringUser?.username || 'Someone';
-  const itemName = relatedItemName || 'a shared item';
-  switch (tx.type) {
-    case 'HABIT_COMPLETION':
-    case 'TASK_COMPLETION':
-      return `${username} completed ${itemName}.`;
-    case 'WISH_REDEMPTION':
-      return `${username} redeemed ${itemName}.`;
-    // Add other relevant transaction types if needed
-    default:
-      return `Activity related to ${itemName} by ${username}.`; // Fallback message
-  }
-};
 
 // Helper function to get the name of the related item
 const getRelatedItemName = (tx: CoinTransaction, habitsData: HabitsData, wishlistData: WishlistData): string | undefined => {
@@ -60,19 +45,33 @@ export default function NotificationDropdown({
   wishlistData,
   usersData,
 }: NotificationDropdownProps) {
-  if (!currentUser) {
-    return <div className="p-4 text-sm text-gray-500">Not logged in.</div>;
-  }
+  const t = useTranslations('NotificationDropdown');
 
-  // Removed the useMemo block for calculating notifications
+  // Helper function to generate notification message, now using t
+  const getNotificationMessage = (tx: CoinTransaction, triggeringUser?: User, relatedItemName?: string): string => {
+    const username = triggeringUser?.username || t('defaultUsername');
+    const itemName = relatedItemName || t('defaultItemName');
+    switch (tx.type) {
+      case 'HABIT_COMPLETION':
+      case 'TASK_COMPLETION':
+        return t('userCompletedItem', { username, itemName });
+      case 'WISH_REDEMPTION':
+        return t('userRedeemedItem', { username, itemName });
+      default:
+        return t('activityRelatedToItem', { username, itemName });
+    }
+  };
+  
+  if (!currentUser) {
+    return <div className="p-4 text-sm text-gray-500">{t('notLoggedIn')}</div>;
+  }
 
   const renderNotification = (tx: CoinTransaction, isUnread: boolean) => {
     const triggeringUser = usersData.users.find(u => u.id === tx.userId);
     const relatedItemName = getRelatedItemName(tx, habitsData, wishlistData);
-    const message = getNotificationMessage(tx, triggeringUser, relatedItemName);
+    const message = getNotificationMessage(tx, triggeringUser, relatedItemName); // Uses the new t-aware helper
     const txTimestamp = t2d({ timestamp: tx.timestamp, timezone: 'UTC' });
-    const timeAgo = txTimestamp.toRelative(); // e.g., "2 hours ago"
-    // Add the triggering user's ID to the query params if it exists
+    const timeAgo = txTimestamp.toRelative(); 
     const linkHref = `/coins?highlight=${tx.id}${tx.userId ? `&user=${tx.userId}` : ''}`;
 
     return (
@@ -99,21 +98,21 @@ export default function NotificationDropdown({
       {/* Removed the outer div as width is now set on DropdownMenuContent in NotificationBell */}
       <>
         <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-          <h4 className="text-sm font-medium">Notifications</h4>
+          <h4 className="text-sm font-medium">{t('notificationsTitle')}</h4>
           <Tooltip>
             <TooltipTrigger asChild>
               <Info className="h-4 w-4 text-muted-foreground cursor-help" />
             </TooltipTrigger>
             <TooltipContent side="left" className="max-w-xs">
               <p className="text-xs">
-                Shows completions or redemptions by other users for habits or wishlist that you shared with them (you must be admin)
+                {t('notificationsTooltip')}
               </p>
             </TooltipContent>
           </Tooltip>
         </div>
         <ScrollArea className="h-[400px]">
           {unreadNotifications.length === 0 && displayedReadNotifications.length === 0 && (
-            <div className="p-4 text-center text-sm text-gray-500">No notifications yet.</div>
+            <div className="p-4 text-center text-sm text-gray-500">{t('noNotificationsYet')}</div>
           )}
 
           {unreadNotifications.length > 0 && (

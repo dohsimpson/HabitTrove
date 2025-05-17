@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { passwordSchema, usernameSchema } from '@/lib/zod';
+import { useTranslations } from 'next-intl';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
@@ -25,6 +26,7 @@ interface UserFormProps {
 }
 
 export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps) {
+  const t = useTranslations('UserForm');
   const [users, setUsersData] = useAtom(usersAtom);
   const serverSettings = useAtomValue(serverSettingsAtom)
   const user = userId ? users.users.find(u => u.id === userId) : undefined;
@@ -104,8 +106,8 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         }));
 
         toast({
-          title: "User updated",
-          description: `Successfully updated user ${username}`,
+          title: t('toastUserUpdatedTitle'),
+          description: t('toastUserUpdatedDescription', { username }),
           variant: 'default'
         });
       } else {
@@ -128,8 +130,8 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         }));
 
         toast({
-          title: "User created",
-          description: `Successfully created user ${username}`,
+          title: t('toastUserCreatedTitle'),
+          description: t('toastUserCreatedDescription', { username }),
           variant: 'default'
         });
       }
@@ -138,15 +140,16 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
       setError('');
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : `Failed to ${isEditing ? 'update' : 'create'} user`);
+      const action = isEditing ? t('actionUpdate') : t('actionCreate');
+      setError(err instanceof Error ? err.message : t('errorFailedUserAction', { action }));
     }
   };
 
   const handleAvatarChange = async (file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) { // 5MB
       toast({
-        title: "Error",
-        description: "File size must be less than 5MB",
+        title: t('errorTitle'),
+        description: t('errorFileSizeLimit'),
         variant: 'destructive'
       });
       return;
@@ -160,14 +163,14 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
       setAvatarPath(path);
       setAvatarFile(null); // Clear the file since we've uploaded it
       toast({
-        title: "Avatar uploaded",
-        description: "Successfully uploaded avatar",
+        title: t('toastAvatarUploadedTitle'),
+        description: t('toastAvatarUploadedDescription'),
         variant: 'default'
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: "Failed to upload avatar",
+        title: t('errorTitle'),
+        description: t('errorFailedAvatarUpload'),
         variant: 'destructive'
       });
     }
@@ -209,18 +212,18 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
             }}
             className="w-full"
           >
-            {isEditing ? 'Change Avatar' : 'Upload Avatar'}
+            {isEditing ? t('changeAvatarButton') : t('uploadAvatarButton')}
           </Button>
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
+          <Label htmlFor="username">{t('usernameLabel')}</Label>
           <Input
             id="username"
             type="text"
-            placeholder="Username"
+            placeholder={t('usernamePlaceholder')}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className={error ? 'border-red-500' : ''}
@@ -230,19 +233,19 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="password">
-              {isEditing ? 'New Password' : 'Password'}
+              {isEditing ? t('newPasswordLabel') : t('passwordLabel')}
             </Label>
             <Input
               id="password"
               type="password"
-              placeholder={isEditing ? "Leave blank to keep current" : "Enter password"}
+              placeholder={isEditing ? t('passwordPlaceholderEdit') : t('passwordPlaceholderCreate')}
               value={password || ''}
               onChange={(e) => setPassword(e.target.value)}
               className={error ? 'border-red-500' : ''}
               disabled={disablePassword}
             />
             {serverSettings.isDemo && (
-              <p className="text-sm text-red-500">Password is automatically disabled in demo instance</p>
+              <p className="text-sm text-red-500">{t('demoPasswordDisabledMessage')}</p>
             )}
           </div>
           
@@ -253,7 +256,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
               onCheckedChange={setDisablePassword}
               disabled={serverSettings.isDemo}
             />
-            <Label htmlFor="disable-password">Disable password</Label>
+            <Label htmlFor="disable-password">{t('disablePasswordLabel')}</Label>
           </div>
         </div>
 
@@ -277,10 +280,10 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
           variant="outline"
           onClick={onCancel}
         >
-          Cancel
+          {t('cancelButton')}
         </Button>
         <Button type="submit" disabled={!username}>
-          {isEditing ? 'Save Changes' : 'Create User'}
+          {isEditing ? t('saveChangesButton') : t('createUserButton')}
         </Button>
       </div>
     </form>

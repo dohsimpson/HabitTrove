@@ -11,15 +11,19 @@ import {
 } from "@/components/ui/tooltip";
 import { DynamicTimeNoSSR } from '@/components/DynamicTimeNoSSR';
 import { useAtom } from 'jotai';
-import { settingsAtom } from '@/lib/atoms';
+import { useTranslations } from 'next-intl';
+import { settingsAtom, serverSettingsAtom } from '@/lib/atoms';
 import { Settings, WeekDay } from '@/lib/types'
 import { saveSettings, uploadAvatar } from '../actions/data'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button';
 import { User, Info } from 'lucide-react'; // Import Info icon
+import { toast } from '@/hooks/use-toast'
 
 export default function SettingsPage() {
+  const t = useTranslations('SettingsPage');
   const [settings, setSettings] = useAtom(settingsAtom);
+  const [serverSettings] = useAtom(serverSettingsAtom);
 
   const updateSettings = async (newSettings: Settings) => {
     await saveSettings(newSettings)
@@ -32,17 +36,17 @@ export default function SettingsPage() {
   return (
     <>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Settings</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('title')}</h1>
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>UI Settings</CardTitle>
+            <CardTitle>{t('uiSettingsTitle')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="number-formatting">Number Formatting</Label>
+                <Label htmlFor="number-formatting">{t('numberFormattingLabel')}</Label>
                 <div className="text-sm text-muted-foreground">
-                  Format large numbers (e.g., 1K, 1M, 1B)
+                  {t('numberFormattingDescription')}
                 </div>
               </div>
               <Switch
@@ -59,9 +63,9 @@ export default function SettingsPage() {
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="number-grouping">Number Grouping</Label>
+                <Label htmlFor="number-grouping">{t('numberGroupingLabel')}</Label>
                 <div className="text-sm text-muted-foreground">
-                  Use thousand separators (e.g., 1,000 vs 1000)
+                  {t('numberGroupingDescription')}
                 </div>
               </div>
               <Switch
@@ -80,14 +84,14 @@ export default function SettingsPage() {
 
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>System Settings</CardTitle>
+            <CardTitle>{t('systemSettingsTitle')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="timezone">Timezone</Label>
+                <Label htmlFor="timezone">{t('timezoneLabel')}</Label>
                 <div className="text-sm text-muted-foreground">
-                  Select your timezone for accurate date tracking
+                  {t('timezoneDescription')}
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
@@ -113,9 +117,9 @@ export default function SettingsPage() {
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="timezone">Week Start Day</Label>
+                <Label htmlFor="weekStartDay">{t('weekStartDayLabel')}</Label>
                 <div className="text-sm text-muted-foreground">
-                  Select your preferred first day of the week
+                  {t('weekStartDayDescription')}
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
@@ -138,9 +142,9 @@ export default function SettingsPage() {
                     ['thursday', 4],
                     ['friday', 5],
                     ['saturday', 6]
-                  ] as Array<[string, WeekDay]>).map(([dayName, dayNumber]) => (
+                  ] as Array<["sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday", WeekDay]>).map(([dayName, dayNumber]) => (
                     <option key={dayNumber} value={dayNumber}>
-                      {dayName.charAt(0).toUpperCase() + dayName.slice(1)}
+                      {t(`weekdays.${dayName}`)}
                     </option>
                   ))}
                 </select>
@@ -151,7 +155,7 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5">
-                  <Label htmlFor="auto-backup">Auto Backup</Label>
+                  <Label htmlFor="auto-backup">{t('autoBackupLabel')}</Label>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -159,18 +163,14 @@ export default function SettingsPage() {
                       </TooltipTrigger>
                       <TooltipContent side="top" align="start">
                         <p className="max-w-xs text-sm">
-                          When enabled, the application data (habits, coins, settings, etc.)
-                          will be automatically backed up daily around 2 AM server time.
-                          Backups are stored as ZIP files in the `backups/` directory
-                          at the project root. Only the last 7 backups are kept; older
-                          ones are automatically deleted.
+                          {t('autoBackupTooltip')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Automatically back up data daily
+                  {t('autoBackupDescription')}
                 </div>
               </div>
               <Switch
@@ -185,6 +185,48 @@ export default function SettingsPage() {
               />
             </div>
             {/* End of Auto Backup section */}
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5">
+                  <Label htmlFor="language-select">{t('languageLabel')}</Label>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {t('languageDescription')}
+                </div>
+                {serverSettings.isDemo && (
+                  <div className="text-sm text-red-500">
+                    {t('languageDisabledInDemoTooltip')}
+                  </div>
+                )}
+              </div>
+              <select
+                id="language-select"
+                value={settings.system.language}
+                disabled={serverSettings.isDemo}
+                onChange={(e) => {
+                  updateSettings({
+                    ...settings,
+                    system: { ...settings.system, language: e.target.value }
+                  });
+                  toast({
+                    title: t('languageChangedTitle'),
+                    description: t('languageChangedDescription'),
+                    variant: 'default',
+                  });
+                }}
+                className={`w-[200px] rounded-md border border-input bg-background px-3 py-2 ${serverSettings.isDemo ? 'cursor-not-allowed opacity-50' : ''}`}
+              >
+                {/* Add more languages as needed */}
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+                <option value="ru">Русский</option>
+                <option value="zh">简体中文</option>
+                <option value="ja">日本語</option>
+              </select>
+            </div>
 
           </CardContent>
         </Card>
