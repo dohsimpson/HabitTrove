@@ -219,10 +219,11 @@ export default function SettingsPage() {
               >
                 {/* Add more languages as needed */}
                 <option value="en">English</option>
-                <option value="zh">简体中文</option>
                 <option value="es">Español</option>
-                <option value="fr">Français</option>
                 <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+                <option value="ru">Русский</option>
+                <option value="zh">简体中文</option>
                 <option value="ja">日本語</option>
               </select>
             </div>
