@@ -6,6 +6,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { useTranslations } from 'next-intl'
 
 interface ConfirmDialogProps {
   isOpen: boolean
@@ -23,9 +24,13 @@ export default function ConfirmDialog({
   onConfirm,
   title,
   message,
-  confirmText = "Confirm",
-  cancelText = "Cancel"
+  confirmText,
+  cancelText,
 }: ConfirmDialogProps) {
+  const t = useTranslations('ConfirmDialog');
+  const finalConfirmText = confirmText || t('confirmButton');
+  const finalCancelText = cancelText || t('cancelButton');
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -37,10 +42,10 @@ export default function ConfirmDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            {cancelText}
+            {finalCancelText}
           </Button>
           <Button variant="destructive" onClick={onConfirm}>
-            {confirmText}
+            {finalConfirmText}
           </Button>
         </DialogFooter>
       </DialogContent>

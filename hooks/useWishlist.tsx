@@ -1,4 +1,5 @@
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { wishlistAtom, coinsAtom } from '@/lib/atoms'
 import { saveWishlistItems, removeCoins } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
@@ -9,14 +10,15 @@ import { useHelpers } from '@/lib/client-helpers'
 import { useCoins } from './useCoins'
 
 function handlePermissionCheck(
-  user: any,
+  user: any, // Consider using a more specific type like SafeUser | User | undefined
   resource: 'habit' | 'wishlist' | 'coins',
-  action: 'write' | 'interact'
+  action: 'write' | 'interact',
+  tCommon: (key: string, values?: Record<string, any>) => string
 ): boolean {
   if (!user) {
     toast({
-      title: "Authentication Required",
-      description: "Please sign in to continue.",
+      title: tCommon("authenticationRequiredTitle"),
+      description: tCommon("authenticationRequiredDescription"),
       variant: "destructive",
     })
     return false
@@ -24,8 +26,8 @@ function handlePermissionCheck(
   
   if (!user.isAdmin && !checkPermission(user.permissions, resource, action)) {
     toast({
-      title: "Permission Denied",
-      description: `You don't have ${action} permission for ${resource}s.`,
+      title: tCommon("permissionDeniedTitle"),
+      description: tCommon("permissionDeniedDescription", { action, resource }),
       variant: "destructive",
     })
     return false
@@ -35,13 +37,15 @@ function handlePermissionCheck(
 }
 
 export function useWishlist() {
+  const t = useTranslations('useWishlist');
+  const tCommon = useTranslations('Common');
   const { currentUser: user } = useHelpers()
   const [wishlist, setWishlist] = useAtom(wishlistAtom)
   const [coins, setCoins] = useAtom(coinsAtom)
   const { balance } = useCoins()
 
   const addWishlistItem = async (item: Omit<WishlistItemType, 'id'>) => {
-    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
+    if (!handlePermissionCheck(user, 'wishlist', 'write', tCommon)) return
     const newItem = { ...item, id: Date.now().toString() }
     const newItems = [...wishlist.items, newItem]
     const newWishListData = { items: newItems }
@@ -50,7 +54,7 @@ export function useWishlist() {
   }
 
   const editWishlistItem = async (updatedItem: WishlistItemType) => {
-    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
+    if (!handlePermissionCheck(user, 'wishlist', 'write', tCommon)) return
     const newItems = wishlist.items.map(item =>
       item.id === updatedItem.id ? updatedItem : item
     )
@@ -60,7 +64,7 @@ export function useWishlist() {
   }
 
   const deleteWishlistItem = async (id: string) => {
-    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
+    if (!handlePermissionCheck(user, 'wishlist', 'write', tCommon)) return
     const newItems = wishlist.items.filter(item => item.id !== id)
     const newWishListData = { items: newItems }
     setWishlist(newWishListData)
@@ -68,13 +72,13 @@ export function useWishlist() {
   }
 
   const redeemWishlistItem = async (item: WishlistItemType) => {
-    if (!handlePermissionCheck(user, 'wishlist', 'interact')) return false
+    if (!handlePermissionCheck(user, 'wishlist', 'interact', tCommon)) return false
     if (balance >= item.coinCost) {
       // Check if item has target completions and if we've reached the limit
       if (item.targetCompletions && item.targetCompletions <= 0) {
         toast({
-          title: "Redemption limit reached",
-          description: `You've reached the maximum redemptions for "${item.name}".`,
+          title: t("redemptionLimitReachedTitle"),
+          description: t("redemptionLimitReachedDescription", { itemName: item.name }),
           variant: "destructive",
         })
         return false
@@ -121,15 +125,15 @@ export function useWishlist() {
       randomEffect()
 
       toast({
-        title: "🎉 Reward Redeemed!",
-        description: `You've redeemed "${item.name}" for ${item.coinCost} coins.`,
+        title: t("rewardRedeemedTitle"),
+        description: t("rewardRedeemedDescription", { itemName: item.name, itemCoinCost: item.coinCost }),
       })
 
       return true
     } else {
       toast({
-        title: "Not enough coins",
-        description: `You need ${item.coinCost - balance} more coins to redeem this reward.`,
+        title: t("notEnoughCoinsTitle"),
+        description: t("notEnoughCoinsDescription", { coinsNeeded: item.coinCost - balance }),
         variant: "destructive",
       })
       return false
@@ -139,7 +143,7 @@ export function useWishlist() {
   const canRedeem = (cost: number) => balance >= cost
 
   const archiveWishlistItem = async (id: string) => {
-    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
+    if (!handlePermissionCheck(user, 'wishlist', 'write', tCommon)) return
     const newItems = wishlist.items.map(item =>
       item.id === id ? { ...item, archived: true } : item
     )
@@ -149,7 +153,7 @@ export function useWishlist() {
   }
 
   const unarchiveWishlistItem = async (id: string) => {
-    if (!handlePermissionCheck(user, 'wishlist', 'write')) return
+    if (!handlePermissionCheck(user, 'wishlist', 'write', tCommon)) return
     const newItems = wishlist.items.map(item =>
       item.id === id ? { ...item, archived: false } : item
     )

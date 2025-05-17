@@ -4,54 +4,41 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Play, Pause, RotateCw, Minus, X, Clock, SkipForward } from 'lucide-react'
-import { cn, getCompletionsForToday } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { settingsAtom, pomodoroAtom, habitsAtom, pomodoroTodayCompletionsAtom } from '@/lib/atoms'
-import { getCompletionsForDate, getTodayInTimezone } from '@/lib/utils'
+// import { getCompletionsForDate, getTodayInTimezone } from '@/lib/utils' // Not used after pomodoroTodayCompletionsAtom
 import { useHabits } from '@/hooks/useHabits'
 
 interface PomoConfig {
-  labels: string[]
+  getLabels: () => string[]
   duration: number
   type: 'focus' | 'break'
 }
 
-const PomoConfigs: Record<PomoConfig['type'], PomoConfig> = {
-  focus: {
-    labels: [
-      'Stay Focused',
-      'You Got This',
-      'Keep Going',
-      'Crush It',
-      'Make It Happen',
-      'Stay Strong',
-      'Push Through',
-      'One Step at a Time',
-      'You Can Do It',
-      'Focus and Conquer'
-    ],
-    duration: 25 * 60,
-    type: 'focus',
-  },
-  break: {
-    labels: [
-      'Take a Break',
-      'Relax and Recharge',
-      'Breathe Deeply',
-      'Stretch It Out',
-      'Refresh Yourself',
-      'You Deserve This',
-      'Recharge Your Energy',
-      'Step Away for a Bit',
-      'Clear Your Mind',
-      'Rest and Rejuvenate'
-    ],
-    duration: 5 * 60,
-    type: 'break',
-  },
-}
-
 export default function PomodoroTimer() {
+  const t = useTranslations('PomodoroTimer')
+
+  const PomoConfigs: Record<PomoConfig['type'], PomoConfig> = {
+    focus: {
+      getLabels: () => [
+        t('focusLabel1'), t('focusLabel2'), t('focusLabel3'), t('focusLabel4'), t('focusLabel5'),
+        t('focusLabel6'), t('focusLabel7'), t('focusLabel8'), t('focusLabel9'), t('focusLabel10')
+      ],
+      duration: 25 * 60,
+      type: 'focus',
+    },
+    break: {
+      getLabels: () => [
+        t('breakLabel1'), t('breakLabel2'), t('breakLabel3'), t('breakLabel4'), t('breakLabel5'),
+        t('breakLabel6'), t('breakLabel7'), t('breakLabel8'), t('breakLabel9'), t('breakLabel10')
+      ],
+      duration: 5 * 60,
+      type: 'break',
+    },
+  }
+
   const [settings] = useAtom(settingsAtom)
   const [pomo, setPomo] = useAtom(pomodoroAtom)
   const { show, selectedHabitId, autoStart, minimized } = pomo
@@ -62,21 +49,23 @@ export default function PomodoroTimer() {
   const [state, setState] = useState<'started' | 'stopped' | 'paused'>(autoStart ? 'started' : 'stopped')
   const wakeLock = useRef<WakeLockSentinel | null>(null)
   const [todayCompletions] = useAtom(pomodoroTodayCompletionsAtom)
-  const currentTimer = useRef<PomoConfig>(PomoConfigs.focus)
-  const [currentLabel, setCurrentLabel] = useState(
-    currentTimer.current.labels[Math.floor(Math.random() * currentTimer.current.labels.length)]
-  )
+  const currentTimerRef = useRef<PomoConfig>(PomoConfigs.focus)
+  const [currentLabel, setCurrentLabel] = useState(() => {
+    const labels = currentTimerRef.current.getLabels();
+    return labels[Math.floor(Math.random() * labels.length)];
+  });
+
 
   // Handle wake lock
   useEffect(() => {
     const requestWakeLock = async () => {
       try {
         if (!('wakeLock' in navigator)) {
-          console.debug('Browser does not support wakelock')
+          console.debug(t('wakeLockNotSupported'))
           return
         }
         if (wakeLock.current && !wakeLock.current.released) {
-          console.debug('Wake lock already in use')
+          console.debug(t('wakeLockInUse'))
           return
         }
         if (state === 'started') {
@@ -85,7 +74,7 @@ export default function PomodoroTimer() {
           return
         }
       } catch (err) {
-        console.error('Error requesting wake lock:', err)
+        console.error(t('wakeLockRequestError'), err)
       }
     }
 
@@ -96,7 +85,7 @@ export default function PomodoroTimer() {
           wakeLock.current = null
         }
       } catch (err) {
-        console.error('Error releasing wake lock:', err)
+        console.error(t('wakeLockReleaseError'), err)
       }
     }
 
@@ -150,12 +139,11 @@ export default function PomodoroTimer() {
 
   const handleTimerEnd = async () => {
     setState("stopped")
-    const currentTimerType = currentTimer.current.type
-    currentTimer.current = currentTimerType === 'focus' ? PomoConfigs.break : PomoConfigs.focus
-    setTimeLeft(currentTimer.current.duration)
-    setCurrentLabel(
-      currentTimer.current.labels[Math.floor(Math.random() * currentTimer.current.labels.length)]
-    )
+    const currentTimerType = currentTimerRef.current.type
+    currentTimerRef.current = currentTimerType === 'focus' ? PomoConfigs.break : PomoConfigs.focus
+    setTimeLeft(currentTimerRef.current.duration)
+    const newLabels = currentTimerRef.current.getLabels();
+    setCurrentLabel(newLabels[Math.floor(Math.random() * newLabels.length)])
 
     // update habits only after focus sessions
     if (selectedHabit && currentTimerType === 'focus') {
@@ -170,17 +158,16 @@ export default function PomodoroTimer() {
 
   const resetTimer = () => {
     setState("stopped")
-    setTimeLeft(currentTimer.current.duration)
+    setTimeLeft(currentTimerRef.current.duration)
   }
 
   const skipTimer = () => {
-    currentTimer.current = currentTimer.current.type === 'focus'
+    currentTimerRef.current = currentTimerRef.current.type === 'focus'
       ? PomoConfigs.break
       : PomoConfigs.focus
-    resetTimer()
-    setCurrentLabel(
-      currentTimer.current.labels[Math.floor(Math.random() * currentTimer.current.labels.length)]
-    )
+    resetTimer() // This will also reset timeLeft to the new timer's duration
+    const newLabels = currentTimerRef.current.getLabels();
+    setCurrentLabel(newLabels[Math.floor(Math.random() * newLabels.length)])
   }
 
   const formatTime = (seconds: number) => {
@@ -189,7 +176,7 @@ export default function PomodoroTimer() {
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`
   }
 
-  const progress = (timeLeft / currentTimer.current.duration) * 100
+  const progress = (timeLeft / currentTimerRef.current.duration) * 100
 
   if (!show) return null
 
@@ -242,11 +229,11 @@ export default function PomodoroTimer() {
                     <div className={cn(
                       'w-2 h-2 rounded-full flex-none',
                       // order matters here
-                      currentTimer.current.type === 'focus' && 'bg-green-500',
+                      currentTimerRef.current.type === 'focus' && 'bg-green-500',
                       state === 'started' && 'animate-pulse',
                       state === 'paused' && 'bg-yellow-500',
                       state === 'stopped' && 'bg-red-500',
-                      currentTimer.current.type === 'break' && 'bg-blue-500',
+                      currentTimerRef.current.type === 'break' && 'bg-blue-500',
                     )} />
                     <div className="font-bold text-foreground">
                       {selectedHabit.name}
@@ -254,7 +241,9 @@ export default function PomodoroTimer() {
                   </div>
                 </div>
               )}
-              <span>{currentTimer.current.type.charAt(0).toUpperCase() + currentTimer.current.type.slice(1)}: {currentLabel}</span>
+              <span>
+                {currentTimerRef.current.type === 'focus' ? t('focusType') : t('breakType')}: {currentLabel}
+              </span>
               {selectedHabit && selectedHabit.targetCompletions && selectedHabit.targetCompletions > 1 && (
                 <div className="flex justify-center gap-1 mt-2">
                   {(() => {
@@ -293,12 +282,12 @@ export default function PomodoroTimer() {
                 {state === "started" ? (
                   <>
                     <Pause className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Pause</span>
+                    <span className="hidden sm:inline">{t('pauseButton')}</span>
                   </>
                 ) : (
                   <>
                     <Play className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Start</span>
+                    <span className="hidden sm:inline">{t('startButton')}</span>
                   </>
                 )}
               </Button>
@@ -309,7 +298,7 @@ export default function PomodoroTimer() {
                 className="sm:px-4"
               >
                 <RotateCw className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Reset</span>
+                <span className="hidden sm:inline">{t('resetButton')}</span>
               </Button>
               <Button
                 variant="outline"
@@ -318,7 +307,7 @@ export default function PomodoroTimer() {
                 className="sm:px-4"
               >
                 <SkipForward className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Skip</span>
+                <span className="hidden sm:inline">{t('skipButton')}</span>
               </Button>
             </div>
           </div>

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useEffect, useState } from 'react'
 import { useHabits } from '@/hooks/useHabits'
+import { useTranslations } from 'next-intl'
 import { INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from '@/lib/constants'
 import { DateTime } from 'luxon'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
@@ -54,6 +55,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const target = habit.targetCompletions || 1
   const isCompletedToday = completionsToday >= target
   const [isHighlighted, setIsHighlighted] = useState(false)
+  const t = useTranslations('HabitItem');
   const [usersData] = useAtom(usersAtom)
   const { currentUser, hasPermission } = useHelpers()
   const canWrite = hasPermission('habit', 'write')
@@ -97,7 +99,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
             </div>
             {isTaskOverdue(habit, settings.system.timezone) && (
               <span className="ml-2 inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/30 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10 dark:ring-red-500/20">
-                Overdue
+                {t('overdue')}
               </span>
             )}
           </CardTitle>
@@ -111,15 +113,15 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
       </CardHeader>
       <CardContent className="flex-1">
         <p className={`text-sm ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500'}`}>
-          When: {convertMachineReadableFrequencyToHumanReadable({
+          {t('whenLabel', { frequency: convertMachineReadableFrequencyToHumanReadable({
             frequency: habit.frequency,
             isRecurRule,
             timezone: settings.system.timezone
-          })}
+          })})}
         </p>
         <div className="flex items-center mt-2">
           <Coins className={`h-4 w-4 mr-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />
-          <span className={`text-sm font-medium ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{habit.coinReward} coins per completion</span>
+          <span className={`text-sm font-medium ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{t('coinsPerCompletion', { count: habit.coinReward })}</span>
         </div>
       </CardContent>
       <CardFooter className="flex justify-between gap-2">
@@ -137,19 +139,19 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
                 {isCompletedToday ? (
                   target > 1 ? (
                     <>
-                      <span className="sm:hidden">{completionsToday}/{target}</span>
-                      <span className="hidden sm:inline">Completed ({completionsToday}/{target})</span>
+                      <span className="sm:hidden">{t('completedStatusCountMobile', { completed: completionsToday, target })}</span>
+                      <span className="hidden sm:inline">{t('completedStatusCount', { completed: completionsToday, target })}</span>
                     </>
                   ) : (
-                    'Completed'
+                    t('completedStatus')
                   )
                 ) : (
                   target > 1 ? (
                     <>
-                      <span className="sm:hidden">{completionsToday}/{target}</span>
-                      <span className="hidden sm:inline">Complete ({completionsToday}/{target})</span>
+                      <span className="sm:hidden">{t('completeButtonCountMobile', { completed: completionsToday, target })}</span>
+                      <span className="hidden sm:inline">{t('completeButtonCount', { completed: completionsToday, target })}</span>
                     </>
-                  ) : 'Complete'
+                  ) : t('completeButton')
                 )}
               </span>
               {habit.targetCompletions && habit.targetCompletions > 1 && (
@@ -171,7 +173,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               className="w-10 sm:w-auto"
             >
               <Undo2 className="h-4 w-4" />
-              <span className="hidden sm:inline ml-2">Undo</span>
+              <span className="hidden sm:inline ml-2">{t('undoButton')}</span>
             </Button>
           )}
         </div>
@@ -185,7 +187,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               className="hidden sm:flex"
             >
               <Edit className="h-4 w-4" />
-              <span className="ml-2">Edit</span>
+              <span className="ml-2">{t('editButton')}</span>
             </Button>
           )}
           <DropdownMenu>

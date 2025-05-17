@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { RRule, RRuleSet, rrulestr } from 'rrule'
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { settingsAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -37,6 +38,7 @@ interface AddEditHabitModalProps {
 }
 
 export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: AddEditHabitModalProps) {
+  const t = useTranslations('AddEditHabitModal');
   const [settings] = useAtom(settingsAtom)
   const [name, setName] = useState(habit?.name || '')
   const [description, setDescription] = useState(habit?.description || '')
@@ -98,13 +100,17 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{habit ? `Edit ${isTask ? 'Task' : 'Habit'}` : `Add New ${isTask ? 'Task' : 'Habit'}`}</DialogTitle>
+          <DialogTitle>
+            {habit
+              ? t(isTask ? 'editTaskTitle' : 'editHabitTitle')
+              : t(isTask ? 'addNewTaskTitle' : 'addNewHabitTitle')}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
-                Name *
+                {t('nameLabel')}
               </Label>
               <div className='flex col-span-3 gap-2'>
                 <Input
@@ -144,7 +150,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="description" className="text-right">
-                Description
+                {t('descriptionLabel')}
               </Label>
               <Textarea
                 id="description"
@@ -155,7 +161,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="recurrence" className="text-right">
-                When *
+                {t('whenLabel')}
               </Label>
               {/* date input (task) */}
               <div className="col-span-3 space-y-2">
@@ -226,7 +232,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="flex items-center gap-2 justify-end">
                 <Label htmlFor="targetCompletions">
-                  Complete
+                  {t('completeLabel')}
                 </Label>
               </div>
               <div className="col-span-3">
@@ -260,7 +266,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
                     </button>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    times
+                    {t('timesSuffix')}
                   </span>
                 </div>
               </div>
@@ -268,7 +274,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="flex items-center gap-2 justify-end">
                 <Label htmlFor="coinReward">
-                  Reward
+                  {t('rewardLabel')}
                 </Label>
               </div>
               <div className="col-span-3">
@@ -299,7 +305,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
                     </button>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    coins
+                    {t('coinsSuffix')}
                   </span>
                 </div>
               </div>
@@ -307,7 +313,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
             {users && users.length > 1 && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <div className="flex items-center justify-end gap-2">
-                  <Label htmlFor="sharing-toggle">Share</Label>
+                  <Label htmlFor="sharing-toggle">{t('shareLabel')}</Label>
                 </div>
                 <div className="col-span-3">
                   <div className="flex flex-wrap gap-2">
@@ -338,7 +344,11 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
             )}
           </div>
           <DialogFooter>
-            <Button type="submit">{habit ? 'Save Changes' : `Add ${isTask ? 'Task' : 'Habit'}`}</Button>
+            <Button type="submit">
+              {habit
+                ? t('saveChangesButton')
+                : t(isTask ? 'addTaskButton' : 'addHabitButton')}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

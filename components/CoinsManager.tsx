@@ -13,11 +13,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { settingsAtom, usersAtom } from '@/lib/atoms'
 import Link from 'next/link'
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { useCoins } from '@/hooks/useCoins'
 import { TransactionNoteEditor } from './TransactionNoteEditor'
 import { useHelpers } from '@/lib/client-helpers'
+import { TransactionType } from '@/lib/types'
 
 export default function CoinsManager() {
+  const t = useTranslations('CoinsManager')
   const { currentUser } = useHelpers()
   const [selectedUser, setSelectedUser] = useState<string>()
   const {
@@ -31,7 +34,7 @@ export default function CoinsManager() {
     totalSpent,
     coinsSpentToday,
     transactionsToday
-  } = useCoins({selectedUser})
+  } = useCoins({ selectedUser })
   const [settings] = useAtom(settingsAtom)
   const [usersData] = useAtom(usersAtom)
   const DEFAULT_AMOUNT = '0'
@@ -86,10 +89,21 @@ export default function CoinsManager() {
     }
   }
 
+  const getTransactionTypeLabel = (type: TransactionType) => {
+    switch (type) {
+      case 'HABIT_COMPLETION': return t('transactionTypeHabitCompletion');
+      case 'TASK_COMPLETION': return t('transactionTypeTaskCompletion');
+      case 'HABIT_UNDO': return t('transactionTypeHabitUndo');
+      case 'TASK_UNDO': return t('transactionTypeTaskUndo');
+      case 'WISH_REDEMPTION': return t('transactionTypeWishRedemption');
+      case 'MANUAL_ADJUSTMENT': return t('transactionTypeManualAdjustment');
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold mr-6">Coins Management</h1>
+        <h1 className="text-3xl font-bold mr-6">{t('title')}</h1>
         {currentUser?.isAdmin && (
           <select
             className="border rounded p-2"
@@ -111,8 +125,8 @@ export default function CoinsManager() {
             <CardTitle className="flex items-center gap-2">
               <span className="text-2xl animate-bounce hover:animate-none cursor-default">💰</span>
               <div>
-                <div className="text-sm font-normal text-muted-foreground">Current Balance</div>
-                <div className="text-3xl font-bold"><FormattedNumber amount={balance} settings={settings} /> coins</div>
+                <div className="text-sm font-normal text-muted-foreground">{t('currentBalanceLabel')}</div>
+                <div className="text-3xl font-bold"><FormattedNumber amount={balance} settings={settings} /> {t('coinsSuffix')}</div>
               </div>
             </CardTitle>
           </CardHeader>
@@ -157,7 +171,7 @@ export default function CoinsManager() {
                       variant="default"
                     >
                       <div className="flex items-center gap-2">
-                        {Number(amount) >= 0 ? 'Add Coins' : 'Remove Coins'}
+                        {Number(amount) >= 0 ? t('addCoinsButton') : t('removeCoinsButton')}
                       </div>
                     </Button>
                   </div>
@@ -169,27 +183,27 @@ export default function CoinsManager() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Statistics</CardTitle>
+            <CardTitle>{t('statisticsTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
               {/* Top Row - Totals */}
               <div className="p-4 rounded-lg bg-green-100 dark:bg-green-900">
-                <div className="text-sm text-green-800 dark:text-green-100 mb-1">Total Earned</div>
+                <div className="text-sm text-green-800 dark:text-green-100 mb-1">{t('totalEarnedLabel')}</div>
                 <div className="text-2xl font-bold text-green-900 dark:text-green-50">
                   <FormattedNumber amount={totalEarned} settings={settings} /> 🪙
                 </div>
               </div>
 
               <div className="p-4 rounded-lg bg-red-100 dark:bg-red-900">
-                <div className="text-sm text-red-800 dark:text-red-100 mb-1">Total Spent</div>
+                <div className="text-sm text-red-800 dark:text-red-100 mb-1">{t('totalSpentLabel')}</div>
                 <div className="text-2xl font-bold text-red-900 dark:text-red-50">
                   <FormattedNumber amount={totalSpent} settings={settings} /> 💸
                 </div>
               </div>
 
               <div className="p-4 rounded-lg bg-pink-100 dark:bg-pink-900">
-                <div className="text-sm text-pink-800 dark:text-pink-100 mb-1">Total Transactions</div>
+                <div className="text-sm text-pink-800 dark:text-pink-100 mb-1">{t('totalTransactionsLabel')}</div>
                 <div className="text-2xl font-bold text-pink-900 dark:text-pink-50">
                   {transactions.length} 📈
                 </div>
@@ -197,21 +211,21 @@ export default function CoinsManager() {
 
               {/* Bottom Row - Today */}
               <div className="p-4 rounded-lg bg-blue-100 dark:bg-blue-900">
-                <div className="text-sm text-blue-800 dark:text-blue-100 mb-1">Today's Earned</div>
+                <div className="text-sm text-blue-800 dark:text-blue-100 mb-1">{t('todaysEarnedLabel')}</div>
                 <div className="text-2xl font-bold text-blue-900 dark:text-blue-50">
                   <FormattedNumber amount={coinsEarnedToday} settings={settings} /> 🪙
                 </div>
               </div>
 
               <div className="p-4 rounded-lg bg-purple-100 dark:bg-purple-900">
-                <div className="text-sm text-purple-800 dark:text-purple-100 mb-1">Today's Spent</div>
+                <div className="text-sm text-purple-800 dark:text-purple-100 mb-1">{t('todaysSpentLabel')}</div>
                 <div className="text-2xl font-bold text-purple-900 dark:text-purple-50">
                   <FormattedNumber amount={coinsSpentToday} settings={settings} /> 💸
                 </div>
               </div>
 
               <div className="p-4 rounded-lg bg-orange-100 dark:bg-orange-900">
-                <div className="text-sm text-orange-800 dark:text-orange-100 mb-1">Today's Transactions</div>
+                <div className="text-sm text-orange-800 dark:text-orange-100 mb-1">{t('todaysTransactionsLabel')}</div>
                 <div className="text-2xl font-bold text-orange-900 dark:text-orange-50">
                   {transactionsToday} 📊
                 </div>
@@ -222,13 +236,13 @@ export default function CoinsManager() {
 
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Transaction History</CardTitle>
+            <CardTitle>{t('transactionHistoryTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Show:</span>
+                  <span className="text-sm text-muted-foreground">{t('showLabel')}</span>
                   <select
                     className="border rounded p-1"
                     value={pageSize}
@@ -241,18 +255,18 @@ export default function CoinsManager() {
                     <option value={100}>100</option>
                     <option value={500}>500</option>
                   </select>
-                  <span className="text-sm text-muted-foreground">entries</span>
+                  <span className="text-sm text-muted-foreground">{t('entriesSuffix')}</span>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Showing {Math.min((currentPage - 1) * pageSize + 1, transactions.length)} to {Math.min(currentPage * pageSize, transactions.length)} of {transactions.length} entries
+                  {t('showingEntries', { from: Math.min((currentPage - 1) * pageSize + 1, transactions.length), to: Math.min(currentPage * pageSize, transactions.length), total: transactions.length })}
                 </div>
               </div>
 
               {transactions.length === 0 ? (
                 <EmptyState
                   icon={History}
-                  title="No transactions yet"
-                  description="Your transaction history will appear here once you start earning or spending coins"
+                  title={t('noTransactionsTitle')}
+                  description={t('noTransactionsDescription')}
                 />
               ) : (
                 <>
@@ -279,9 +293,8 @@ export default function CoinsManager() {
                         <div
                           key={transaction.id}
                           ref={(el) => { transactionRefs.current[transaction.id] = el; }} // Assign ref correctly
-                          className={`flex justify-between items-center p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                            isHighlighted ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30' : '' // Apply highlight styles
-                          }`}
+                          className={`flex justify-between items-center p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${isHighlighted ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30' : '' // Apply highlight styles
+                            }`}
                         >
                           <div className="space-y-1 flex-grow mr-4"> {/* Added flex-grow and margin */}
                             <div className="flex items-center gap-2 flex-wrap"> {/* Added flex-wrap */}
@@ -299,7 +312,7 @@ export default function CoinsManager() {
                               <span
                                 className={`text-xs px-2 py-1 rounded-full ${getBadgeStyles()}`}
                               >
-                                {transaction.type.split('_').join(' ')}
+                                {getTransactionTypeLabel(transaction.type as TransactionType)}
                               </span>
                               {transaction.userId && currentUser?.isAdmin && (
                                 <Avatar className="h-6 w-6">
@@ -357,9 +370,9 @@ export default function CoinsManager() {
                         ‹
                       </Button>
                       <div className="flex items-center gap-1 px-4 py-2 rounded-md bg-muted">
-                        <span className="text-sm font-medium">Page</span>
+                        <span className="text-sm font-medium">{t('pageLabel')}</span>
                         <span className="text-sm font-bold">{currentPage}</span>
-                        <span className="text-sm font-medium">of</span>
+                        <span className="text-sm font-medium">{t('ofLabel')}</span>
                         <span className="text-sm font-bold">{Math.ceil(transactions.length / pageSize)}</span>
                       </div>
                       <Button

@@ -1,9 +1,11 @@
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { settingsAtom } from '@/lib/atoms'
 import { useCoins } from '@/hooks/useCoins'
 import { FormattedNumber } from '@/components/FormattedNumber'
 
 export default function TodayEarnedCoins({ longFormat }: { longFormat?: boolean }) {
+  const t = useTranslations('TodayEarnedCoins')
   const [settings] = useAtom(settingsAtom)
   const { coinsEarnedToday } = useCoins()
 
@@ -14,7 +16,7 @@ export default function TodayEarnedCoins({ longFormat }: { longFormat?: boolean 
       {"+"}
       <FormattedNumber amount={coinsEarnedToday} settings={settings} />
       {longFormat ?
-        <span className="text-sm text-muted-foreground"> today</span>
+        <span className="text-sm text-muted-foreground"> {t('todaySuffix')}</span>
         : null}
     </span>
   )

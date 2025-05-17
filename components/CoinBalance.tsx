@@ -2,17 +2,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Coins } from 'lucide-react'
 import { FormattedNumber } from '@/components/FormattedNumber'
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { settingsAtom } from '@/lib/atoms'
 import dynamic from 'next/dynamic'
 
 const TodayEarnedCoins = dynamic(() => import('./TodayEarnedCoins'), { ssr: false })
 
 export default function CoinBalance({ coinBalance }: { coinBalance: number }) {
+  const t = useTranslations('CoinBalance');
   const [settings] = useAtom(settingsAtom)
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Coin Balance</CardTitle>
+        <CardTitle>{t('coinBalanceTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-center">

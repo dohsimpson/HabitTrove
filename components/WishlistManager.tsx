@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useWishlist } from '@/hooks/useWishlist'
+import { useTranslations } from 'next-intl'
 import { Plus, Gift } from 'lucide-react'
 import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ import { openWindow } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 
 export default function WishlistManager() {
+  const t = useTranslations('WishlistManager')
   const {
     addWishlistItem,
     editWishlistItem,
@@ -70,8 +72,8 @@ export default function WishlistManager() {
           const opened = openWindow(item.link!)
           if (!opened) {
             toast({
-              title: "Popup Blocked",
-              description: "Please allow popups to open the link",
+              title: t('popupBlockedTitle'),
+              description: t('popupBlockedDescription'),
               variant: "destructive"
             })
           }
@@ -83,9 +85,9 @@ export default function WishlistManager() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">My Wishlist</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
         <Button onClick={() => setIsModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Reward
+          <Plus className="mr-2 h-4 w-4" /> {t('addRewardButton')}
         </Button>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
@@ -93,8 +95,8 @@ export default function WishlistManager() {
           <div className="col-span-1 lg:col-span-2">
             <EmptyState
               icon={Gift}
-              title="Your wishlist is empty"
-              description="Add rewards that you'd like to earn with your coins"
+              title={t('emptyStateTitle')}
+              description={t('emptyStateDescription')}
             />
           </div>
         ) : (
@@ -129,7 +131,7 @@ export default function WishlistManager() {
           <>
             <div className="col-span-1 lg:col-span-2 relative flex items-center my-6">
               <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
-              <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">Archived</span>
+              <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">{t('archivedSectionTitle')}</span>
               <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
             </div>
             {archivedItems.map((item) => (
@@ -167,9 +169,9 @@ export default function WishlistManager() {
           }
           setDeleteConfirmation({ isOpen: false, itemId: null })
         }}
-        title="Delete Reward"
-        message="Are you sure you want to delete this reward? This action cannot be undone."
-        confirmText="Delete"
+        title={t('deleteDialogTitle')}
+        message={t('deleteDialogMessage')}
+        confirmText={t('deleteButton')}
       />
     </div>
   )
