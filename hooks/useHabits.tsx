@@ -1,4 +1,5 @@
 import { useAtom, atom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { habitsAtom, coinsAtom, settingsAtom, usersAtom, habitFreqMapAtom } from '@/lib/atoms'
 import { addCoins, removeCoins, saveHabitsData } from '@/app/actions/data'
 import { Habit, Permission, SafeUser, User } from '@/lib/types'
@@ -24,12 +25,13 @@ import { useHelpers } from '@/lib/client-helpers'
 function handlePermissionCheck(
   user: SafeUser | undefined,
   resource: 'habit' | 'wishlist' | 'coins',
-  action: 'write' | 'interact'
+  action: 'write' | 'interact',
+  tCommon: (key: string, values?: Record<string, any>) => string
 ): boolean {
   if (!user) {
     toast({
-      title: "Authentication Required",
-      description: "Please sign in to continue.",
+      title: tCommon("authenticationRequiredTitle"),
+      description: tCommon("authenticationRequiredDescription"),
       variant: "destructive",
     })
     return false
@@ -37,8 +39,8 @@ function handlePermissionCheck(
 
   if (!user.isAdmin && !checkPermission(user.permissions, resource, action)) {
     toast({
-      title: "Permission Denied",
-      description: `You don't have ${action} permission for ${resource}s.`,
+      title: tCommon("permissionDeniedTitle"),
+      description: tCommon("permissionDeniedDescription", { action, resource }),
       variant: "destructive",
     })
     return false
@@ -49,6 +51,8 @@ function handlePermissionCheck(
 
 
 export function useHabits() {
+  const t = useTranslations('useHabits');
+  const tCommon = useTranslations('Common');
   const [usersData] = useAtom(usersAtom)
   const { currentUser } = useHelpers()
   const [habitsData, setHabitsData] = useAtom(habitsAtom)
@@ -57,7 +61,7 @@ export function useHabits() {
   const [habitFreqMap] = useAtom(habitFreqMapAtom)
 
   const completeHabit = async (habit: Habit) => {
-    if (!handlePermissionCheck(currentUser, 'habit', 'interact')) return
+    if (!handlePermissionCheck(currentUser, 'habit', 'interact', tCommon)) return
     const timezone = settings.system.timezone
     const today = getTodayInTimezone(timezone)
 
@@ -72,8 +76,8 @@ export function useHabits() {
     // Check if already completed
     if (completionsToday >= target) {
       toast({
-        title: "Already completed",
-        description: `You've already completed this habit today.`,
+        title: t("alreadyCompletedTitle"),
+        description: t("alreadyCompletedDescription"),
         variant: "destructive",
       })
       return
@@ -104,19 +108,19 @@ export function useHabits() {
       })
       isTargetReached && playSound()
       toast({
-        title: "Completed!",
-        description: `You earned ${habit.coinReward} coins.`,
-        action: <ToastAction altText="Undo" className="gap-2" onClick={() => undoComplete(updatedHabit)}>
-          <Undo2 className="h-4 w-4" />Undo
+        title: t("completedTitle"),
+        description: t("earnedCoinsDescription", { coinReward: habit.coinReward }),
+        action: <ToastAction altText={tCommon('undoButton')} className="gap-2" onClick={() => undoComplete(updatedHabit)}>
+          <Undo2 className="h-4 w-4" />{tCommon('undoButton')}
         </ToastAction>
       })
       setCoins(updatedCoins)
     } else {
       toast({
-        title: "Progress!",
-        description: `You've completed ${completionsToday + 1}/${target} times today.`,
-        action: <ToastAction altText="Undo" className="gap-2" onClick={() => undoComplete(updatedHabit)}>
-          <Undo2 className="h-4 w-4" />Undo
+        title: t("progressTitle"),
+        description: t("progressDescription", { count: completionsToday + 1, target }),
+        action: <ToastAction altText={tCommon('undoButton')} className="gap-2" onClick={() => undoComplete(updatedHabit)}>
+          <Undo2 className="h-4 w-4" />{tCommon('undoButton')}
         </ToastAction>
       })
     }
@@ -131,7 +135,7 @@ export function useHabits() {
   }
 
   const undoComplete = async (habit: Habit) => {
-    if (!handlePermissionCheck(currentUser, 'habit', 'interact')) return
+    if (!handlePermissionCheck(currentUser, 'habit', 'interact', tCommon)) return
     const timezone = settings.system.timezone
     const today = t2d({ timestamp: getTodayInTimezone(timezone), timezone })
 
@@ -170,14 +174,17 @@ export function useHabits() {
       }
 
       toast({
-        title: "Completion undone",
-        description: `You have ${getCompletionsForDate({
-          habit: updatedHabit,
-          date: today,
-          timezone
-        })}/${target} completions today.`,
-        action: <ToastAction altText="Redo" onClick={() => completeHabit(updatedHabit)}>
-          <Undo2 className="h-4 w-4" />Redo
+        title: t("completionUndoneTitle"),
+        description: t("completionUndoneDescription", {
+          count: getCompletionsForDate({
+            habit: updatedHabit,
+            date: today,
+            timezone
+          }),
+          target
+        }),
+        action: <ToastAction altText={tCommon('redoButton')} onClick={() => completeHabit(updatedHabit)}>
+          <Undo2 className="h-4 w-4" />{tCommon('redoButton')}
         </ToastAction>
       })
 
@@ -188,8 +195,8 @@ export function useHabits() {
       }
     } else {
       toast({
-        title: "No completions to undo",
-        description: "This habit hasn't been completed today.",
+        title: t("noCompletionsToUndoTitle"),
+        description: t("noCompletionsToUndoDescription"),
         variant: "destructive",
       })
       return
@@ -197,7 +204,7 @@ export function useHabits() {
   }
 
   const saveHabit = async (habit: Omit<Habit, 'id'> & { id?: string }) => {
-    if (!handlePermissionCheck(currentUser, 'habit', 'write')) return
+    if (!handlePermissionCheck(currentUser, 'habit', 'write', tCommon)) return
     const newHabit = {
       ...habit,
       id: habit.id || getNowInMilliseconds().toString()
@@ -212,7 +219,7 @@ export function useHabits() {
   }
 
   const deleteHabit = async (id: string) => {
-    if (!handlePermissionCheck(currentUser, 'habit', 'write')) return
+    if (!handlePermissionCheck(currentUser, 'habit', 'write', tCommon)) return
     const updatedHabits = habitsData.habits.filter(h => h.id !== id)
     await saveHabitsData({ habits: updatedHabits })
     setHabitsData({ habits: updatedHabits })
@@ -220,7 +227,7 @@ export function useHabits() {
   }
 
   const completePastHabit = async (habit: Habit, date: DateTime) => {
-    if (!handlePermissionCheck(currentUser, 'habit', 'interact')) return
+    if (!handlePermissionCheck(currentUser, 'habit', 'interact', tCommon)) return
     const timezone = settings.system.timezone
     const dateKey = getISODate({ dateTime: date, timezone })
 
@@ -232,8 +239,8 @@ export function useHabits() {
 
     if (completionsOnDate >= target) {
       toast({
-        title: "Already completed",
-        description: `This habit was already completed on ${d2s({ dateTime: date, timezone, format: 'yyyy-MM-dd' })}.`,
+        title: t("alreadyCompletedPastDateTitle"),
+        description: t("alreadyCompletedPastDateDescription", { dateKey: d2s({ dateTime: date, timezone, format: 'yyyy-MM-dd' }) }),
         variant: "destructive",
       })
       return
@@ -273,12 +280,12 @@ export function useHabits() {
     }
 
     toast({
-      title: isTargetReached ? "Completed!" : "Progress!",
+      title: isTargetReached ? t("completedTitle") : t("progressTitle"),
       description: isTargetReached
-        ? `You earned ${habit.coinReward} coins for ${dateKey}.`
-        : `You've completed ${completionsOnDate + 1}/${target} times on ${dateKey}.`,
-      action: <ToastAction altText="Undo" className="gap-2" onClick={() => undoComplete(updatedHabit)}>
-        <Undo2 className="h-4 w-4" />Undo
+        ? t("earnedCoinsPastDateDescription", { coinReward: habit.coinReward, dateKey })
+        : t("progressPastDateDescription", { count: completionsOnDate + 1, target, dateKey }),
+      action: <ToastAction altText={tCommon('undoButton')} className="gap-2" onClick={() => undoComplete(updatedHabit)}>
+        <Undo2 className="h-4 w-4" />{tCommon('undoButton')}
       </ToastAction>
     })
 
@@ -290,7 +297,7 @@ export function useHabits() {
   }
 
   const archiveHabit = async (id: string) => {
-    if (!handlePermissionCheck(currentUser, 'habit', 'write')) return
+    if (!handlePermissionCheck(currentUser, 'habit', 'write', tCommon)) return
     const updatedHabits = habitsData.habits.map(h =>
       h.id === id ? { ...h, archived: true } : h
     )
@@ -299,7 +306,7 @@ export function useHabits() {
   }
 
   const unarchiveHabit = async (id: string) => {
-    if (!handlePermissionCheck(currentUser, 'habit', 'write')) return
+    if (!handlePermissionCheck(currentUser, 'habit', 'write', tCommon)) return
     const updatedHabits = habitsData.habits.map(h =>
       h.id === id ? { ...h, archived: false } : h
     )

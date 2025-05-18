@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react' // Added useMemo, useEffect
 import { Plus, ArrowUpNarrowWide, ArrowDownWideNarrow, Search } from 'lucide-react' // Added sort icons, Search icon
 import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
 import { habitsAtom, settingsAtom, browserSettingsAtom } from '@/lib/atoms'
 import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
@@ -20,6 +21,7 @@ import { DateTime } from 'luxon' // Added
 import { getHabitFreq } from '@/lib/utils' // Added
 
 export default function HabitList() {
+  const t = useTranslations('HabitList');
   const { saveHabit, deleteHabit } = useHabits()
   const [habitsData] = useAtom(habitsAtom) // setHabitsData removed as it's not used
   const [browserSettings] = useAtom(browserSettingsAtom)
@@ -125,14 +127,14 @@ export default function HabitList() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">
-          {isTasksView ? 'My Tasks' : 'My Habits'}
+          {t(isTasksView ? 'myTasks' : 'myHabits')}
         </h1>
         <span>
           <Button className="mr-2" onClick={() => setModalConfig({ isOpen: true, isTask: true })}>
-            <Plus className="mr-2 h-4 w-4" /> {'Add Task'}
+            <Plus className="mr-2 h-4 w-4" /> {t('addTaskButton')}
           </Button>
           <Button onClick={() => setModalConfig({ isOpen: true, isTask: false })}>
-            <Plus className="mr-2 h-4 w-4" /> {'Add Habit'}
+            <Plus className="mr-2 h-4 w-4" /> {t('addHabitButton')}
           </Button>
         </span>
       </div>
@@ -148,28 +150,28 @@ export default function HabitList() {
           </div>
           <Input
             type="search"
-            placeholder={`Search ${isTasksView ? 'tasks' : 'habits'}...`}
+            placeholder={t(isTasksView ? 'searchTasksPlaceholder' : 'searchHabitsPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 w-full"
           />
         </div>
         <div className="flex items-center gap-2 self-start sm:self-center w-full sm:w-auto">
-          <Label htmlFor="sort-by" className="text-sm font-medium whitespace-nowrap sr-only sm:not-sr-only">Sort by:</Label>
+          <Label htmlFor="sort-by" className="text-sm font-medium whitespace-nowrap sr-only sm:not-sr-only">{t('sortByLabel')}</Label>
           <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortableField)}>
             <SelectTrigger id="sort-by" className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Sort by" />
+              <SelectValue placeholder={t('sortByLabel')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="coinReward">Coin Reward</SelectItem>
-              {isTasksView && <SelectItem value="dueDate">Due Date</SelectItem>}
-              {!isTasksView && <SelectItem value="frequency">Frequency</SelectItem>}
+              <SelectItem value="name">{t('sortByName')}</SelectItem>
+              <SelectItem value="coinReward">{t('sortByCoinReward')}</SelectItem>
+              {isTasksView && <SelectItem value="dueDate">{t('sortByDueDate')}</SelectItem>}
+              {!isTasksView && <SelectItem value="frequency">{t('sortByFrequency')}</SelectItem>}
             </SelectContent>
           </Select>
           <Button variant="outline" size="icon" onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}>
             {sortOrder === 'asc' ? <ArrowUpNarrowWide className="h-4 w-4" /> : <ArrowDownWideNarrow className="h-4 w-4" />}
-            <span className="sr-only">Toggle sort order</span>
+            <span className="sr-only">{t('toggleSortOrderAriaLabel')}</span>
           </Button>
         </div>
       </div>
@@ -177,14 +179,14 @@ export default function HabitList() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
         {activeHabits.length === 0 && searchTerm.trim() ? (
           <div className="col-span-2 text-center text-muted-foreground py-8">
-            No {isTasksView ? 'tasks' : 'habits'} found matching your search.
+            {t(isTasksView ? 'noTasksFoundMessage' : 'noHabitsFoundMessage')}
           </div>
         ) : activeHabits.length === 0 ? (
           <div className="col-span-2">
             <EmptyState
               icon={isTasksView ? TaskIcon : HabitIcon}
-              title={isTasksView ? "No tasks yet" : "No habits yet"}
-              description={isTasksView ? "Create your first task to start tracking your progress" : "Create your first habit to start tracking your progress"}
+              title={t(isTasksView ? 'emptyStateTasksTitle' : 'emptyStateHabitsTitle')}
+              description={t(isTasksView ? 'emptyStateTasksDescription' : 'emptyStateHabitsDescription')}
             />
           </div>
         ) : (
@@ -205,7 +207,7 @@ export default function HabitList() {
           <>
             <div className="col-span-1 sm:col-span-2 relative flex items-center my-6">
               <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
-              <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">Archived</span>
+              <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">{t('archivedSectionTitle')}</span>
               <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
             </div>
             {archivedHabits.map((habit: Habit) => (
@@ -246,9 +248,9 @@ export default function HabitList() {
           }
           setDeleteConfirmation({ isOpen: false, habitId: null })
         }}
-        title={isTasksView ? "Delete Task" : "Delete Habit"}
-        message={isTasksView ? "Are you sure you want to delete this task? This action cannot be undone." : "Are you sure you want to delete this habit? This action cannot be undone."}
-        confirmText="Delete"
+        title={t(isTasksView ? 'deleteTaskDialogTitle' : 'deleteHabitDialogTitle')}
+        message={t(isTasksView ? 'deleteTaskDialogMessage' : 'deleteHabitDialogMessage')}
+        confirmText={t('deleteButton')}
       />
     </div>
   )

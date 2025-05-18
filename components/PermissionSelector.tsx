@@ -3,6 +3,7 @@
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Permission } from '@/lib/types';
+import { useTranslations } from 'next-intl';
 
 interface PermissionSelectorProps {
   permissions: Permission[];
@@ -11,18 +12,20 @@ interface PermissionSelectorProps {
   onAdminChange: (isAdmin: boolean) => void;
 }
 
-const permissionLabels: { [key: string]: string } = {
-  habit: 'Habit / Task',
-  wishlist: 'Wishlist',
-  coins: 'Coins'
-};
-
 export function PermissionSelector({
   permissions,
   isAdmin,
   onPermissionsChange,
   onAdminChange,
 }: PermissionSelectorProps) {
+  const t = useTranslations('PermissionSelector');
+
+  const permissionLabels: { [key: string]: string } = {
+    habit: t('resourceHabitTask'),
+    wishlist: t('resourceWishlist'),
+    coins: t('resourceCoins')
+  };
+
   const currentPermissions = isAdmin ?
     {
       habit: { write: true, interact: true },
@@ -49,11 +52,11 @@ export function PermissionSelector({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Permissions</Label>
+        <Label>{t('permissionsTitle')}</Label>
         <div className="grid grid-cols-1 gap-4">
           <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
             <div className="flex items-center gap-2">
-              <div className="font-medium text-sm">Admin Access</div>
+              <div className="font-medium text-sm">{t('adminAccessLabel')}</div>
             </div>
             <Switch
               id="isAdmin"
@@ -65,7 +68,7 @@ export function PermissionSelector({
 
           {isAdmin ? (
             <p className="text-xs text-muted-foreground px-3">
-              Admins have full permission to all data for all users
+              {t('adminAccessDescription')}
             </p>
           ) : (
             <div className="grid grid-cols-3 gap-4">
@@ -74,7 +77,7 @@ export function PermissionSelector({
                   <div className="font-medium capitalize text-sm border-b pb-2">{permissionLabels[resource]}</div>
                   <div className="flex flex-col gap-2.5">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                    <Label htmlFor={`${resource}-write`} className="text-xs text-muted-foreground break-words">Write</Label>
+                    <Label htmlFor={`${resource}-write`} className="text-xs text-muted-foreground break-words">{t('permissionWrite')}</Label>
                       <Switch
                         id={`${resource}-write`}
                         className="h-4 w-7"
@@ -85,7 +88,7 @@ export function PermissionSelector({
                       />
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                    <Label htmlFor={`${resource}-interact`} className="text-xs text-muted-foreground break-words">Interact</Label>
+                    <Label htmlFor={`${resource}-interact`} className="text-xs text-muted-foreground break-words">{t('permissionInteract')}</Label>
                       <Switch
                         id={`${resource}-interact`}
                         className="h-4 w-7"

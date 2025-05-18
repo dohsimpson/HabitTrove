@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Check, Loader2, Pencil, Trash2, X } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
+import { useTranslations } from 'next-intl'
 
 interface TransactionNoteEditorProps {
   transactionId: string
@@ -19,6 +20,7 @@ export function TransactionNoteEditor({
   onSave,
   onDelete
 }: TransactionNoteEditorProps) {
+  const t = useTranslations('TransactionNoteEditor');
   const [isEditing, setIsEditing] = useState(false)
   const [noteText, setNoteText] = useState(initialNote)
   const [isSaving, setIsSaving] = useState(false)
@@ -27,8 +29,8 @@ export function TransactionNoteEditor({
     const trimmedNote = noteText.trim()
     if (trimmedNote.length > 200) {
       toast({
-        title: 'Note too long',
-        description: 'Notes must be less than 200 characters',
+        title: t('noteTooLongTitle'),
+        description: t('noteTooLongDescription'),
         variant: 'destructive'
       })
       return
@@ -40,8 +42,8 @@ export function TransactionNoteEditor({
       setIsEditing(false)
     } catch (error) {
       toast({
-        title: 'Error saving note',
-        description: 'Please try again',
+        title: t('errorSavingNoteTitle'),
+        description: t('pleaseTryAgainDescription'),
         variant: 'destructive'
       })
       // Revert to initial value on error
@@ -59,8 +61,8 @@ export function TransactionNoteEditor({
       setIsEditing(false)
     } catch (error) {
       toast({
-        title: 'Error deleting note',
-        description: 'Please try again',
+        title: t('errorDeletingNoteTitle'),
+        description: t('pleaseTryAgainDescription'),
         variant: 'destructive'
       })
     } finally {
@@ -74,7 +76,7 @@ export function TransactionNoteEditor({
         <Input
           value={noteText}
           onChange={(e) => setNoteText(e.target.value)}
-          placeholder="Add a note..."
+          placeholder={t('addNotePlaceholder')}
           className="w-64"
           maxLength={200}
         />
@@ -85,7 +87,7 @@ export function TransactionNoteEditor({
             onClick={handleSave}
             disabled={isSaving}
             className="text-green-600 dark:text-green-500 hover:text-green-700 dark:hover:text-green-400 transition-colors"
-            title="Save note"
+            title={t('saveNoteTitle')}
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           </Button>
@@ -98,7 +100,7 @@ export function TransactionNoteEditor({
             }}
             disabled={isSaving}
             className="text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors"
-            title="Cancel"
+            title={t('cancelButtonTitle')}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -109,7 +111,7 @@ export function TransactionNoteEditor({
               onClick={handleDelete}
               disabled={isSaving}
               className="text-gray-600 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-400 transition-colors"
-              title="Delete note"
+              title={t('deleteNoteTitle')}
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </Button>
@@ -129,7 +131,7 @@ export function TransactionNoteEditor({
       <button
         onClick={() => setIsEditing(true)}
         className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-        aria-label="Edit note"
+        aria-label={t('editNoteAriaLabel')}
       >
         <Pencil className="h-4 w-4" />
       </button>

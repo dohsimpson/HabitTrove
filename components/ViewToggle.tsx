@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { useAtom } from 'jotai'
-import { CheckSquare, ListChecks } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { browserSettingsAtom, habitsAtom, settingsAtom } from '@/lib/atoms'
 import type { ViewType } from '@/lib/types'
 import { HabitIcon, TaskIcon } from '@/lib/constants'
@@ -18,6 +18,7 @@ export function ViewToggle({
   defaultView = 'habits',
   className
 }: ViewToggleProps) {
+  const t = useTranslations('ViewToggle')
   const [browserSettings, setBrowserSettings] = useAtom(browserSettingsAtom)
   const [habits] = useAtom(habitsAtom)
   const [settings] = useAtom(settingsAtom)
@@ -46,9 +47,9 @@ export function ViewToggle({
           )}
         >
           <HabitIcon className="h-4 w-4" />
-          <span className="hidden sm:inline">Habits</span>
+          <span className="hidden sm:inline">{t('habitsLabel')}</span>
         </button>
-        <NotificationBadge 
+        <NotificationBadge
           label={dueTasksCount}
           show={dueTasksCount > 0}
           variant={browserSettings.viewType === 'tasks' ? 'secondary' : 'default'}
@@ -62,7 +63,7 @@ export function ViewToggle({
             )}
           >
             <TaskIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">Tasks</span>
+            <span className="hidden sm:inline">{t('tasksLabel')}</span>
           </button>
         </NotificationBadge>
         <div

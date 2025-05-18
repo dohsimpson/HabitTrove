@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.2.12
+
+### Added
+
+* 🌍 Added multi-language support! Users can now select their preferred language in settings.
+* Supported languages: English, Español (Spanish), Deutsch (German), Français (French), Русский (Russian), 简体中文 (Simplified Chinese) and 日本語 (Japanese).
+
 ## Version 0.2.11
 
 ### Added

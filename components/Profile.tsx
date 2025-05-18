@@ -15,8 +15,10 @@ import { useTheme } from "next-themes"
 import { signOut } from "@/app/actions/user"
 import { toast } from "@/hooks/use-toast"
 import { useHelpers } from "@/lib/client-helpers"
+import { useTranslations } from 'next-intl'
 
 export function Profile() {
+  const t = useTranslations('Profile');
   const [settings] = useAtom(settingsAtom)
   const [userSelect, setUserSelect] = useAtom(userSelectAtom)
   const [isEditing, setIsEditing] = useState(false)
@@ -29,14 +31,14 @@ export function Profile() {
     try {
       await signOut()
       toast({
-        title: "Signed out successfully",
-        description: "You have been logged out of your account",
+        title: t('signOutSuccessTitle'),
+        description: t('signOutSuccessDescription'),
       })
       setTimeout(() => window.location.reload(), 300);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to sign out",
+        title: t('signOutErrorTitle'),
+        description: t('signOutErrorDescription'),
         variant: "destructive",
       })
     }
@@ -66,7 +68,7 @@ export function Profile() {
               </Avatar>
               <div className="flex flex-col mr-4">
                 <span className="text-sm font-semibold flex items-center gap-1">
-                  {user?.username || "Guest"}
+                  {user?.username || t('guestUsername')}
                   {user?.isAdmin && <Crown className="h-3 w-3 text-yellow-500" />}
                 </span>
                 {user && (
@@ -78,7 +80,7 @@ export function Profile() {
                     }}
                     className="text-xs text-muted-foreground hover:text-primary transition-colors text-left"
                   >
-                    Edit profile
+                    {t('editProfileButton')}
                   </button>
                 )}
               </div>
@@ -104,18 +106,18 @@ export function Profile() {
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
                 <ArrowRightLeft className="h-4 w-4" />
-                <span>Switch user</span>
+                <span>{t('switchUserButton')}</span>
               </div>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer px-2 py-1.5" asChild>
             <Link
               href="/settings"
-              aria-label='settings'
+              aria-label={t('settingsLink')}
               className="flex items-center w-full gap-3"
             >
               <Settings className="h-4 w-4" />
-              <span>Settings</span>
+              <span>{t('settingsLink')}</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer px-2 py-1.5" asChild>
@@ -124,14 +126,14 @@ export function Profile() {
               className="flex items-center w-full gap-3"
             >
               <Info className="h-4 w-4" />
-              <span>About</span>
+              <span>{t('aboutButton')}</span>
             </button>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer px-2 py-1.5">
             <div className="flex items-center justify-between w-full gap-3">
               <div className="flex items-center gap-3">
                 <Palette className="h-4 w-4" />
-                <span>Theme</span>
+                <span>{t('themeLabel')}</span>
               </div>
               <button
                 onClick={(e) => {
@@ -174,7 +176,7 @@ export function Profile() {
         <Dialog open={isEditing} onOpenChange={() => setIsEditing(false)}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit Profile</DialogTitle>
+              <DialogTitle>{t('editProfileModalTitle')}</DialogTitle>
             </DialogHeader>
             <UserForm
               userId={user.id}

@@ -5,6 +5,7 @@ import { useAtom } from 'jotai'
 import { coinsAtom, habitsAtom, wishlistAtom, usersAtom } from '@/lib/atoms'
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 import NotificationDropdown from './NotificationDropdown';
 import {
   DropdownMenu,
@@ -17,6 +18,7 @@ import { useHelpers } from '@/lib/client-helpers';
 import { User, CoinTransaction } from '@/lib/types';
 
 export default function NotificationBell() {
+  const t = useTranslations('NotificationBell');
   const { currentUser } = useHelpers();
   const [coinsData] = useAtom(coinsAtom)
   const [habitsData] = useAtom(habitsAtom)
@@ -99,7 +101,7 @@ export default function NotificationBell() {
       const nowTimestamp = d2t({ dateTime: getNow({}) });
       await updateLastNotificationReadTimestamp(currentUser.id, nowTimestamp);
     } catch (error) {
-      console.error("Failed to update notification read timestamp:", error);
+      console.error(t('errorUpdateTimestamp'), error);
     }
   };
 
