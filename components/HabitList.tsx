@@ -124,9 +124,9 @@ export default function HabitList() {
 
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-xl xs:text-3xl font-bold">
           {t(isTasksView ? 'myTasks' : 'myHabits')}
         </h1>
         <span>
@@ -190,18 +190,18 @@ export default function HabitList() {
             />
           </div>
         ) : (
-            activeHabits.map((habit: Habit) => (
-              <HabitItem
-                key={habit.id}
-                habit={habit}
-                onEdit={() => {
-                  setEditingHabit(habit)
-                  setModalConfig({ isOpen: true, isTask: isTasksView })
-                }}
-                onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
-              />
-            ))
-          )}
+          activeHabits.map((habit: Habit) => (
+            <HabitItem
+              key={habit.id}
+              habit={habit}
+              onEdit={() => {
+                setEditingHabit(habit)
+                setModalConfig({ isOpen: true, isTask: isTasksView })
+              }}
+              onDelete={() => setDeleteConfirmation({ isOpen: true, habitId: habit.id })}
+            />
+          ))
+        )}
 
         {archivedHabits.length > 0 && (
           <>

@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.2.13
+
+### Fixed
+
+* fix responsive design on mobile (#134)
+* fix translation (#132)
+* fix latest docker tag auto build (#131)
+
 ## Version 0.2.12
 
 ### Added

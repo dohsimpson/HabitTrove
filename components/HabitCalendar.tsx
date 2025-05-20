@@ -43,8 +43,8 @@ export default function HabitCalendar() {
   }, [completedHabitsMap, settings.system.timezone])
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-semibold mb-6">{t('title')}</h1>
+    <div>
+      <h1 className="text-xl xs:text-3xl font-semibold mb-6">{t('title')}</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -157,49 +157,49 @@ export default function HabitCalendar() {
                         date: selectedDateTime
                       }))
                       .map((habit) => {
-                    const completions = getCompletionsForDate({ habit, date: selectedDateTime, timezone: settings.system.timezone })
-                    const isCompleted = completions >= (habit.targetCompletions || 1)
-                    return (
-                      <li key={habit.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
-                        <span className="flex items-center gap-2">
-                          <Linkify>{habit.name}</Linkify>
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-2">
-                            {habit.targetCompletions && (
-                              <span className="text-sm text-muted-foreground">
-                                {completions}/{habit.targetCompletions}
-                              </span>
-                            )}
-                            <button
-                              onClick={() => handleCompletePastHabit(habit, selectedDateTime)}
-                              disabled={isCompleted}
-                              className="relative h-4 w-4 hover:opacity-70 transition-opacity disabled:opacity-100"
-                            >
-                              {isCompleted ? (
-                                <CircleCheck className="h-4 w-4 text-green-500" />
-                              ) : (
-                                <div className="relative h-4 w-4">
-                                  <Circle className="absolute h-4 w-4 text-muted-foreground" />
-                                  <div
-                                    className="absolute h-4 w-4 rounded-full overflow-hidden"
-                                    style={{
-                                      background: `conic-gradient(
+                        const completions = getCompletionsForDate({ habit, date: selectedDateTime, timezone: settings.system.timezone })
+                        const isCompleted = completions >= (habit.targetCompletions || 1)
+                        return (
+                          <li key={habit.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
+                            <span className="flex items-center gap-2">
+                              <Linkify>{habit.name}</Linkify>
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                {habit.targetCompletions && (
+                                  <span className="text-sm text-muted-foreground">
+                                    {completions}/{habit.targetCompletions}
+                                  </span>
+                                )}
+                                <button
+                                  onClick={() => handleCompletePastHabit(habit, selectedDateTime)}
+                                  disabled={isCompleted}
+                                  className="relative h-4 w-4 hover:opacity-70 transition-opacity disabled:opacity-100"
+                                >
+                                  {isCompleted ? (
+                                    <CircleCheck className="h-4 w-4 text-green-500" />
+                                  ) : (
+                                    <div className="relative h-4 w-4">
+                                      <Circle className="absolute h-4 w-4 text-muted-foreground" />
+                                      <div
+                                        className="absolute h-4 w-4 rounded-full overflow-hidden"
+                                        style={{
+                                          background: `conic-gradient(
                                         currentColor ${(completions / (habit.targetCompletions ?? 1)) * 360}deg,
                                         transparent ${(completions / (habit.targetCompletions ?? 1)) * 360}deg 360deg
                                       )`,
-                                      mask: 'radial-gradient(transparent 50%, black 51%)',
-                                      WebkitMask: 'radial-gradient(transparent 50%, black 51%)'
-                                    }}
-                                  />
-                                </div>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </li>
-                    )
-                    })}
+                                          mask: 'radial-gradient(transparent 50%, black 51%)',
+                                          WebkitMask: 'radial-gradient(transparent 50%, black 51%)'
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          </li>
+                        )
+                      })}
                   </ul>
                 </div>
               </div>

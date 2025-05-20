@@ -37,7 +37,7 @@
     "dailyHabitsTitle": "Tägliche Gewohnheiten",
     "noHabitsDueTodayMessage": "Heute keine Gewohnheiten fällig. Fügen Sie Gewohnheiten hinzu, um zu beginnen!",
     "wishlistGoalsTitle": "Wunschlisten-Ziele",
-    "redeemableBadgleLabel": "{count}/{total} einlösbar",
+    "redeemableBadgeLabel": "{count}/{total} einlösbar",
     "noWishlistItemsMessage": "Noch keine Elemente auf der Wunschliste. Fügen Sie Ziele hinzu, auf die Sie hinarbeiten können!",
     "readyToRedeemMessage": "Bereit zum Einlösen!",
     "coinsToGoMessage": "Noch {amount} Münzen benötigt",

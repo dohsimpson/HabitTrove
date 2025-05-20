@@ -66,7 +66,7 @@ export default function WishlistManager() {
       setTimeout(() => {
         setRecentlyRedeemedId(null)
       }, 3000)
-      
+
       if (item.link) {
         setTimeout(() => {
           const opened = openWindow(item.link!)
@@ -83,9 +83,9 @@ export default function WishlistManager() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">{t('title')}</h1>
+        <h1 className="text-xl xs:text-3xl font-bold">{t('title')}</h1>
         <Button onClick={() => setIsModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> {t('addRewardButton')}
         </Button>
@@ -126,7 +126,7 @@ export default function WishlistManager() {
             </div>
           ))
         )}
-        
+
         {archivedItems.length > 0 && (
           <>
             <div className="col-span-1 lg:col-span-2 relative flex items-center my-6">
