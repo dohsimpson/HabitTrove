@@ -35,7 +35,7 @@ export default function SettingsPage() {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8">
+      <div>
         <h1 className="text-3xl font-bold mb-6">{t('title')}</h1>
         <Card className="mb-6">
           <CardHeader>
@@ -104,7 +104,7 @@ export default function SettingsPage() {
                       system: { ...settings.system, timezone: e.target.value }
                     })
                   }
-                  className="w-[200px] rounded-md border border-input bg-background px-3 py-2 mb-4"
+                  className="w-[110px] xs:w-[200px] rounded-md border border-input bg-background px-3 py-2 mb-4"
                 >
                   {Intl.supportedValuesOf('timeZone').map((tz) => (
                     <option key={tz} value={tz}>
@@ -132,7 +132,7 @@ export default function SettingsPage() {
                       system: { ...settings.system, weekStartDay: Number(e.target.value) as WeekDay }
                     })
                   }
-                  className="w-[200px] rounded-md border border-input bg-background px-3 py-2"
+                  className="w-[110px] xs:w-[200px] rounded-md border border-input bg-background px-3 py-2"
                 >
                   {([
                     ['sunday', 0],
@@ -215,7 +215,7 @@ export default function SettingsPage() {
                     variant: 'default',
                   });
                 }}
-                className={`w-[200px] rounded-md border border-input bg-background px-3 py-2 ${serverSettings.isDemo ? 'cursor-not-allowed opacity-50' : ''}`}
+                className={`w-[110px] xs:w-[200px] rounded-md border border-input bg-background px-3 py-2 ${serverSettings.isDemo ? 'cursor-not-allowed opacity-50' : ''}`}
               >
                 {/* Add more languages as needed */}
                 <option value="en">English</option>

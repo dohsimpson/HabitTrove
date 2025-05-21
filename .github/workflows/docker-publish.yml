@@ -53,6 +53,7 @@ jobs:
           tags: |
             ${{ steps.check-version.outputs.EXISTS == 'false' && format('dohsimpson/habittrove:v{0}', steps.package-version.outputs.VERSION) || '' }}
             dohsimpson/habittrove:demo
+            dohsimpson/habittrove:latest
 
   deploy-demo:
     runs-on: ubuntu-latest
