@@ -19,17 +19,26 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button';
 import { User, Info } from 'lucide-react'; // Import Info icon
 import { toast } from '@/hooks/use-toast'
+import { useSession } from 'next-auth/react'; // signOut removed
+import { useRouter } from 'next/navigation';
+// AlertDialog components and useState removed
+// Trash2 icon removed
 
 export default function SettingsPage() {
   const t = useTranslations('SettingsPage');
+  // tWarning removed
   const [settings, setSettings] = useAtom(settingsAtom);
   const [serverSettings] = useAtom(serverSettingsAtom);
+  const { data: session } = useSession();
+  const router = useRouter();
+  // showConfirmDialog and isDeleting states removed
 
   const updateSettings = async (newSettings: Settings) => {
     await saveSettings(newSettings)
     setSettings(newSettings)
   }
 
+  // handleDeleteAccount function removed
 
   if (!settings) return null
 
@@ -230,6 +239,8 @@ export default function SettingsPage() {
 
           </CardContent>
         </Card>
+
+        {/* Danger Zone Card Removed */}
       </div >
     </>
   )
