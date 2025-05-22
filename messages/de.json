@@ -150,7 +150,17 @@
     "selectUserTitle": "Benutzer auswählen",
     "signInSuccessTitle": "Erfolgreich angemeldet",
     "signInSuccessDescription": "Willkommen zurück, {username}!",
-    "errorInvalidPassword": "Ungültiges Passwort"
+    "errorInvalidPassword": "Ungültiges Passwort",
+    "deleteUserConfirmation": "Sind Sie sicher, dass Sie Benutzer {username} löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirmDeleteButtonText": "Löschen",
+    "deletingButtonText": "Wird gelöscht...",
+    "deleteUserSuccessTitle": "Benutzer gelöscht",
+    "deleteUserSuccessDescription": "Benutzer {username} wurde erfolgreich gelöscht.",
+    "deleteUserErrorTitle": "Löschen fehlgeschlagen",
+    "genericError": "Ein unerwarteter Fehler ist aufgetreten.",
+    "networkError": "Ein Netzwerkfehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+    "editUserTooltip": "Benutzer bearbeiten",
+    "deleteUserTooltip": "Benutzer löschen"
   },
   "CoinsManager": {
     "title": "Münzverwaltung",
@@ -403,5 +413,9 @@
     "addedCoinsDescription": "{amount} Münzen hinzugefügt",
     "removedCoinsDescription": "{amount} Münzen entfernt",
     "transactionNotFoundDescription": "Transaktion nicht gefunden"
+  },
+  "Warning": {
+    "areYouSure": "Sind Sie sicher?",
+    "cancel": "Abbrechen"
   }
 }

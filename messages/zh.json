@@ -150,7 +150,17 @@
     "selectUserTitle": "选择用户",
     "signInSuccessTitle": "登录成功",
     "signInSuccessDescription": "欢迎回来，{username}！",
-    "errorInvalidPassword": "密码错误"
+    "errorInvalidPassword": "密码错误",
+    "deleteUserConfirmation": "您确定要删除用户 {username} 吗？此操作无法撤销。",
+    "confirmDeleteButtonText": "删除",
+    "deletingButtonText": "正在删除...",
+    "deleteUserSuccessTitle": "用户已删除",
+    "deleteUserSuccessDescription": "用户 {username} 已成功删除。",
+    "deleteUserErrorTitle": "删除失败",
+    "genericError": "发生意外错误。",
+    "networkError": "发生网络错误。请再试一次。",
+    "editUserTooltip": "编辑用户",
+    "deleteUserTooltip": "删除用户"
   },
   "CoinsManager": {
     "title": "金币管理",
@@ -403,5 +413,9 @@
     "addedCoinsDescription": "添加了{amount}金币",
     "removedCoinsDescription": "移除了{amount}金币",
     "transactionNotFoundDescription": "未找到交易记录"
+  },
+  "Warning": {
+    "areYouSure": "您确定吗？",
+    "cancel": "取消"
   }
 }

@@ -150,7 +150,17 @@
     "selectUserTitle": "Sélectionner un utilisateur",
     "signInSuccessTitle": "Connecté avec succès",
     "signInSuccessDescription": "Bienvenue, {username} !",
-    "errorInvalidPassword": "mot de passe invalide"
+    "errorInvalidPassword": "mot de passe invalide",
+    "deleteUserConfirmation": "Êtes-vous sûr de vouloir supprimer l'utilisateur {username} ? Cette action est irréversible.",
+    "confirmDeleteButtonText": "Supprimer",
+    "deletingButtonText": "Suppression en cours...",
+    "deleteUserSuccessTitle": "Utilisateur supprimé",
+    "deleteUserSuccessDescription": "L'utilisateur {username} a été supprimé avec succès.",
+    "deleteUserErrorTitle": "Échec de la suppression",
+    "genericError": "Une erreur inattendue s'est produite.",
+    "networkError": "Une erreur réseau s'est produite. Veuillez réessayer.",
+    "editUserTooltip": "Modifier l'utilisateur",
+    "deleteUserTooltip": "Supprimer l'utilisateur"
   },
   "CoinsManager": {
     "title": "Gestion des pièces",
@@ -403,5 +413,9 @@
     "addedCoinsDescription": "Ajouté {amount} pièces",
     "removedCoinsDescription": "Retiré {amount} pièces",
     "transactionNotFoundDescription": "Transaction non trouvée"
+  },
+  "Warning": {
+    "areYouSure": "Êtes-vous sûr ?",
+    "cancel": "Annuler"
   }
 }

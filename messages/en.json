@@ -150,7 +150,17 @@
     "selectUserTitle": "Select User",
     "signInSuccessTitle": "Signed in successfully",
     "signInSuccessDescription": "Welcome back, {username}!",
-    "errorInvalidPassword": "invalid password"
+    "errorInvalidPassword": "invalid password",
+    "deleteUserConfirmation": "Are you sure you want to delete user {username}? This action cannot be undone.",
+    "confirmDeleteButtonText": "Delete",
+    "deletingButtonText": "Deleting...",
+    "deleteUserSuccessTitle": "User Deleted",
+    "deleteUserSuccessDescription": "User {username} has been successfully deleted.",
+    "deleteUserErrorTitle": "Deletion Failed",
+    "genericError": "An unexpected error occurred.",
+    "networkError": "A network error occurred. Please try again.",
+    "deleteUserTooltip": "Delete user",
+    "editUserTooltip": "Edit user"
   },
   "CoinsManager": {
     "title": "Coins Management",
@@ -403,5 +413,9 @@
     "addedCoinsDescription": "Added {amount} coins",
     "removedCoinsDescription": "Removed {amount} coins",
     "transactionNotFoundDescription": "Transaction not found"
+  },
+  "Warning": {
+    "areYouSure": "Are you sure?",
+    "cancel": "Cancel"
   }
 }
