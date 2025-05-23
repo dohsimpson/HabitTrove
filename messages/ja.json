@@ -406,6 +406,10 @@
     "notEnoughCoinsTitle": "コインが不足しています",
     "notEnoughCoinsDescription": "この報酬を使用するにはあと{coinsNeeded}コイン必要です。"
   },
+  "Warning": {
+    "areYouSure": "本当によろしいですか？",
+    "cancel": "キャンセル"
+  },
   "useCoins": {
     "invalidAmountTitle": "無効な値です",
     "invalidAmountDescription": "有効な正の数を入力してください",

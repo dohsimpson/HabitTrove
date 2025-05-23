@@ -406,6 +406,10 @@
     "notEnoughCoinsTitle": "No hay suficientes monedas",
     "notEnoughCoinsDescription": "Necesitas {coinsNeeded} monedas más para canjear esta recompensa."
   },
+  "Warning": {
+    "areYouSure": "¿Estás seguro?",
+    "cancel": "Cancelar"
+  },
   "useCoins": {
     "invalidAmountTitle": "Cantidad inválida",
     "invalidAmountDescription": "Por favor ingresa un número positivo válido",

@@ -406,6 +406,10 @@
     "notEnoughCoinsTitle": "Pas assez de pièces",
     "notEnoughCoinsDescription": "Il vous manque {coinsNeeded} pièces pour échanger cette récompense."
   },
+  "Warning": {
+    "areYouSure": "Êtes-vous sûr ?",
+    "cancel": "Annuler"
+  },
   "useCoins": {
     "invalidAmountTitle": "Montant invalide",
     "invalidAmountDescription": "Veuillez entrer un nombre positif valide",

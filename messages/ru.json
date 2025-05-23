@@ -406,6 +406,10 @@
     "notEnoughCoinsTitle": "Недостаточно монет",
     "notEnoughCoinsDescription": "Вам нужно еще {coinsNeeded} монет, чтобы получить эту награду."
   },
+  "Warning": {
+    "areYouSure": "Вы уверены?",
+    "cancel": "Отмена"
+  },
   "useCoins": {
     "invalidAmountTitle": "Неверная сумма",
     "invalidAmountDescription": "Пожалуйста, введите положительное число",

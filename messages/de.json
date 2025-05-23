@@ -406,6 +406,10 @@
     "notEnoughCoinsTitle": "Nicht genug Münzen",
     "notEnoughCoinsDescription": "Sie benötigen {coinsNeeded} Münzen mehr, um diese Belohnung einzulösen."
   },
+  "Warning": {
+    "areYouSure": "Sind Sie sicher?",
+    "cancel": "Abbrechen"
+  },
   "useCoins": {
     "invalidAmountTitle": "Ungültiger Betrag",
     "invalidAmountDescription": "Bitte geben Sie eine gültige positive Zahl ein",

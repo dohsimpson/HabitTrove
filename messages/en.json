@@ -414,5 +414,9 @@
     "maxAmountExceededDescription": "The amount cannot exceed {max}.",
     "transactionNotFoundDescription": "Transaction not found",
     "maxAmountExceededDescription": "The amount cannot exceed {max}."
+  },
+  "Warning": {
+    "areYouSure": "Are you sure?",
+    "cancel": "Cancel"
   }
 }
