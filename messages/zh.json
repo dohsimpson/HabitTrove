@@ -406,16 +406,17 @@
     "notEnoughCoinsTitle": "金币不足",
     "notEnoughCoinsDescription": "您还需要{coinsNeeded}金币才能兑换此奖励。"
   },
+  "Warning": {
+    "areYouSure": "您确定吗？",
+    "cancel": "取消"
+  },
   "useCoins": {
     "invalidAmountTitle": "无效金额",
     "invalidAmountDescription": "请输入有效的正数",
     "successTitle": "成功",
-    "addedCoinsDescription": "添加了{amount}金币",
-    "removedCoinsDescription": "移除了{amount}金币",
-    "transactionNotFoundDescription": "未找到交易记录"
-  },
-  "Warning": {
-    "areYouSure": "您确定吗？",
-    "cancel": "取消"
+    "transactionNotFoundDescription": "未找到交易记录",
+    "maxAmountExceededDescription": "金额不能超过 {max}。",
+    "transactionNotFoundDescription": "未找到交易记录",
+    "maxAmountExceededDescription": "金额不能超过 {max}。"
   }
 }

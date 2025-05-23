@@ -406,16 +406,17 @@
     "notEnoughCoinsTitle": "Недостаточно монет",
     "notEnoughCoinsDescription": "Вам нужно еще {coinsNeeded} монет, чтобы получить эту награду."
   },
+  "Warning": {
+    "areYouSure": "Вы уверены?",
+    "cancel": "Отмена"
+  },
   "useCoins": {
     "invalidAmountTitle": "Неверная сумма",
     "invalidAmountDescription": "Пожалуйста, введите положительное число",
     "successTitle": "Успех",
-    "addedCoinsDescription": "Добавлено {amount} монет",
-    "removedCoinsDescription": "Удалено {amount} монет",
-    "transactionNotFoundDescription": "Транзакция не найдена"
-  },
-  "Warning": {
-    "areYouSure": "Вы уверены?",
-    "cancel": "Отмена"
+    "transactionNotFoundDescription": "Транзакция не найдена",
+    "maxAmountExceededDescription": "Сумма не может превышать {max}.",
+    "transactionNotFoundDescription": "Транзакция не найдена",
+    "maxAmountExceededDescription": "Сумма не может превышать {max}."
   }
 }

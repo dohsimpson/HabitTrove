@@ -406,16 +406,17 @@
     "notEnoughCoinsTitle": "Pas assez de pièces",
     "notEnoughCoinsDescription": "Il vous manque {coinsNeeded} pièces pour échanger cette récompense."
   },
+  "Warning": {
+    "areYouSure": "Êtes-vous sûr ?",
+    "cancel": "Annuler"
+  },
   "useCoins": {
     "invalidAmountTitle": "Montant invalide",
     "invalidAmountDescription": "Veuillez entrer un nombre positif valide",
     "successTitle": "Succès",
-    "addedCoinsDescription": "Ajouté {amount} pièces",
-    "removedCoinsDescription": "Retiré {amount} pièces",
-    "transactionNotFoundDescription": "Transaction non trouvée"
-  },
-  "Warning": {
-    "areYouSure": "Êtes-vous sûr ?",
-    "cancel": "Annuler"
+    "transactionNotFoundDescription": "Transaction non trouvée",
+    "maxAmountExceededDescription": "Le montant ne peut pas dépasser {max}.",
+    "transactionNotFoundDescription": "Transaction non trouvée",
+    "maxAmountExceededDescription": "Le montant ne peut pas dépasser {max}."
   }
 }

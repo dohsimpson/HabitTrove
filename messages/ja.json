@@ -406,16 +406,17 @@
     "notEnoughCoinsTitle": "コインが不足しています",
     "notEnoughCoinsDescription": "この報酬を使用するにはあと{coinsNeeded}コイン必要です。"
   },
+  "Warning": {
+    "areYouSure": "本当によろしいですか？",
+    "cancel": "キャンセル"
+  },
   "useCoins": {
     "invalidAmountTitle": "無効な値です",
     "invalidAmountDescription": "有効な正の数を入力してください",
     "successTitle": "成功しました",
-    "addedCoinsDescription": "{amount}コインを追加しました",
-    "removedCoinsDescription": "{amount}コインを削除しました",
-    "transactionNotFoundDescription": "取引が見つかりません"
-  },
-  "Warning": {
-    "areYouSure": "本当によろしいですか？",
-    "cancel": "キャンセル"
+    "transactionNotFoundDescription": "取引が見つかりません",
+    "maxAmountExceededDescription": "金額は{max}を超えることはできません。",
+    "transactionNotFoundDescription": "取引が見つかりません",
+    "maxAmountExceededDescription": "金額は{max}を超えることはできません。"
   }
 }

@@ -15,6 +15,7 @@ import { SmilePlus, Info } from 'lucide-react'
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { WishlistItemType } from '@/lib/types'
+import { MAX_COIN_LIMIT } from '@/lib/constants'
 
 interface AddEditWishlistItemModalProps {
   isOpen: boolean
@@ -68,6 +69,8 @@ export default function AddEditWishlistItemModal({
     }
     if (coinCost < 1) {
       newErrors.coinCost = t('errorCoinCostMin')
+    } else if (coinCost > MAX_COIN_LIMIT) {
+      newErrors.coinCost = t('errorCoinCostMax', { max: MAX_COIN_LIMIT })
     }
     if (targetCompletions !== undefined && targetCompletions < 1) {
       newErrors.targetCompletions = t('errorTargetCompletionsMin')
@@ -192,14 +195,18 @@ export default function AddEditWishlistItemModal({
                       id="coinReward"
                       type="number"
                       value={coinCost}
-                      onChange={(e) => setCoinCost(parseInt(e.target.value === "" ? "0" : e.target.value))}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value === "" ? "0" : e.target.value)
+                        setCoinCost(Math.min(value, MAX_COIN_LIMIT))
+                      }}
                       min={0}
+                      max={MAX_COIN_LIMIT}
                       required
                       className="w-20 text-center border-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <button
                       type="button"
-                      onClick={() => setCoinCost(prev => prev + 1)}
+                      onClick={() => setCoinCost(prev => Math.min(prev + 1, MAX_COIN_LIMIT))}
                       className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
                     >
                       +

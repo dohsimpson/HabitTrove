@@ -1,6 +1,12 @@
 # Changelog
 
-## Version 0.2.13
+## Version 0.2.15
+
+### Improved
+
+* max coins set to 9999, to prevent js large number precision issue (#137)
+
+## Version 0.2.14
 
 ### Added
 

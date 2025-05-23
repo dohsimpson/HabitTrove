@@ -30,3 +30,5 @@ export const QUICK_DATES = [
   { label: 'Saturday', value: 'this saturday' },
   { label: 'Sunday', value: 'this sunday' },
 ] as const
+
+export const MAX_COIN_LIMIT = 9999

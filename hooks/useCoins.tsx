@@ -16,6 +16,7 @@ import { addCoins, removeCoins, saveCoinsData } from '@/app/actions/data'
 import { CoinsData, User } from '@/lib/types'
 import { toast } from '@/hooks/use-toast'
 import { useHelpers } from '@/lib/client-helpers'
+import { MAX_COIN_LIMIT } from '@/lib/constants'
 
 function handlePermissionCheck(
   user: User | undefined,
@@ -77,6 +78,13 @@ export function useCoins(options?: { selectedUser?: string }) {
       })
       return null
     }
+    if (amount > MAX_COIN_LIMIT) {
+      toast({
+        title: t("invalidAmountTitle"),
+        description: t("maxAmountExceededDescription", { max: MAX_COIN_LIMIT })
+      })
+      return null
+    }
 
     const data = await addCoins({
       amount,
@@ -97,6 +105,13 @@ export function useCoins(options?: { selectedUser?: string }) {
       toast({
         title: t("invalidAmountTitle"),
         description: t("invalidAmountDescription")
+      })
+      return null
+    }
+    if (numAmount > MAX_COIN_LIMIT) {
+      toast({
+        title: t("invalidAmountTitle"),
+        description: t("maxAmountExceededDescription", { max: MAX_COIN_LIMIT })
       })
       return null
     }

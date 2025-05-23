@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
 import { useCoins } from '@/hooks/useCoins'
+import { MAX_COIN_LIMIT } from '@/lib/constants'
 import { TransactionNoteEditor } from './TransactionNoteEditor'
 import { useHelpers } from '@/lib/client-helpers'
 import { TransactionType } from '@/lib/types'
@@ -138,7 +139,11 @@ export default function CoinsManager() {
                     variant="outline"
                     size="icon"
                     className="h-10 w-10 text-lg"
-                    onClick={() => setAmount(prev => (Number(prev) - 1).toString())}
+                    onClick={() => setAmount(prev => {
+                      const current = Number(prev);
+                      const next = current - 1;
+                      return (Math.abs(next) > MAX_COIN_LIMIT ? (next < 0 ? -MAX_COIN_LIMIT : MAX_COIN_LIMIT) : next).toString();
+                    })}
                   >
                     -
                   </Button>
@@ -146,7 +151,22 @@ export default function CoinsManager() {
                     <Input
                       type="number"
                       value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
+                      onChange={(e) => {
+                        const rawValue = e.target.value;
+                        if (rawValue === '' || rawValue === '-') {
+                          setAmount(rawValue);
+                          return;
+                        }
+                        let numericValue = Number(rawValue); // Changed const to let
+                        if (isNaN(numericValue)) return; // Or handle error
+
+                        if (Math.abs(numericValue) > MAX_COIN_LIMIT) {
+                          numericValue = numericValue < 0 ? -MAX_COIN_LIMIT : MAX_COIN_LIMIT;
+                        }
+                        setAmount(numericValue.toString());
+                      }}
+                      min={-MAX_COIN_LIMIT}
+                      max={MAX_COIN_LIMIT}
                       className="text-center text-xl font-medium h-12"
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -157,7 +177,11 @@ export default function CoinsManager() {
                     variant="outline"
                     size="icon"
                     className="h-10 w-10 text-lg"
-                    onClick={() => setAmount(prev => (Number(prev) + 1).toString())}
+                    onClick={() => setAmount(prev => {
+                      const current = Number(prev);
+                      const next = current + 1;
+                      return (Math.abs(next) > MAX_COIN_LIMIT ? (next < 0 ? -MAX_COIN_LIMIT : MAX_COIN_LIMIT) : next).toString();
+                    })}
                   >
                     +
                   </Button>

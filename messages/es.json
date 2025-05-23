@@ -406,16 +406,17 @@
     "notEnoughCoinsTitle": "No hay suficientes monedas",
     "notEnoughCoinsDescription": "Necesitas {coinsNeeded} monedas más para canjear esta recompensa."
   },
+  "Warning": {
+    "areYouSure": "¿Estás seguro?",
+    "cancel": "Cancelar"
+  },
   "useCoins": {
     "invalidAmountTitle": "Cantidad inválida",
     "invalidAmountDescription": "Por favor ingresa un número positivo válido",
     "successTitle": "Éxito",
-    "addedCoinsDescription": "Añadidas {amount} monedas",
-    "removedCoinsDescription": "Quitadas {amount} monedas",
-    "transactionNotFoundDescription": "Transacción no encontrada"
-  },
-  "Warning": {
-    "areYouSure": "¿Estás seguro?",
-    "cancel": "Cancelar"
+    "transactionNotFoundDescription": "Transacción no encontrada",
+    "maxAmountExceededDescription": "La cantidad no puede exceder {max}.",
+    "transactionNotFoundDescription": "Transacción no encontrada",
+    "maxAmountExceededDescription": "La cantidad no puede exceder {max}."
   }
 }

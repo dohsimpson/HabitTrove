@@ -410,9 +410,10 @@
     "invalidAmountTitle": "Invalid amount",
     "invalidAmountDescription": "Please enter a valid positive number",
     "successTitle": "Success",
-    "addedCoinsDescription": "Added {amount} coins",
-    "removedCoinsDescription": "Removed {amount} coins",
-    "transactionNotFoundDescription": "Transaction not found"
+    "transactionNotFoundDescription": "Transaction not found",
+    "maxAmountExceededDescription": "The amount cannot exceed {max}.",
+    "transactionNotFoundDescription": "Transaction not found",
+    "maxAmountExceededDescription": "The amount cannot exceed {max}."
   },
   "Warning": {
     "areYouSure": "Are you sure?",
