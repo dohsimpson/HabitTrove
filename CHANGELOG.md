@@ -2,6 +2,12 @@
 
 ## Version 0.2.13
 
+### Added
+
+* support deleting user (#93)
+
+## Version 0.2.13
+
 ### Fixed
 
 * fix responsive design on mobile (#134)

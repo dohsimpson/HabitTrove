@@ -4,7 +4,7 @@
   },
   "HabitList": {
     "myTasks": "Mis tareas",
-    "myHabits": "Mis hábitos", 
+    "myHabits": "Mis hábitos",
     "addTaskButton": "Añadir tarea",
     "addHabitButton": "Añadir hábito",
     "searchTasksPlaceholder": "Buscar tareas...",
@@ -150,7 +150,17 @@
     "selectUserTitle": "Seleccionar usuario",
     "signInSuccessTitle": "Inicio de sesión exitoso",
     "signInSuccessDescription": "¡Bienvenido de nuevo, {username}!",
-    "errorInvalidPassword": "contraseña inválida"
+    "errorInvalidPassword": "contraseña inválida",
+    "deleteUserConfirmation": "¿Estás seguro de que quieres eliminar al usuario {username}? Esta acción no se puede deshacer.",
+    "confirmDeleteButtonText": "Eliminar",
+    "deletingButtonText": "Eliminando...",
+    "deleteUserSuccessTitle": "Usuario eliminado",
+    "deleteUserSuccessDescription": "El usuario {username} ha sido eliminado correctamente.",
+    "deleteUserErrorTitle": "Error al eliminar",
+    "genericError": "Ocurrió un error inesperado.",
+    "networkError": "Ocurrió un error de red. Por favor, inténtalo de nuevo.",
+    "editUserTooltip": "Editar usuario",
+    "deleteUserTooltip": "Eliminar usuario"
   },
   "CoinsManager": {
     "title": "Gestión de monedas",
@@ -190,7 +200,7 @@
     "focusLabel2": "Tú puedes",
     "focusLabel3": "Sigue adelante",
     "focusLabel4": "Hazlo",
-    "focusLabel5": "Haz que suceda", 
+    "focusLabel5": "Haz que suceda",
     "focusLabel6": "Mantente fuerte",
     "focusLabel7": "Esfuérzate",
     "focusLabel8": "Un paso a la vez",
@@ -403,5 +413,9 @@
     "addedCoinsDescription": "Añadidas {amount} monedas",
     "removedCoinsDescription": "Quitadas {amount} monedas",
     "transactionNotFoundDescription": "Transacción no encontrada"
+  },
+  "Warning": {
+    "areYouSure": "¿Estás seguro?",
+    "cancel": "Cancelar"
   }
 }

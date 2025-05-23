@@ -489,21 +489,80 @@ export async function updateUserPassword(userId: string, newPassword?: string): 
 }
 
 export async function deleteUser(userId: string): Promise<void> {
-  const data = await loadUsersData()
-  const userIndex = data.users.findIndex(user => user.id === userId)
+  // Load all necessary data
+  const wishlistData = await loadData<WishlistData>('wishlist')
+  const habitsData = await loadData<HabitsData>('habits')
+  const coinsData = await loadData<CoinsData>('coins')
+  const authData = await loadUsersData()
+
+  // Process Wishlist Data
+  const updatedWishlistItems = wishlistData.items.reduce((acc, item) => {
+    if (item.userIds?.includes(userId)) {
+      if (item.userIds.length === 1) {
+        // Remove item if this is the only user
+        return acc
+      } else {
+        // Remove userId from item's userIds
+        acc.push({
+          ...item,
+          userIds: item.userIds.filter(id => id !== userId)
+        })
+      }
+    } else {
+      // Keep item as is
+      acc.push(item)
+    }
+    return acc
+  }, [] as WishlistItemType[])
+  wishlistData.items = updatedWishlistItems
+  await saveData('wishlist', wishlistData)
+
+  // Process Habits Data
+  const updatedHabits = habitsData.habits.reduce((acc, habit) => {
+    if (habit.userIds?.includes(userId)) {
+      if (habit.userIds.length === 1) {
+        // Remove habit if this is the only user
+        return acc
+      } else {
+        // Remove userId from habit's userIds
+        acc.push({
+          ...habit,
+          userIds: habit.userIds.filter(id => id !== userId)
+        })
+      }
+    } else {
+      // Keep habit as is
+      acc.push(habit)
+    }
+    return acc
+  }, [] as HabitsData['habits'])
+  habitsData.habits = updatedHabits
+  await saveData('habits', habitsData)
+
+  // Process Coins Data
+  coinsData.transactions = coinsData.transactions.filter(
+    transaction => transaction.userId !== userId
+  )
+  // Recalculate balance
+  coinsData.balance = coinsData.transactions.reduce(
+    (sum, transaction) => sum + transaction.amount,
+    0
+  )
+  await saveData('coins', coinsData)
+
+  // Delete User from Auth Data
+  const userIndex = authData.users.findIndex(user => user.id === userId)
 
   if (userIndex === -1) {
     throw new Error('User not found')
   }
 
-  const newData: UserData = {
-    users: [
-      ...data.users.slice(0, userIndex),
-      ...data.users.slice(userIndex + 1)
-    ]
-  }
+  authData.users = [
+    ...authData.users.slice(0, userIndex),
+    ...authData.users.slice(userIndex + 1)
+  ]
 
-  await saveUsersData(newData)
+  await saveUsersData(authData)
 }
 
 export async function updateLastNotificationReadTimestamp(userId: string, timestamp: string): Promise<void> {

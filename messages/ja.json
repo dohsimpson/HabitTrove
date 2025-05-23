@@ -53,7 +53,7 @@
   "HabitContextMenuItems": {
     "startPomodoro": "ポモドーロを開始",
     "moveToToday": "今日に移動",
-    "moveToTomorrow": "明日に移動", 
+    "moveToTomorrow": "明日に移動",
     "unpin": "ピン留めを解除",
     "pin": "ピン留めする",
     "edit": "編集",
@@ -81,7 +81,7 @@
     "completeLabel": "完了",
     "timesSuffix": "回",
     "rewardLabel": "報酬",
-    "coinsSuffix": "コイン", 
+    "coinsSuffix": "コイン",
     "shareLabel": "共有",
     "saveChangesButton": "変更を保存",
     "addTaskButton": "タスクを追加",
@@ -110,11 +110,11 @@
     "addButton": "報酬を追加"
   },
   "Navigation": {
-    "dashboard": "ダッシュボード", 
+    "dashboard": "ダッシュボード",
     "tasks": "タスク",
     "habits": "習慣",
     "calendar": "カレンダー",
-    "wishlist": "ウィッシュリスト", 
+    "wishlist": "ウィッシュリスト",
     "coins": "コイン"
   },
   "TodayEarnedCoins": {
@@ -150,7 +150,17 @@
     "selectUserTitle": "ユーザーを選択",
     "signInSuccessTitle": "サインインに成功しました",
     "signInSuccessDescription": "おかえりなさい、{username}さん！",
-    "errorInvalidPassword": "パスワードが無効です"
+    "errorInvalidPassword": "パスワードが無効です",
+    "deleteUserConfirmation": "ユーザー {username} を削除してもよろしいですか？この操作は元に戻せません。",
+    "confirmDeleteButtonText": "削除",
+    "deletingButtonText": "削除中...",
+    "deleteUserSuccessTitle": "ユーザーが削除されました",
+    "deleteUserSuccessDescription": "ユーザー {username} は正常に削除されました。",
+    "deleteUserErrorTitle": "削除に失敗しました",
+    "genericError": "予期しないエラーが発生しました。",
+    "networkError": "ネットワークエラーが発生しました。もう一度お試しください。",
+    "editUserTooltip": "ユーザーを編集",
+    "deleteUserTooltip": "ユーザーを削除"
   },
   "CoinsManager": {
     "title": "コイン管理",
@@ -167,7 +177,7 @@
     "todaysTransactionsLabel": "今日の取引数",
     "transactionHistoryTitle": "取引履歴",
     "showLabel": "表示:",
-    "entriesSuffix": "件", 
+    "entriesSuffix": "件",
     "showingEntries": "{from} から {to} 件（全 {total} 件）",
     "noTransactionsTitle": "取引履歴がありません",
     "noTransactionsDescription": "コインを獲得または使用すると、ここに取引履歴が表示されます",
@@ -215,7 +225,7 @@
     "wakeLockNotSupported": "ブラウザがWake Lockをサポートしていません",
     "wakeLockInUse": "Wake Lockは既に使用中です",
     "wakeLockRequestError": "Wake Lockのリクエストエラー:",
-    "wakeLockReleaseError": "Wake Lockの解放エラー:" 
+    "wakeLockReleaseError": "Wake Lockの解放エラー:"
   },
   "HabitCalendar": {
     "title": "習慣カレンダー",
@@ -304,7 +314,7 @@
     "pleaseTryAgainDescription": "再度お試しください",
     "addNotePlaceholder": "メモを追加...",
     "saveNoteTitle": "メモを保存",
-    "cancelButtonTitle": "キャンセル", 
+    "cancelButtonTitle": "キャンセル",
     "deleteNoteTitle": "メモを削除",
     "editNoteAriaLabel": "メモを編集"
   },
@@ -323,12 +333,12 @@
   },
   "PasswordEntryForm": {
     "notYouButton": "違うユーザー？",
-    "passwordLabel": "パスワード", 
+    "passwordLabel": "パスワード",
     "passwordPlaceholder": "パスワードを入力",
     "loginErrorToastTitle": "エラー",
     "loginFailedErrorToastDescription": "ログインに失敗しました",
     "cancelButton": "キャンセル",
-    "loginButton": "ログイン" 
+    "loginButton": "ログイン"
   },
   "CompletionCountBadge": {
     "countCompleted": "完了 {completedCount}/{totalCount}"
@@ -403,5 +413,9 @@
     "addedCoinsDescription": "{amount}コインを追加しました",
     "removedCoinsDescription": "{amount}コインを削除しました",
     "transactionNotFoundDescription": "取引が見つかりません"
+  },
+  "Warning": {
+    "areYouSure": "本当によろしいですか？",
+    "cancel": "キャンセル"
   }
 }

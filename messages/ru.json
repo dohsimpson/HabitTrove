@@ -150,7 +150,17 @@
     "selectUserTitle": "Выбрать пользователя",
     "signInSuccessTitle": "Успешный вход",
     "signInSuccessDescription": "Добро пожаловать, {username}!",
-    "errorInvalidPassword": "Неверный пароль"
+    "errorInvalidPassword": "Неверный пароль",
+    "deleteUserConfirmation": "Вы уверены, что хотите удалить пользователя {username}? Это действие нельзя отменить.",
+    "confirmDeleteButtonText": "Удалить",
+    "deletingButtonText": "Удаление...",
+    "deleteUserSuccessTitle": "Пользователь удален",
+    "deleteUserSuccessDescription": "Пользователь {username} успешно удален.",
+    "deleteUserErrorTitle": "Ошибка удаления",
+    "genericError": "Произошла непредвиденная ошибка.",
+    "networkError": "Произошла сетевая ошибка. Пожалуйста, попробуйте еще раз.",
+    "editUserTooltip": "Редактировать пользователя",
+    "deleteUserTooltip": "Удалить пользователя"
   },
   "CoinsManager": {
     "title": "Управление монетами",
@@ -403,5 +413,9 @@
     "addedCoinsDescription": "Добавлено {amount} монет",
     "removedCoinsDescription": "Удалено {amount} монет",
     "transactionNotFoundDescription": "Транзакция не найдена"
+  },
+  "Warning": {
+    "areYouSure": "Вы уверены?",
+    "cancel": "Отмена"
   }
 }
