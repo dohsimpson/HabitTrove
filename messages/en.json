@@ -287,7 +287,8 @@
     "disablePasswordLabel": "Disable password",
     "cancelButton": "Cancel",
     "saveChangesButton": "Save Changes",
-    "createUserButton": "Create User"
+    "createUserButton": "Create User",
+    "deleteAccountButton": "Delete Account"
   },
   "ViewToggle": {
     "habitsLabel": "Habits",

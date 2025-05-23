@@ -270,6 +270,12 @@
     "actionUpdate": "mise à jour",
     "actionCreate": "création",
     "errorFailedUserAction": "Échec de la {action} de l'utilisateur",
+    "toastDemoDeleteDisabled": "La suppression est désactivée dans la version de démonstration",
+    "toastCannotDeleteSelf": "Vous ne pouvez pas supprimer votre propre compte",
+    "confirmDeleteUser": "Êtes-vous sûr de vouloir supprimer l'utilisateur {username}?",
+    "toastUserDeletedTitle": "Utilisateur supprimé",
+    "toastUserDeletedDescription": "L'utilisateur {username} a été supprimé avec succès",
+    "toastDeleteUserFailed": "Échec de la suppression de l'utilisateur : {error}",
     "errorTitle": "Erreur",
     "errorFileSizeLimit": "La taille du fichier doit être inférieure à 5MB",
     "toastAvatarUploadedTitle": "Avatar téléchargé",
@@ -287,7 +293,13 @@
     "disablePasswordLabel": "Désactiver le mot de passe",
     "cancelButton": "Annuler",
     "saveChangesButton": "Sauvegarder les modifications",
-    "createUserButton": "Créer un utilisateur"
+    "createUserButton": "Créer un utilisateur",
+    "deleteAccountButton": "Supprimer le compte",
+    "deletingButtonText": "Suppression en cours...",
+    "areYouSure": "Êtes-vous sûr ?",
+    "deleteUserConfirmation": "Êtes-vous sûr de vouloir supprimer l'utilisateur {username} ?",
+    "cancel": "Annuler",
+    "confirmDeleteButtonText": "Supprimer"
   },
   "ViewToggle": {
     "habitsLabel": "Habitudes",

@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.2.16
+
+### Improved
+
+* move delete user button to user form
+* disable deleting user on demo instance
+
 ## Version 0.2.15
 
 ### Improved

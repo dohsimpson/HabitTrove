@@ -270,6 +270,12 @@
     "actionUpdate": "обновить",
     "actionCreate": "создать",
     "errorFailedUserAction": "Не удалось {action} пользователя",
+    "toastDemoDeleteDisabled": "Удаление отключено в демо-версии",
+    "toastCannotDeleteSelf": "Вы не можете удалить свою учетную запись",
+    "confirmDeleteUser": "Вы уверены, что хотите удалить пользователя {username}?",
+    "toastUserDeletedTitle": "Пользователь удален",
+    "toastUserDeletedDescription": "Пользователь {username} успешно удален",
+    "toastDeleteUserFailed": "Не удалось удалить пользователя: {error}",
     "errorTitle": "Ошибка",
     "errorFileSizeLimit": "Размер файла должен быть менее 5 МБ",
     "toastAvatarUploadedTitle": "Аватар загружен",
@@ -287,7 +293,13 @@
     "disablePasswordLabel": "Отключить пароль",
     "cancelButton": "Отмена",
     "saveChangesButton": "Сохранить изменения",
-    "createUserButton": "Создать пользователя"
+    "createUserButton": "Создать пользователя",
+    "deleteAccountButton": "Удалить аккаунт",
+    "deletingButtonText": "Удаление...",
+    "areYouSure": "Вы уверены?",
+    "deleteUserConfirmation": "Вы уверены, что хотите удалить пользователя {username}?",
+    "cancel": "Отмена",
+    "confirmDeleteButtonText": "Удалить"
   },
   "ViewToggle": {
     "habitsLabel": "Привычки",
