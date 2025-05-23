@@ -1,9 +1,8 @@
 // client helpers
 'use-client'
 
-import { useSession } from "next-auth/react"
-import { User, UserId } from './types'
 import { useAtom } from 'jotai'
+import { useSession } from "next-auth/react"
 import { usersAtom } from './atoms'
 import { checkPermission } from './utils'
 
@@ -14,7 +13,7 @@ export function useHelpers() {
   const currentUser = usersData.users.find((u) => u.id === currentUserId)
   // detect iOS: https://stackoverflow.com/a/9039885
   function iOS() {
-    return [
+    return typeof navigator !== "undefined" && ([
       'iPad Simulator',
       'iPhone Simulator',
       'iPod Simulator',
@@ -23,7 +22,7 @@ export function useHelpers() {
       'iPod',
     ].includes(navigator.platform)
     // iPad on iOS 13 detection
-    || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+    || (navigator.userAgent.includes("Mac") && "ontouchend" in document))
   }  
 
   return {
