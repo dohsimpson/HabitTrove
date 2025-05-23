@@ -30,7 +30,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
   const [users, setUsersData] = useAtom(usersAtom);
   const serverSettings = useAtomValue(serverSettingsAtom)
   const user = userId ? users.users.find(u => u.id === userId) : undefined;
-  const { currentUser } = useHelpers()
+  const { currentUser, deleteUser } = useHelpers()
   const getDefaultPermissions = (): Permission[] => [{
     habit: {
       write: true,
@@ -57,6 +57,53 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
     user?.permissions || getDefaultPermissions()
   );
   const isEditing = !!user;
+
+  const handleDeleteUser = async () => {
+    if (!user) return;
+
+    if (serverSettings.isDemo) {
+      toast({
+        title: t('errorTitle'),
+        description: t('toastDemoDeleteDisabled'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (currentUser && currentUser.id === user.id) {
+      toast({
+        title: t('errorTitle'),
+        description: t('toastCannotDeleteSelf'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Add confirmation dialog
+    if (!window.confirm(t('confirmDeleteUser', { username: user.username }))) {
+      return;
+    }
+
+    try {
+      await deleteUser(user.id);
+      setUsersData(prev => ({
+        ...prev,
+        users: prev.users.filter(u => u.id !== user.id),
+      }));
+      toast({
+        title: t('toastUserDeletedTitle'),
+        description: t('toastUserDeletedDescription', { username: user.username }),
+        variant: 'default',
+      });
+      onSuccess();
+    } catch (err) {
+      toast({
+        title: t('errorTitle'),
+        description: t('toastDeleteUserFailed', { error: err instanceof Error ? err.message : String(err) }),
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -275,6 +322,17 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
       </div>
 
       <div className="flex justify-end gap-2 pt-2">
+        {isEditing && (
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDeleteUser}
+            className="mr-auto"
+            disabled={serverSettings.isDemo}
+          >
+            {t('deleteAccountButton')}
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"
