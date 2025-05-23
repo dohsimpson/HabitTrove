@@ -18,7 +18,7 @@ import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { Habit, SafeUser } from '@/lib/types'
 import { convertHumanReadableFrequencyToMachineReadable, convertMachineReadableFrequencyToHumanReadable, d2s, d2t, serializeRRule } from '@/lib/utils'
-import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES, RECURRENCE_RULE_MAP } from '@/lib/constants'
+import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES, RECURRENCE_RULE_MAP, MAX_COIN_LIMIT } from '@/lib/constants'
 import * as chrono from 'chrono-node';
 import { DateTime } from 'luxon'
 import {
@@ -291,14 +291,18 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
                       id="coinReward"
                       type="number"
                       value={coinReward}
-                      onChange={(e) => setCoinReward(parseInt(e.target.value === "" ? "0" : e.target.value))}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value === "" ? "0" : e.target.value)
+                        setCoinReward(Math.min(value, MAX_COIN_LIMIT))
+                      }}
                       min={0}
+                      max={MAX_COIN_LIMIT}
                       required
                       className="w-20 text-center border-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <button
                       type="button"
-                      onClick={() => setCoinReward(prev => prev + 1)}
+                      onClick={() => setCoinReward(prev => Math.min(prev + 1, MAX_COIN_LIMIT))}
                       className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
                     >
                       +

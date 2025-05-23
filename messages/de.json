@@ -410,12 +410,9 @@
     "invalidAmountTitle": "Ungültiger Betrag",
     "invalidAmountDescription": "Bitte geben Sie eine gültige positive Zahl ein",
     "successTitle": "Erfolg",
-    "addedCoinsDescription": "{amount} Münzen hinzugefügt",
-    "removedCoinsDescription": "{amount} Münzen entfernt",
-    "transactionNotFoundDescription": "Transaktion nicht gefunden"
-  },
-  "Warning": {
-    "areYouSure": "Sind Sie sicher?",
-    "cancel": "Abbrechen"
+    "transactionNotFoundDescription": "Transaktion nicht gefunden",
+    "maxAmountExceededDescription": "Der Betrag darf {max} nicht überschreiten.",
+    "transactionNotFoundDescription": "Transaktion nicht gefunden",
+    "maxAmountExceededDescription": "Der Betrag darf {max} nicht überschreiten."
   }
 }
