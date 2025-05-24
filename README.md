@@ -53,7 +53,7 @@ export AUTH_SECRET=$(openssl rand -base64 32)
 echo $AUTH_SECRET
 
 # Using docker-compose (recommended)
-## Update the AUTH_SECRET environment variable in docker-compose.yaml
+## Update the AUTH_SECRET environment variable in [docker-compose.yaml](https://github.com/dohsimpson/HabitTrove/blob/main/docker-compose.yaml)
 nano docker-compose.yaml
 ## Start the container
 docker compose up -d
