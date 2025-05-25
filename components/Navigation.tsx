@@ -6,7 +6,6 @@ import { useAtom } from 'jotai'
 import { browserSettingsAtom } from '@/lib/atoms'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import AboutModal from './AboutModal'
 import { HabitIcon, TaskIcon } from '@/lib/constants'
 import { useHelpers } from '@/lib/client-helpers'
 
@@ -71,7 +70,6 @@ export default function Navigation({ className, viewPort }: NavigationProps) {
             ))}
           </div>
         </nav>
-        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
       </>
     )
   }
@@ -97,7 +95,6 @@ export default function Navigation({ className, viewPort }: NavigationProps) {
             </div>
           </div>
         </div>
-        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
       </div>
     )
   }

@@ -16,7 +16,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import AboutModal from './AboutModal'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { Profile } from './Profile'
