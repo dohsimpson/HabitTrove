@@ -5,6 +5,17 @@ import { passwordSchema, usernameSchema } from '@/lib/zod';
 import { useTranslations } from 'next-intl';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { Permission } from '@/lib/types';
@@ -58,6 +69,69 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
   );
   const isEditing = !!user;
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteUser = async () => {
+    if (!user) return;
+
+    if (serverSettings.isDemo) {
+      toast({
+        title: t('errorTitle'),
+        description: t('toastDemoDeleteDisabled'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (currentUser && currentUser.id === user.id) {
+      toast({
+        title: t('errorTitle'),
+        description: t('toastCannotDeleteSelf'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch('/api/user/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id }),
+      });
+
+      if (response.ok) {
+        setUsersData(prev => ({
+          ...prev,
+          users: prev.users.filter(u => u.id !== user.id),
+        }));
+        toast({
+          title: t('toastUserDeletedTitle'),
+          description: t('toastUserDeletedDescription', { username: user.username }),
+          variant: 'default'
+        });
+        onSuccess();
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: t('errorTitle'),
+          description: errorData.error || t('genericError'),
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: t('errorTitle'),
+        description: t('networkError'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -94,11 +168,11 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
         setUsersData(prev => ({
           ...prev,
           users: prev.users.map(u =>
-            u.id === user.id ? { 
-              ...u, 
-              username, 
-              avatarPath, 
-              permissions, 
+            u.id === user.id ? {
+              ...u,
+              username,
+              avatarPath,
+              permissions,
               isAdmin,
               password: disablePassword ? '' : (password || u.password) // use the correct password to update atom
             } : u
@@ -248,7 +322,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
               <p className="text-sm text-red-500">{t('demoPasswordDisabledMessage')}</p>
             )}
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Switch
               id="disable-password"
@@ -264,7 +338,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
           <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/50 p-2 rounded">{error}</p>
         )}
 
-        
+
         {currentUser && currentUser.isAdmin && <PermissionSelector
           permissions={permissions}
           isAdmin={isAdmin}
@@ -275,6 +349,38 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
       </div>
 
       <div className="flex justify-end gap-2 pt-2">
+        {isEditing && (
+          <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="destructive"
+                className="mr-auto"
+                disabled={serverSettings.isDemo || isDeleting}
+              >
+                {isDeleting ? t('deletingButtonText') : t('deleteAccountButton')}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t('areYouSure')}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t('deleteUserConfirmation', { username: user.username })}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>{t('cancel')}</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteUser}
+                  disabled={isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? t('deletingButtonText') : t('confirmDeleteButtonText')}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
         <Button
           type="button"
           variant="outline"

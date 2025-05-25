@@ -270,6 +270,12 @@
     "actionUpdate": "更新",
     "actionCreate": "创建",
     "errorFailedUserAction": "用户 {action} 失败",
+    "toastDemoDeleteDisabled": "在演示实例中删除已禁用",
+    "toastCannotDeleteSelf": "您不能删除自己的帐户",
+    "confirmDeleteUser": "您确定要删除用户 {username} 吗？",
+    "toastUserDeletedTitle": "用户已删除",
+    "toastUserDeletedDescription": "用户 {username} 已成功删除",
+    "toastDeleteUserFailed": "删除用户失败: {error}",
     "errorTitle": "错误",
     "errorFileSizeLimit": "文件大小必须小于 5MB",
     "toastAvatarUploadedTitle": "头像已上传",
@@ -287,7 +293,13 @@
     "disablePasswordLabel": "禁用密码",
     "cancelButton": "取消",
     "saveChangesButton": "保存更改",
-    "createUserButton": "创建用户"
+    "createUserButton": "创建用户",
+    "deleteAccountButton": "删除账户",
+    "deletingButtonText": "正在删除...",
+    "areYouSure": "您确定吗？",
+    "deleteUserConfirmation": "您确定要删除用户 {username} 吗？",
+    "cancel": "取消",
+    "confirmDeleteButtonText": "删除"
   },
   "ViewToggle": {
     "habitsLabel": "习惯",

@@ -270,6 +270,12 @@
     "actionUpdate": "更新",
     "actionCreate": "作成",
     "errorFailedUserAction": "ユーザーの{action}に失敗しました",
+    "toastDemoDeleteDisabled": "デモインスタンスでは削除が無効になっています",
+    "toastCannotDeleteSelf": "自分のアカウントは削除できません",
+    "confirmDeleteUser": "ユーザー {username} を削除してもよろしいですか？",
+    "toastUserDeletedTitle": "ユーザーが削除されました",
+    "toastUserDeletedDescription": "ユーザー {username} は正常に削除されました",
+    "toastDeleteUserFailed": "ユーザーの削除に失敗しました: {error}",
     "errorTitle": "エラー",
     "errorFileSizeLimit": "ファイルサイズは5MB以下である必要があります",
     "toastAvatarUploadedTitle": "アバターをアップロードしました",
@@ -287,7 +293,13 @@
     "disablePasswordLabel": "パスワードを無効化",
     "cancelButton": "キャンセル",
     "saveChangesButton": "変更を保存",
-    "createUserButton": "ユーザーを作成"
+    "createUserButton": "ユーザーを作成",
+    "deleteAccountButton": "アカウントを削除",
+    "deletingButtonText": "削除中...",
+    "areYouSure": "本当によろしいですか？",
+    "deleteUserConfirmation": "ユーザー {username} を削除してもよろしいですか？",
+    "cancel": "キャンセル",
+    "confirmDeleteButtonText": "削除"
   },
   "ViewToggle": {
     "habitsLabel": "習慣",

@@ -270,6 +270,12 @@
     "actionUpdate": "aktualisieren",
     "actionCreate": "erstellen",
     "errorFailedUserAction": "Fehler beim {action} des Benutzers",
+    "toastDemoDeleteDisabled": "Löschen ist in der Demo-Instanz deaktiviert",
+    "toastCannotDeleteSelf": "Sie können Ihr eigenes Konto nicht löschen",
+    "confirmDeleteUser": "Sind Sie sicher, dass Sie den Benutzer {username} löschen möchten?",
+    "toastUserDeletedTitle": "Benutzer gelöscht",
+    "toastUserDeletedDescription": "Benutzer {username} wurde erfolgreich gelöscht",
+    "toastDeleteUserFailed": "Fehler beim Löschen des Benutzers: {error}",
     "errorTitle": "Fehler",
     "errorFileSizeLimit": "Die Dateigröße muss kleiner als 5MB sein",
     "toastAvatarUploadedTitle": "Avatar hochgeladen",
@@ -287,7 +293,13 @@
     "disablePasswordLabel": "Passwort deaktivieren",
     "cancelButton": "Abbrechen",
     "saveChangesButton": "Änderungen speichern",
-    "createUserButton": "Benutzer erstellen"
+    "createUserButton": "Benutzer erstellen",
+    "deleteAccountButton": "Konto löschen",
+    "deletingButtonText": "Wird gelöscht...",
+    "areYouSure": "Sind Sie sicher?",
+    "deleteUserConfirmation": "Sind Sie sicher, dass Sie den Benutzer {username} löschen möchten?",
+    "cancel": "Abbrechen",
+    "confirmDeleteButtonText": "Löschen"
   },
   "ViewToggle": {
     "habitsLabel": "Gewohnheiten",
