@@ -11,17 +11,16 @@ import ChangelogModal from "./ChangelogModal"
 import { useState } from "react"
 
 interface AboutModalProps {
-  isOpen: boolean
   onClose: () => void
 }
 
-export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
+export default function AboutModal({ onClose }: AboutModalProps) {
   const t = useTranslations('AboutModal')
   const version = packageJson.version
   const [changelogOpen, setChangelogOpen] = useState(false)
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle aria-label={t('dialogArisLabel')}></DialogTitle>

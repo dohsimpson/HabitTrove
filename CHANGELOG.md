@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.2.17
+
+### Fixed
+
+* fix emoji selector (#142)
+* fix about modal (#145)
+
 ## Version 0.2.16
 
 ### Improved

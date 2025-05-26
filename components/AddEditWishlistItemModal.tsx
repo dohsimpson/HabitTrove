@@ -9,12 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { SmilePlus, Info } from 'lucide-react'
-import data from '@emoji-mart/data'
-import Picker from '@emoji-mart/react'
 import { WishlistItemType } from '@/lib/types'
+import EmojiPickerButton from './EmojiPickerButton'
 import { MAX_COIN_LIMIT } from '@/lib/constants'
 
 interface AddEditWishlistItemModalProps {
@@ -114,7 +110,7 @@ export default function AddEditWishlistItemModal({
     } else {
       addWishlistItem(itemData)
     }
-    
+
     setIsOpen(false)
     setEditingItem(null)
   }
@@ -139,29 +135,15 @@ export default function AddEditWishlistItemModal({
                   className="flex-1"
                   required
                 />
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                    >
-                      <SmilePlus className="h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0">
-                    <Picker
-                      data={data}
-                      onEmojiSelect={(emoji: { native: string }) => {
-                        setName(prev => `${prev}${emoji.native}`)
-                        // Focus back on input after selection
-                        const input = document.getElementById('name') as HTMLInputElement
-                        input?.focus()
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <EmojiPickerButton
+                  inputIdToFocus="name"
+                  onEmojiSelect={(emoji) => {
+                    setName(prev => {
+                      const space = prev.length > 0 && !prev.endsWith(' ') ? ' ' : '';
+                      return `${prev}${space}${emoji}`;
+                    })
+                  }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -296,13 +278,13 @@ export default function AddEditWishlistItemModal({
                       <Avatar
                         key={user.id}
                         className={`h-8 w-8 border-2 cursor-pointer
-                          ${selectedUserIds.includes(user.id) 
-                            ? 'border-primary' 
+                          ${selectedUserIds.includes(user.id)
+                            ? 'border-primary'
                             : 'border-muted'
                           }`}
                         title={user.username}
                         onClick={() => {
-                          setSelectedUserIds(prev => 
+                          setSelectedUserIds(prev =>
                             prev.includes(user.id)
                               ? prev.filter(id => id !== user.id)
                               : [...prev, user.id]
