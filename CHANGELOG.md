@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.2.18
+
+### Improved
+
+* nicer loading UI (#147)
+* header and navigation code refactor
+
 ## Version 0.2.17
 
 ### Fixed
