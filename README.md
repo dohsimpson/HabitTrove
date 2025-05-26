@@ -1,5 +1,7 @@
 # HabitTrove
 
+![cover](https://github.com/user-attachments/assets/b63e98b4-64ae-49c7-ae7e-21ef76c04a5a)
+
 HabitTrove is a gamified habit tracking application that helps you build and maintain positive habits by rewarding you with coins, which you can use to exchange for rewards.
 
 > **⚠️ Important:** HabitTrove is currently in beta. Please regularly backup your `data/` directory to prevent any potential data loss.
