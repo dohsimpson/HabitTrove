@@ -141,7 +141,7 @@ export default function WishlistItem({
               <span className="ml-2">{t('editButton')}</span>
             </Button>
           )}
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                 <MoreVertical className="h-4 w-4" />
@@ -166,7 +166,7 @@ export default function WishlistItem({
               </DropdownMenuItem>
               <DropdownMenuSeparator className="sm:hidden" />
               <DropdownMenuItem
-                className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400 cursor-pointer"
+                className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
                 onClick={onDelete}
                 disabled={!canWrite}
               >

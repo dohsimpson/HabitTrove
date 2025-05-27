@@ -408,6 +408,7 @@
     "notEnoughCoinsDescription": "You need {coinsNeeded} more coins to redeem this reward."
   },
   "useCoins": {
+    "addedCoinsDescription": "Added {amount} coins",
     "invalidAmountTitle": "Invalid amount",
     "invalidAmountDescription": "Please enter a valid positive number",
     "successTitle": "Success",

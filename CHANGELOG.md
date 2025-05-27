@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.2.19
+
+### Fixed
+
+* settings button not working
+* fixed delete dialog modal blocks page interaction (#149)
+* disable submit button when frequency is invaid
+
 ## Version 0.2.18
 
 ### Improved

@@ -423,6 +423,7 @@
     "cancel": "取消"
   },
   "useCoins": {
+    "addedCoinsDescription": "已添加 {amount} 个金币",
     "invalidAmountTitle": "无效金额",
     "invalidAmountDescription": "请输入有效的正数",
     "successTitle": "成功",

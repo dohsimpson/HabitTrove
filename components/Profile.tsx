@@ -110,17 +110,18 @@ export function Profile() {
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer px-2 py-1.5" asChild>
-            <div className="flex items-center justify-between w-full">
+            {/* need the Link element to be the direct child of the DropdownMenuItem, since we are using asChild here */}
+            <Link
+              href="/settings"
+              aria-label={t('settingsLink')}
+              className="flex items-center justify-between w-full"
+              onClick={() => setOpen(false)} // Ensure dropdown closes on click
+            >
               <div className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                <Link
-                  href="/settings"
-                  aria-label={t('settingsLink')}
-                >
-                  <span>{t('settingsLink')}</span>
-                </Link>
+                <span>{t('settingsLink')}</span>
               </div>
-            </div>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer px-2 py-1.5" onClick={() => {
             setOpen(false);  // Close the dropdown

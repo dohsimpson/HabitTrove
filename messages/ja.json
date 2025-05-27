@@ -423,6 +423,7 @@
     "cancel": "キャンセル"
   },
   "useCoins": {
+    "addedCoinsDescription": "{amount}コインを追加しました",
     "invalidAmountTitle": "無効な値です",
     "invalidAmountDescription": "有効な正の数を入力してください",
     "successTitle": "成功しました",

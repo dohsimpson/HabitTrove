@@ -44,7 +44,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
   const [ruleText, setRuleText] = useState<string>(initialRuleText)
   const { currentUser } = useHelpers()
   const [isQuickDatesOpen, setIsQuickDatesOpen] = useState(false)
-  const [ruleError, setRuleError] = useState<string | null>(null); // State for validation message
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for validation message
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>((habit?.userIds || []).filter(id => id !== currentUser?.id))
   const [usersData] = useAtom(usersAtom)
   const users = usersData.users
@@ -183,9 +183,10 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
               <div className="col-start-2 col-span-3 text-sm">
                 {(() => {
                   let displayText = '';
-                  let errorMessage: string | null = null;
                   const { result, message } = convertHumanReadableFrequencyToMachineReadable({ text: ruleText, timezone: settings.system.timezone, isRecurring: isRecurRule });
-                  errorMessage = message;
+                  if (message !== errorMessage) { // Only update if it changed to avoid re-renders
+                    setErrorMessage(message);
+                  }
                   displayText = convertMachineReadableFrequencyToHumanReadable({ frequency: result, isRecurRule, timezone: settings.system.timezone })
 
                   return (
@@ -320,7 +321,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
             )}
           </div>
           <DialogFooter>
-            <Button type="submit">
+            <Button type="submit" disabled={!!errorMessage}>
               {habit
                 ? t('saveChangesButton')
                 : t(isTask ? 'addTaskButton' : 'addHabitButton')}

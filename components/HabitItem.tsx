@@ -29,7 +29,7 @@ interface HabitItemProps {
 
 const renderUserAvatars = (habit: Habit, currentUser: User | null, usersData: { users: User[] }) => {
   if (!habit.userIds || habit.userIds.length <= 1) return null;
-  
+
   return (
     <div className="flex -space-x-2 ml-2 flex-shrink-0">
       {habit.userIds?.filter((u) => u !== currentUser?.id).map(userId => {
@@ -113,11 +113,13 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
       </CardHeader>
       <CardContent className="flex-1">
         <p className={`text-sm ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500'}`}>
-          {t('whenLabel', { frequency: convertMachineReadableFrequencyToHumanReadable({
-            frequency: habit.frequency,
-            isRecurRule,
-            timezone: settings.system.timezone
-          })})}
+          {t('whenLabel', {
+            frequency: convertMachineReadableFrequencyToHumanReadable({
+              frequency: habit.frequency,
+              isRecurRule,
+              timezone: settings.system.timezone
+            })
+          })}
         </p>
         <div className="flex items-center mt-2">
           <Coins className={`h-4 w-4 mr-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />
@@ -190,7 +192,7 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               <span className="ml-2">{t('editButton')}</span>
             </Button>
           )}
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                 <MoreVertical className="h-4 w-4" />

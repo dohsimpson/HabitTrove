@@ -423,6 +423,7 @@
     "cancel": "Annuler"
   },
   "useCoins": {
+    "addedCoinsDescription": "{amount} pièces ajoutées",
     "invalidAmountTitle": "Montant invalide",
     "invalidAmountDescription": "Veuillez entrer un nombre positif valide",
     "successTitle": "Succès",
