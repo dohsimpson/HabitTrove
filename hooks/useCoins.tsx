@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { calculateCoinsEarnedToday, calculateCoinsSpentToday, calculateTotalEarned, calculateTotalSpent, calculateTransactionsToday, checkPermission } from '@/lib/utils'
 import {
@@ -61,8 +61,11 @@ export function useCoins(options?: { selectedUser?: string }) {
   const [atomCoinsSpentToday] = useAtom(coinsSpentTodayAtom);
   const [atomTransactionsToday] = useAtom(transactionsTodayAtom);
   const targetUser = options?.selectedUser ? users.users.find(u => u.id === options.selectedUser) : currentUser
-  // Filter transactions for the targetUser
-  const transactions = allCoinsData.transactions.filter(t => t.userId === targetUser?.id)
+  
+  const transactions = useMemo(() => {
+    return allCoinsData.transactions.filter(t => t.userId === targetUser?.id);
+  }, [allCoinsData, targetUser?.id]);
+
   const timezone = settings.system.timezone;
   const [coinsEarnedToday, setCoinsEarnedToday] = useState(0);
   const [totalEarned, setTotalEarned] = useState(0);
@@ -88,16 +91,14 @@ export function useCoins(options?: { selectedUser?: string }) {
       setTotalSpent(calculateTotalSpent(transactions));
       setCoinsSpentToday(calculateCoinsSpentToday(transactions, timezone));
       setTransactionsToday(calculateTransactionsToday(transactions, timezone));
-      const userTransactions = allCoinsData.transactions.filter(t => t.userId === targetUser!.id);
-      setBalance(userTransactions.reduce((acc, t) => acc + t.amount, 0));
+      setBalance(transactions.reduce((acc, t) => acc + t.amount, 0));
     }
   }, [
-    targetUser,
-    currentUser,
-    transactions, // Derived from allCoinsData and targetUser
-    allCoinsData, // Added for balance calculation when targetUser is not currentUser
+    targetUser?.id,
+    currentUser?.id,
+    transactions, // Memoized: depends on allCoinsData and targetUser?.id
     timezone,
-    loggedInUserBalance, // Added for balance calculation when targetUser is currentUser
+    loggedInUserBalance,
     atomCoinsEarnedToday,
     atomTotalEarned,
     atomTotalSpent,
