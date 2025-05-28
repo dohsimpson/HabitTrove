@@ -20,7 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useAtom } from 'jotai';
-import { usersAtom } from '@/lib/atoms';
+import { usersAtom, currentUserAtom } from '@/lib/atoms';
 import { signIn } from '@/app/actions/user';
 import { createUser } from '@/app/actions/data';
 import { useTranslations } from 'next-intl';
@@ -28,7 +28,7 @@ import { toast } from '@/hooks/use-toast';
 import { Description } from '@radix-ui/react-dialog';
 import { SafeUser, User } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { useHelpers } from '@/lib/client-helpers';
+
 
 function UserCard({
   user,
@@ -145,7 +145,7 @@ export default function UserSelectModal({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState('');
   const [usersData, setUsersData] = useAtom(usersAtom);
   const users = usersData.users;
-  const { currentUser } = useHelpers();
+  const [currentUser] = useAtom(currentUserAtom);
 
 
   const handleUserSelect = (userId: string) => {

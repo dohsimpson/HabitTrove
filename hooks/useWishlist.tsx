@@ -1,16 +1,15 @@
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
-import { wishlistAtom, coinsAtom } from '@/lib/atoms'
+import { wishlistAtom, coinsAtom, currentUserAtom } from '@/lib/atoms'
 import { saveWishlistItems, removeCoins } from '@/app/actions/data'
 import { toast } from '@/hooks/use-toast'
-import { WishlistItemType } from '@/lib/types'
+import { WishlistItemType, User, SafeUser } from '@/lib/types'
 import { celebrations } from '@/utils/celebrations'
 import { checkPermission } from '@/lib/utils'
-import { useHelpers } from '@/lib/client-helpers'
 import { useCoins } from './useCoins'
 
 function handlePermissionCheck(
-  user: any, // Consider using a more specific type like SafeUser | User | undefined
+  user: User | SafeUser | undefined,
   resource: 'habit' | 'wishlist' | 'coins',
   action: 'write' | 'interact',
   tCommon: (key: string, values?: Record<string, any>) => string
@@ -39,7 +38,7 @@ function handlePermissionCheck(
 export function useWishlist() {
   const t = useTranslations('useWishlist');
   const tCommon = useTranslations('Common');
-  const { currentUser: user } = useHelpers()
+  const [user] = useAtom(currentUserAtom)
   const [wishlist, setWishlist] = useAtom(wishlistAtom)
   const [coins, setCoins] = useAtom(coinsAtom)
   const { balance } = useCoins()

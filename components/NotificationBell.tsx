@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { useAtom } from 'jotai'
-import { coinsAtom, habitsAtom, wishlistAtom, usersAtom } from '@/lib/atoms'
+import { coinsAtom, habitsAtom, wishlistAtom, usersAtom, currentUserAtom } from '@/lib/atoms'
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
@@ -14,12 +14,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { updateLastNotificationReadTimestamp } from '@/app/actions/data';
 import { d2t, getNow, t2d } from '@/lib/utils';
-import { useHelpers } from '@/lib/client-helpers';
 import { User, CoinTransaction } from '@/lib/types';
 
 export default function NotificationBell() {
   const t = useTranslations('NotificationBell');
-  const { currentUser } = useHelpers();
+  const [currentUser] = useAtom(currentUserAtom);
   const [coinsData] = useAtom(coinsAtom)
   const [habitsData] = useAtom(habitsAtom)
   const [wishlistData] = useAtom(wishlistAtom)
@@ -122,7 +121,7 @@ export default function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="p-0 w-80 md:w-96">
         <NotificationDropdown
-          currentUser={currentUser as User | null} // Cast needed as useHelpers can return undefined initially
+          currentUser={currentUser as User | null} // Cast needed as as currentUser can be undefined
           unreadNotifications={unreadNotifications}
           displayedReadNotifications={displayedReadNotifications}
           habitsData={habitsData} // Pass necessary data down

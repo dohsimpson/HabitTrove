@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { RRule, RRuleSet, rrulestr } from 'rrule'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
-import { settingsAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
+import { settingsAtom, browserSettingsAtom, usersAtom, currentUserAtom } from '@/lib/atoms'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
@@ -18,7 +18,7 @@ import EmojiPickerButton from './EmojiPickerButton'
 import { convertHumanReadableFrequencyToMachineReadable, convertMachineReadableFrequencyToHumanReadable, d2s, d2t, serializeRRule } from '@/lib/utils'
 import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES, RECURRENCE_RULE_MAP, MAX_COIN_LIMIT } from '@/lib/constants'
 import { DateTime } from 'luxon'
-import { useHelpers } from '@/lib/client-helpers'
+
 
 interface AddEditHabitModalProps {
   onClose: () => void
@@ -42,7 +42,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
     timezone: settings.system.timezone
   }) : (isRecurRule ? INITIAL_RECURRENCE_RULE : INITIAL_DUE);
   const [ruleText, setRuleText] = useState<string>(initialRuleText)
-  const { currentUser } = useHelpers()
+  const [currentUser] = useAtom(currentUserAtom)
   const [isQuickDatesOpen, setIsQuickDatesOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for validation message
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>((habit?.userIds || []).filter(id => id !== currentUser?.id))

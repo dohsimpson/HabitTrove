@@ -1,9 +1,9 @@
 import { WishlistItemType, User } from '@/lib/types'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
-import { usersAtom } from '@/lib/atoms'
+import { usersAtom, currentUserAtom } from '@/lib/atoms'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { useHelpers } from '@/lib/client-helpers'
+import { hasPermission } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
@@ -60,9 +60,9 @@ export default function WishlistItem({
   isRecentlyRedeemed
 }: WishlistItemProps) {
   const t = useTranslations('WishlistItem')
-  const { currentUser, hasPermission } = useHelpers()
-  const canWrite = hasPermission('wishlist', 'write')
-  const canInteract = hasPermission('wishlist', 'interact')
+  const [currentUser] = useAtom(currentUserAtom)
+  const canWrite = hasPermission(currentUser, 'wishlist', 'write')
+  const canInteract = hasPermission(currentUser, 'wishlist', 'interact')
   const [usersData] = useAtom(usersAtom)
 
 

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
-import { usersAtom } from '@/lib/atoms'
-import { useHelpers } from '@/lib/client-helpers'
+import { usersAtom, currentUserAtom } from '@/lib/atoms'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -36,7 +35,7 @@ export default function AddEditWishlistItemModal({
   const [coinCost, setCoinCost] = useState(editingItem?.coinCost || 1)
   const [targetCompletions, setTargetCompletions] = useState<number | undefined>(editingItem?.targetCompletions)
   const [link, setLink] = useState(editingItem?.link || '')
-  const { currentUser } = useHelpers()
+  const [currentUser] = useAtom(currentUserAtom)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>((editingItem?.userIds || []).filter(id => id !== currentUser?.id))
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [usersData] = useAtom(usersAtom)

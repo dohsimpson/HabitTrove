@@ -1,12 +1,11 @@
-import { Habit } from '@/lib/types';
+import { Habit, User } from '@/lib/types';
 import { useHabits } from '@/hooks/useHabits';
 import { useAtom } from 'jotai';
-import { pomodoroAtom, settingsAtom } from '@/lib/atoms';
-import { d2t, getNow, isHabitDueToday } from '@/lib/utils';
+import { pomodoroAtom, settingsAtom, currentUserAtom } from '@/lib/atoms';
+import { d2t, getNow, isHabitDueToday, hasPermission } from '@/lib/utils';
 import { DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu';
 import { Timer, Calendar, Pin, Edit, Archive, ArchiveRestore, Trash2 } from 'lucide-react';
-import { useHelpers } from '@/lib/client-helpers'; // For permission checks if needed, though useHabits handles most
 import { useTranslations } from 'next-intl';
 
 interface HabitContextMenuItemsProps {
@@ -28,10 +27,10 @@ export function HabitContextMenuItems({
   const { saveHabit, archiveHabit, unarchiveHabit } = useHabits();
   const [settings] = useAtom(settingsAtom);
   const [, setPomo] = useAtom(pomodoroAtom);
-  const { hasPermission } = useHelpers(); // Assuming useHabits handles permissions for its actions
+  const [currentUser] = useAtom(currentUserAtom);
 
-  const canWrite = hasPermission('habit', 'write'); // For UI disabling if not handled by useHabits' actions
-  const canInteract = hasPermission('habit', 'interact');
+  const canWrite = hasPermission(currentUser, 'habit', 'write'); // For UI disabling if not handled by useHabits' actions
+  const canInteract = hasPermission(currentUser, 'habit', 'interact');
 
   const MenuItemComponent = context === 'daily-overview' ? ContextMenuItem : DropdownMenuItem;
   const MenuSeparatorComponent = context === 'daily-overview' ? ContextMenuSeparator : DropdownMenuSeparator;

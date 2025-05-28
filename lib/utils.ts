@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DateTime, DateTimeFormatOptions } from "luxon"
 import { datetime, RRule } from 'rrule'
-import { Freq, Habit, CoinTransaction, Permission, ParsedFrequencyResult, ParsedResultType } from '@/lib/types'
+import { Freq, Habit, CoinTransaction, Permission, ParsedFrequencyResult, ParsedResultType, User } from '@/lib/types'
 import { DUE_MAP, INITIAL_DUE, RECURRENCE_RULE_MAP } from "./constants"
 import * as chrono from 'chrono-node'
 import _ from "lodash"
@@ -463,4 +463,21 @@ export function checkPermission(
 
 export function uuid() {
   return uuidv4()
+}
+
+export function hasPermission(
+  currentUser: User | undefined,
+  resource: 'habit' | 'wishlist' | 'coins',
+  action: 'write' | 'interact'
+): boolean {
+  // If no current user, no permissions.
+  if (!currentUser) {
+    return false;
+  }
+  // If user is admin, they have all permissions.
+  if (currentUser.isAdmin) {
+    return true;
+  }
+  // Otherwise, check specific permissions.
+  return checkPermission(currentUser.permissions, resource, action);
 }

@@ -10,10 +10,24 @@ export interface NavItemType {
 
 interface MobileNavDisplayProps {
   navItems: NavItemType[];
-  isIOS: boolean;
 }
 
-export default function MobileNavDisplay({ navItems, isIOS }: MobileNavDisplayProps) {
+// detect iOS: https://stackoverflow.com/a/9039885
+function iOS() {
+  return [
+    'iPad Simulator',
+    'iPhone Simulator',
+    'iPod Simulator',
+    'iPad',
+    'iPhone',
+    'iPod',
+  ].includes(navigator.platform)
+    // iPad on iOS 13 detection
+    || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+}
+
+
+export default function MobileNavDisplay({ navItems }: MobileNavDisplayProps) {
   // Filter for items relevant to mobile view, typically 'main' and 'bottom' positions
   const mobileNavItems = navItems.filter(item => item.position === 'main' || item.position === 'bottom');
   // The original code spread main and bottom items separately, effectively concatenating them.
@@ -22,6 +36,7 @@ export default function MobileNavDisplay({ navItems, isIOS }: MobileNavDisplayPr
   // The original code: [...navItems(isTasksView).filter(item => item.position === 'main'), ...navItems(isTasksView).filter(item => item.position === 'bottom')]
   // This implies that items could be in 'main' or 'bottom'. The current navItems only have 'main'.
   // A simple combined list is fine.
+  const isIOS = iOS()
 
   return (
     <>

@@ -6,7 +6,6 @@ import { browserSettingsAtom } from '@/lib/atoms'
 import { useEffect, useState, ElementType } from 'react'
 import { useTranslations } from 'next-intl'
 import { HabitIcon, TaskIcon } from '@/lib/constants'
-import { useHelpers } from '@/lib/client-helpers'
 import MobileNavDisplay from './MobileNavDisplay'
 import DesktopNavDisplay from './DesktopNavDisplay'
 
@@ -24,12 +23,12 @@ interface NavigationProps {
   viewPort: ViewPort
 }
 
+
 export default function Navigation({ className, viewPort }: NavigationProps) {
   const t = useTranslations('Navigation')
   const [isMobileView, setIsMobileView] = useState(false)
   const [browserSettings] = useAtom(browserSettingsAtom)
   const isTasksView = browserSettings.viewType === 'tasks'
-  const { isIOS } = useHelpers()
 
   const currentNavItems: NavItemType[] = [
     { icon: Home, label: t('dashboard'), href: '/', position: 'main' },
@@ -60,7 +59,7 @@ export default function Navigation({ className, viewPort }: NavigationProps) {
   }, [])
 
   if (viewPort === 'mobile' && isMobileView) {
-    return <MobileNavDisplay navItems={currentNavItems} isIOS={isIOS} />
+    return <MobileNavDisplay navItems={currentNavItems} />
   }
 
   if (viewPort === 'main' && !isMobileView) {

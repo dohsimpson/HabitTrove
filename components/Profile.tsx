@@ -8,12 +8,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import UserForm from './UserForm'
 import Link from "next/link"
 import { useAtom } from "jotai"
-import { aboutOpenAtom, settingsAtom, userSelectAtom } from "@/lib/atoms"
+import { aboutOpenAtom, settingsAtom, userSelectAtom, currentUserAtom } from "@/lib/atoms"
 import { useEffect, useState } from "react"
 import { useTheme } from "next-themes"
 import { signOut } from "@/app/actions/user"
 import { toast } from "@/hooks/use-toast"
-import { useHelpers } from "@/lib/client-helpers"
 import { useTranslations } from 'next-intl'
 
 export function Profile() {
@@ -23,7 +22,7 @@ export function Profile() {
   const [isEditing, setIsEditing] = useState(false)
   const [aboutOpen, setAboutOpen] = useAtom(aboutOpenAtom)
   const { theme, setTheme } = useTheme()
-  const { currentUser: user } = useHelpers()
+  const [user] = useAtom(currentUserAtom)
   const [open, setOpen] = useState(false)
 
   const handleSignOut = async () => {

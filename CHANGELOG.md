@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 0.2.20
+
+### Fixed
+
+* coin balance shows correct value for selected user in coin management view (#151)
+
+### Improved
+
+* refactor code to remove client-helpers hook
+
 ## Version 0.2.19
 
 ### Fixed

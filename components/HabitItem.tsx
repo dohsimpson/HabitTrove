@@ -1,10 +1,10 @@
 import { Habit, SafeUser, User, Permission } from '@/lib/types'
 import { useAtom } from 'jotai'
-import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom } from '@/lib/atoms'
+import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom, currentUserAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, d2s, getCompletionsForToday, isTaskOverdue, convertMachineReadableFrequencyToHumanReadable } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Coins, Edit, Check, Undo2, MoreVertical, Pin } from 'lucide-react' // Removed unused icons
+import { Coins, Edit, Check, Undo2, MoreVertical, Pin } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,7 @@ import { useTranslations } from 'next-intl'
 import { INITIAL_RECURRENCE_RULE, RECURRENCE_RULE_MAP } from '@/lib/constants'
 import { DateTime } from 'luxon'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { useHelpers } from '@/lib/client-helpers'
+import { hasPermission } from '@/lib/utils'
 import { HabitContextMenuItems } from './HabitContextMenuItems'
 
 interface HabitItemProps {
@@ -57,9 +57,9 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
   const [isHighlighted, setIsHighlighted] = useState(false)
   const t = useTranslations('HabitItem');
   const [usersData] = useAtom(usersAtom)
-  const { currentUser, hasPermission } = useHelpers()
-  const canWrite = hasPermission('habit', 'write')
-  const canInteract = hasPermission('habit', 'interact')
+  const [currentUser] = useAtom(currentUserAtom)
+  const canWrite = hasPermission(currentUser, 'habit', 'write')
+  const canInteract = hasPermission(currentUser, 'habit', 'interact')
   const [browserSettings] = useAtom(browserSettingsAtom)
   const isTasksView = browserSettings.viewType === 'tasks'
   const isRecurRule = !isTasksView

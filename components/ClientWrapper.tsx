@@ -1,8 +1,8 @@
 'use client'
 
 import { ReactNode, Suspense, useEffect, useState } from 'react'
-import { useAtom } from 'jotai'
-import { aboutOpenAtom, pomodoroAtom, userSelectAtom } from '@/lib/atoms'
+import { useAtom, useSetAtom } from 'jotai' // Import useSetAtom
+import { aboutOpenAtom, pomodoroAtom, userSelectAtom, currentUserIdAtom } from '@/lib/atoms' // Import currentUserIdAtom
 import PomodoroTimer from './PomodoroTimer'
 import UserSelectModal from './UserSelectModal'
 import { useSession } from 'next-auth/react'
@@ -13,6 +13,7 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
   const [pomo] = useAtom(pomodoroAtom)
   const [userSelect, setUserSelect] = useAtom(userSelectAtom)
   const [aboutOpen, setAboutOpen] = useAtom(aboutOpenAtom)
+  const setCurrentUserIdAtom = useSetAtom(currentUserIdAtom)
   const { data: session, status } = useSession()
   const currentUserId = session?.user.id
   const [isMounted, setIsMounted] = useState(false);
@@ -27,7 +28,11 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
     if (!currentUserId && !userSelect) {
       setUserSelect(true)
     }
-  }, [currentUserId, status, userSelect])
+  }, [currentUserId, status, userSelect, setUserSelect])
+
+  useEffect(() => {
+    setCurrentUserIdAtom(currentUserId)
+  }, [currentUserId, setCurrentUserIdAtom])
 
   if (!isMounted) {
     return <LoadingSpinner />

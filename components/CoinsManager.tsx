@@ -10,19 +10,18 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import EmptyState from './EmptyState'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { settingsAtom, usersAtom } from '@/lib/atoms'
+import { settingsAtom, usersAtom, currentUserAtom } from '@/lib/atoms'
 import Link from 'next/link'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
 import { useCoins } from '@/hooks/useCoins'
 import { MAX_COIN_LIMIT } from '@/lib/constants'
 import { TransactionNoteEditor } from './TransactionNoteEditor'
-import { useHelpers } from '@/lib/client-helpers'
 import { TransactionType } from '@/lib/types'
 
 export default function CoinsManager() {
   const t = useTranslations('CoinsManager')
-  const { currentUser } = useHelpers()
+  const [currentUser] = useAtom(currentUserAtom)
   const [selectedUser, setSelectedUser] = useState<string>()
   const {
     add,

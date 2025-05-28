@@ -1,6 +1,6 @@
 import { useAtom, atom } from 'jotai'
 import { useTranslations } from 'next-intl'
-import { habitsAtom, coinsAtom, settingsAtom, usersAtom, habitFreqMapAtom } from '@/lib/atoms'
+import { habitsAtom, coinsAtom, settingsAtom, usersAtom, habitFreqMapAtom, currentUserAtom } from '@/lib/atoms'
 import { addCoins, removeCoins, saveHabitsData } from '@/app/actions/data'
 import { Habit, Permission, SafeUser, User } from '@/lib/types'
 import { toast } from '@/hooks/use-toast'
@@ -20,10 +20,10 @@ import {
 } from '@/lib/utils'
 import { ToastAction } from '@/components/ui/toast'
 import { Undo2 } from 'lucide-react'
-import { useHelpers } from '@/lib/client-helpers'
+
 
 function handlePermissionCheck(
-  user: SafeUser | undefined,
+  user: SafeUser | User | undefined,
   resource: 'habit' | 'wishlist' | 'coins',
   action: 'write' | 'interact',
   tCommon: (key: string, values?: Record<string, any>) => string
@@ -54,7 +54,7 @@ export function useHabits() {
   const t = useTranslations('useHabits');
   const tCommon = useTranslations('Common');
   const [usersData] = useAtom(usersAtom)
-  const { currentUser } = useHelpers()
+  const [currentUser] = useAtom(currentUserAtom)
   const [habitsData, setHabitsData] = useAtom(habitsAtom)
   const [coins, setCoins] = useAtom(coinsAtom)
   const [settings] = useAtom(settingsAtom)

@@ -10,6 +10,7 @@ import {
   CompletionCache,
   getDefaultServerSettings,
   User,
+  UserId,
 } from "./types";
 import {
   getTodayInTimezone,
@@ -85,10 +86,26 @@ export const transactionsTodayAtom = atom((get) => {
   return calculateTransactionsToday(coins.transactions, settings.system.timezone);
 });
 
-// Derived atom for current balance from all transactions
+// Atom to store the current logged-in user's ID.
+// This should be set by your application when the user session is available.
+export const currentUserIdAtom = atom<UserId | undefined>(undefined);
+
+export const currentUserAtom = atom((get) => {
+  const currentUserId = get(currentUserIdAtom);
+  const users = get(usersAtom);
+  return users.users.find(user => user.id === currentUserId);
+})
+
+// Derived atom for current balance for the logged-in user
 export const coinsBalanceAtom = atom((get) => {
+  const loggedInUserId = get(currentUserIdAtom);
+  if (!loggedInUserId) {
+    return 0; // No user logged in or ID not set, so balance is 0
+  }
   const coins = get(coinsAtom);
-  return coins.transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+  return coins.transactions
+    .filter(transaction => transaction.userId === loggedInUserId)
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
 });
 
 /* transient atoms */

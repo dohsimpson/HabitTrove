@@ -21,14 +21,14 @@ import { Switch } from './ui/switch';
 import { Permission } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useAtom, useAtomValue } from 'jotai';
-import { serverSettingsAtom, usersAtom } from '@/lib/atoms';
+import { serverSettingsAtom, usersAtom, currentUserAtom } from '@/lib/atoms';
 import { createUser, updateUser, updateUserPassword, uploadAvatar } from '@/app/actions/data';
 import { SafeUser, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { User as UserIcon } from 'lucide-react';
 import _ from 'lodash';
 import { PermissionSelector } from './PermissionSelector';
-import { useHelpers } from '@/lib/client-helpers';
+
 
 interface UserFormProps {
   userId?: string;  // if provided, we're editing; if not, we're creating
@@ -41,7 +41,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
   const [users, setUsersData] = useAtom(usersAtom);
   const serverSettings = useAtomValue(serverSettingsAtom)
   const user = userId ? users.users.find(u => u.id === userId) : undefined;
-  const { currentUser } = useHelpers()
+  const [currentUser] = useAtom(currentUserAtom)
   const getDefaultPermissions = (): Permission[] => [{
     habit: {
       write: true,
