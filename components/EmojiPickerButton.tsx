@@ -16,7 +16,7 @@ export default function EmojiPickerButton({ onEmojiSelect, inputIdToFocus }: Emo
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
 
   return (
-    <Popover modal={true} open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
+    <Popover modal={false} open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
       <PopoverTrigger asChild>
         <Button
           type="button"

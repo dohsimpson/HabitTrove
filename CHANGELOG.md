@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.21
+
+### Fixed
+
+* emoji picker overlay issue (#150)
+
 ## Version 0.2.20
 
 ### Fixed
