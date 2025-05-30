@@ -26,7 +26,8 @@ import {
   isHabitDueToday,
   getNow,
   isHabitDue,
-  getHabitFreq
+  getHabitFreq,
+  roundToInteger
 } from "@/lib/utils";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { DateTime } from "luxon";
@@ -57,26 +58,30 @@ export const serverSettingsAtom = atom(getDefaultServerSettings());
 export const coinsEarnedTodayAtom = atom((get) => {
   const coins = get(coinsAtom);
   const settings = get(settingsAtom);
-  return calculateCoinsEarnedToday(coins.transactions, settings.system.timezone);
+  const value = calculateCoinsEarnedToday(coins.transactions, settings.system.timezone);
+  return roundToInteger(value);
 });
 
 // Derived atom for total earned
 export const totalEarnedAtom = atom((get) => {
   const coins = get(coinsAtom);
-  return calculateTotalEarned(coins.transactions);
+  const value = calculateTotalEarned(coins.transactions);
+  return roundToInteger(value);
 });
 
 // Derived atom for total spent
 export const totalSpentAtom = atom((get) => {
   const coins = get(coinsAtom);
-  return calculateTotalSpent(coins.transactions);
+  const value = calculateTotalSpent(coins.transactions);
+  return roundToInteger(value);
 });
 
 // Derived atom for coins spent today
 export const coinsSpentTodayAtom = atom((get) => {
   const coins = get(coinsAtom);
   const settings = get(settingsAtom);
-  return calculateCoinsSpentToday(coins.transactions, settings.system.timezone);
+  const value = calculateCoinsSpentToday(coins.transactions, settings.system.timezone);
+  return roundToInteger(value);
 });
 
 // Derived atom for transactions today
@@ -103,9 +108,10 @@ export const coinsBalanceAtom = atom((get) => {
     return 0; // No user logged in or ID not set, so balance is 0
   }
   const coins = get(coinsAtom);
-  return coins.transactions
+  const balance = coins.transactions
     .filter(transaction => transaction.userId === loggedInUserId)
     .reduce((sum, transaction) => sum + transaction.amount, 0);
+  return roundToInteger(balance);
 });
 
 /* transient atoms */

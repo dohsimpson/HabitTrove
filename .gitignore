@@ -46,3 +46,5 @@ next-env.d.ts
 Budfile
 certificates
 /backups/*
+
+CHANGELOG.md.tmp

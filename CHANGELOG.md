@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.2.23
+
+### Fixed
+
+* floating number coin balance (#155)
+
+### Improved
+
+* use transparent background PWA icon with correct text (#103)
+* display icon in logo
+
 ## Version 0.2.22
 
 ### Added
