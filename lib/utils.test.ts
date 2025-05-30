@@ -22,10 +22,13 @@ import {
   serializeRRule,
   convertHumanReadableFrequencyToMachineReadable,
   convertMachineReadableFrequencyToHumanReadable,
-  getUnsupportedRRuleReason
+  getUnsupportedRRuleReason,
+  prepareDataForHashing,
+  generateCryptoHash
 } from './utils'
-import { CoinTransaction, ParsedResultType } from './types'
+import { CoinTransaction, ParsedResultType, Settings, HabitsData, CoinsData, WishlistData, UserData } from './types'
 import { DateTime } from "luxon";
+import { getDefaultSettings, getDefaultHabitsData, getDefaultCoinsData, getDefaultWishlistData, getDefaultUsersData } from './types';
 import { RRule, Weekday } from 'rrule';
 import { Habit } from '@/lib/types';
 import { INITIAL_DUE } from './constants';
@@ -955,4 +958,97 @@ describe('convertMachineReadableFrequencyToHumanReadable', () => {
     const humanReadable = convertMachineReadableFrequencyToHumanReadable({ frequency: new RRule({ freq: RRule.DAILY }) as unknown as ParsedResultType, isRecurRule: false, timezone })
     expect(humanReadable).toBe('invalid')
   })
+})
+
+describe('freshness utilities', () => {
+  const mockSettings: Settings = getDefaultSettings();
+  const mockHabits: HabitsData = getDefaultHabitsData();
+  const mockCoins: CoinsData = getDefaultCoinsData();
+  const mockWishlist: WishlistData = getDefaultWishlistData();
+  const mockUsers: UserData = getDefaultUsersData();
+
+  // Add a user to mockUsers for more realistic testing
+  mockUsers.users.push({
+    id: 'user-123',
+    username: 'testuser',
+    isAdmin: false,
+  });
+  mockHabits.habits.push({
+    id: 'habit-123',
+    name: 'Test Habit',
+    description: 'A habit for testing',
+    frequency: 'FREQ=DAILY',
+    coinReward: 10,
+    completions: [],
+    userIds: ['user-123']
+  });
+
+
+  describe('prepareDataForHashing', () => {
+    test('should produce a consistent string for the same data', () => {
+      const data1 = { settings: mockSettings, habits: mockHabits, coins: mockCoins, wishlist: mockWishlist, users: mockUsers };
+      const data2 = { settings: mockSettings, habits: mockHabits, coins: mockCoins, wishlist: mockWishlist, users: mockUsers }; // Identical data
+
+      const string1 = prepareDataForHashing(data1.settings, data1.habits, data1.coins, data1.wishlist, data1.users);
+      const string2 = prepareDataForHashing(data2.settings, data2.habits, data2.coins, data2.wishlist, data2.users);
+
+      expect(string1).toBe(string2);
+    });
+
+    test('should produce a different string if settings data changes', () => {
+      const string1 = prepareDataForHashing(mockSettings, mockHabits, mockCoins, mockWishlist, mockUsers);
+      const modifiedSettings = { ...mockSettings, system: { ...mockSettings.system, timezone: 'America/Chicago' } };
+      const string2 = prepareDataForHashing(modifiedSettings, mockHabits, mockCoins, mockWishlist, mockUsers);
+      expect(string1).not.toBe(string2);
+    });
+
+    test('should produce a different string if habits data changes', () => {
+      const string1 = prepareDataForHashing(mockSettings, mockHabits, mockCoins, mockWishlist, mockUsers);
+      const modifiedHabits = { ...mockHabits, habits: [...mockHabits.habits, { id: 'new-habit', name: 'New', description: '', frequency: 'FREQ=DAILY', coinReward: 5, completions: [] }] };
+      const string2 = prepareDataForHashing(mockSettings, modifiedHabits, mockCoins, mockWishlist, mockUsers);
+      expect(string1).not.toBe(string2);
+    });
+
+    test('should handle empty data consistently', () => {
+      const emptySettings = getDefaultSettings();
+      const emptyHabits = getDefaultHabitsData();
+      const emptyCoins = getDefaultCoinsData();
+      const emptyWishlist = getDefaultWishlistData();
+      const emptyUsers = getDefaultUsersData();
+
+      const string1 = prepareDataForHashing(emptySettings, emptyHabits, emptyCoins, emptyWishlist, emptyUsers);
+      const string2 = prepareDataForHashing(emptySettings, emptyHabits, emptyCoins, emptyWishlist, emptyUsers);
+      expect(string1).toBe(string2);
+      expect(string1).toBeDefined();
+    });
+  });
+
+  describe('generateCryptoHash', () => {
+    test('should generate a SHA-256 hex string', async () => {
+      const dataString = 'test string';
+      const hash = await generateCryptoHash(dataString);
+      expect(hash).toMatch(/^[a-f0-9]{64}$/); // SHA-256 hex is 64 chars
+    });
+
+    test('should generate different hashes for different strings', async () => {
+      const hash1 = await generateCryptoHash('test string 1');
+      const hash2 = await generateCryptoHash('test string 2');
+      expect(hash1).not.toBe(hash2);
+    });
+
+    test('should generate the same hash for the same string', async () => {
+      const hash1 = await generateCryptoHash('consistent string');
+      const hash2 = await generateCryptoHash('consistent string');
+      expect(hash1).toBe(hash2);
+    });
+
+    // Test with a known SHA-256 value if possible, or ensure crypto.subtle.digest is available
+    // For "hello world", SHA-256 is "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+    test('should generate correct hash for a known string', async () => {
+      const knownString = "hello world";
+      const expectedHash = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9";
+      const actualHash = await generateCryptoHash(knownString);
+      expect(actualHash).toBe(expectedHash);
+    });
+  });
 })

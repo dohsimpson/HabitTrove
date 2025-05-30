@@ -14,7 +14,7 @@ export function JotaiHydrate({
     [coinsAtom, initialValues.coins],
     [wishlistAtom, initialValues.wishlist],
     [usersAtom, initialValues.users],
-    [serverSettingsAtom, initialValues.serverSettings]
+    [serverSettingsAtom, initialValues.serverSettings],
   ])
   return children
 }

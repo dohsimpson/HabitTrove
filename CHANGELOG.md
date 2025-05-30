@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.2.22
+
+### Added
+
+* auto check data freshness on interval (#138)
+* warn about out-of-sync data
+
 ## Version 0.2.21
 
 ### Fixed
