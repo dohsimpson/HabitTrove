@@ -65,7 +65,7 @@ export function Profile() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col mr-4">
-                <span className="text-sm font-semibold flex items-center gap-1">
+                <span className="text-sm font-semibold flex items-center gap-1 break-all">
                   {user?.username || t('guestUsername')}
                   {user?.isAdmin && <Crown className="h-3 w-3 text-yellow-500" />}
                 </span>

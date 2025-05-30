@@ -2,11 +2,12 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DateTime, DateTimeFormatOptions } from "luxon"
 import { datetime, RRule } from 'rrule'
-import { Freq, Habit, CoinTransaction, Permission, ParsedFrequencyResult, ParsedResultType, User } from '@/lib/types'
+import { Freq, Habit, CoinTransaction, Permission, ParsedFrequencyResult, ParsedResultType, User, Settings, HabitsData, CoinsData, WishlistData, UserData } from '@/lib/types'
 import { DUE_MAP, INITIAL_DUE, RECURRENCE_RULE_MAP } from "./constants"
 import * as chrono from 'chrono-node'
 import _ from "lodash"
 import { v4 as uuidv4 } from 'uuid'
+import stableStringify from 'json-stable-stringify';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -480,4 +481,51 @@ export function hasPermission(
   }
   // Otherwise, check specific permissions.
   return checkPermission(currentUser.permissions, resource, action);
+}
+
+/**
+ * Prepares a consistent string representation of the data for hashing.
+ * It combines all relevant data pieces into a single object and then stringifies it stably.
+ */
+export function prepareDataForHashing(
+  settings: Settings,
+  habits: HabitsData,
+  coins: CoinsData,
+  wishlist: WishlistData,
+  users: UserData
+): string {
+  // Combine all data into a single object.
+  // The order of keys in this object itself doesn't matter due to stableStringify,
+  // but being explicit helps in understanding what's being hashed.
+  const combinedData = {
+    settings,
+    habits,
+    coins,
+    wishlist,
+    users,
+  };
+  const stringifiedData = stableStringify(combinedData);
+  // Handle cases where stringify might return undefined.
+  if (stringifiedData === undefined) {
+    throw new Error("Failed to stringify data for hashing. stableStringify returned undefined.");
+  }
+  return stringifiedData;
+}
+
+/**
+ * Generates a SHA-256 hash for a given string using the Web Crypto API.
+ * This function is suitable for both client-side and server-side (Node.js 19+) environments.
+ * @param dataString The string to hash.
+ * @returns A promise that resolves to the hex string of the hash.
+ */
+export async function generateCryptoHash(dataString: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(dataString);
+  // globalThis.crypto should be available in modern browsers and Node.js (v19+)
+  // For Node.js v15-v18, you might need: const { subtle } = require('node:crypto').webcrypto;
+  const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  // Convert buffer to hex string
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
 }
