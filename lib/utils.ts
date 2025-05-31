@@ -19,6 +19,11 @@ export function getTodayInTimezone(timezone: string): string {
   return getISODate({ dateTime: now, timezone });
 }
 
+// round a number to the nearest integer
+export function roundToInteger(value: number): number {
+  return Math.round(value);
+}
+
 export function getISODate({ dateTime, timezone }: { dateTime: DateTime, timezone: string }): string {
   return dateTime.setZone(timezone).toISODate()!;
 }

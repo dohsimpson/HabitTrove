@@ -22,9 +22,10 @@ import {
   serializeRRule,
   convertHumanReadableFrequencyToMachineReadable,
   convertMachineReadableFrequencyToHumanReadable,
-  getUnsupportedRRuleReason,
   prepareDataForHashing,
-  generateCryptoHash
+  generateCryptoHash,
+  getUnsupportedRRuleReason,
+  roundToInteger
 } from './utils'
 import { CoinTransaction, ParsedResultType, Settings, HabitsData, CoinsData, WishlistData, UserData } from './types'
 import { DateTime } from "luxon";
@@ -41,6 +42,33 @@ describe('cn utility', () => {
     expect(cn('foo', ['bar', 'baz'])).toBe('foo bar baz')
   })
 })
+
+describe('roundToInteger', () => {
+  test('should round positive numbers correctly', () => {
+    expect(roundToInteger(10.123)).toBe(10);
+    expect(roundToInteger(10.5)).toBe(11);
+    expect(roundToInteger(10.75)).toBe(11);
+    expect(roundToInteger(10.49)).toBe(10);
+  });
+
+  test('should round negative numbers correctly', () => {
+    expect(roundToInteger(-10.123)).toBe(-10);
+    expect(roundToInteger(-10.5)).toBe(-10); // Math.round rounds -x.5 to -(x-1) e.g. -10.5 to -10
+    expect(roundToInteger(-10.75)).toBe(-11);
+    expect(roundToInteger(-10.49)).toBe(-10);
+  });
+
+  test('should handle zero correctly', () => {
+    expect(roundToInteger(0)).toBe(0);
+    expect(roundToInteger(0.0)).toBe(0);
+    expect(roundToInteger(-0.0)).toBe(-0);
+  });
+
+  test('should handle integers correctly', () => {
+    expect(roundToInteger(15)).toBe(15);
+    expect(roundToInteger(-15)).toBe(-15);
+  });
+});
 
 describe('getUnsupportedRRuleReason', () => {
   test('should return message for HOURLY frequency', () => {
@@ -142,7 +170,7 @@ describe('isTaskOverdue', () => {
     // Create a task due "tomorrow" in UTC
     const tomorrow = DateTime.now().plus({ days: 1 }).toUTC().toISO()
     const habit = createTestHabit(tomorrow)
-    
+
     // Test in various timezones
     expect(isTaskOverdue(habit, 'UTC')).toBe(false)
     expect(isTaskOverdue(habit, 'America/New_York')).toBe(false)
@@ -597,7 +625,7 @@ describe('isHabitDueToday', () => {
 
   test('should return false for invalid recurrence rule', () => {
     const habit = testHabit('INVALID_RRULE')
-    const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = spyOn(console, 'error').mockImplementation(() => { })
     expect(isHabitDueToday({ habit, timezone: 'UTC' })).toBe(false)
   })
 })
@@ -710,7 +738,7 @@ describe('isHabitDue', () => {
   test('should return false for invalid recurrence rule', () => {
     const habit = testHabit('INVALID_RRULE')
     const date = DateTime.fromISO('2024-01-01T00:00:00Z')
-    const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = spyOn(console, 'error').mockImplementation(() => { })
     expect(isHabitDue({ habit, timezone: 'UTC', date })).toBe(false)
   })
 })

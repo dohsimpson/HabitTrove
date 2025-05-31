@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { calculateCoinsEarnedToday, calculateCoinsSpentToday, calculateTotalEarned, calculateTotalSpent, calculateTransactionsToday, checkPermission } from '@/lib/utils'
+import { calculateCoinsEarnedToday, calculateCoinsSpentToday, calculateTotalEarned, calculateTotalSpent, calculateTransactionsToday, checkPermission, roundToInteger } from '@/lib/utils'
 import {
   coinsAtom,
   coinsEarnedTodayAtom,
@@ -86,12 +86,22 @@ export function useCoins(options?: { selectedUser?: string }) {
       setBalance(loggedInUserBalance);
     } else if (targetUser?.id) {
       // If an admin is viewing another user, calculate their metrics manually
-      setCoinsEarnedToday(calculateCoinsEarnedToday(transactions, timezone));
-      setTotalEarned(calculateTotalEarned(transactions));
-      setTotalSpent(calculateTotalSpent(transactions));
-      setCoinsSpentToday(calculateCoinsSpentToday(transactions, timezone));
-      setTransactionsToday(calculateTransactionsToday(transactions, timezone));
-      setBalance(transactions.reduce((acc, t) => acc + t.amount, 0));
+      const earnedToday = calculateCoinsEarnedToday(transactions, timezone);
+      setCoinsEarnedToday(roundToInteger(earnedToday));
+
+      const totalEarnedVal = calculateTotalEarned(transactions);
+      setTotalEarned(roundToInteger(totalEarnedVal));
+
+      const totalSpentVal = calculateTotalSpent(transactions);
+      setTotalSpent(roundToInteger(totalSpentVal));
+
+      const spentToday = calculateCoinsSpentToday(transactions, timezone);
+      setCoinsSpentToday(roundToInteger(spentToday));
+
+      setTransactionsToday(calculateTransactionsToday(transactions, timezone)); // This is a count
+
+      const calculatedBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
+      setBalance(roundToInteger(calculatedBalance));
     }
   }, [
     targetUser?.id,
