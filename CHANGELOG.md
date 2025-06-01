@@ -5,6 +5,7 @@
 ### Fixed
 
 * floating number coin balance (#155)
+* disable freshness check if browser does not support web crypto (#161)
 
 ### Improved
 
