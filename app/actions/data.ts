@@ -130,7 +130,7 @@ async function saveData<T>(type: DataType, data: T): Promise<void> {
  * Calculates the server's global freshness token based on all core data files.
  * This is an expensive operation as it reads all data files.
  */
-async function calculateServerFreshnessToken(): Promise<string> {
+async function calculateServerFreshnessToken(): Promise<string | null> {
   try {
     const settings = await loadSettings();
     const habits = await loadHabitsData();

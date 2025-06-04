@@ -19,6 +19,11 @@ export function getTodayInTimezone(timezone: string): string {
   return getISODate({ dateTime: now, timezone });
 }
 
+// round a number to the nearest integer
+export function roundToInteger(value: number): number {
+  return Math.round(value);
+}
+
 export function getISODate({ dateTime, timezone }: { dateTime: DateTime, timezone: string }): string {
   return dateTime.setZone(timezone).toISODate()!;
 }
@@ -518,14 +523,19 @@ export function prepareDataForHashing(
  * @param dataString The string to hash.
  * @returns A promise that resolves to the hex string of the hash.
  */
-export async function generateCryptoHash(dataString: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(dataString);
-  // globalThis.crypto should be available in modern browsers and Node.js (v19+)
-  // For Node.js v15-v18, you might need: const { subtle } = require('node:crypto').webcrypto;
-  const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  // Convert buffer to hex string
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+export async function generateCryptoHash(dataString: string): Promise<string | null> {
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(dataString);
+    // globalThis.crypto should be available in modern browsers and Node.js (v19+)
+    // For Node.js v15-v18, you might need: const { subtle } = require('node:crypto').webcrypto;
+    const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    // Convert buffer to hex string
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  } catch (error) {
+    console.error(`Failed to generate hash: ${error}`);
+    return null;
+  }
 }
