@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.24
+
+### Added
+
+* 🌍 Added Korean language support (한국어)
+
 ## Version 0.2.23
 
 ### Fixed
