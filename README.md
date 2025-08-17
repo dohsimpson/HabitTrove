@@ -1,15 +1,13 @@
 # <img align="left" width="50" height="50" src="https://github.com/user-attachments/assets/99dcf223-3680-4b3a-8050-d9788f051682" /> HabitTrove
 
-<img width="1698" height="400" alt="github-header-image (1)" src="https://github.com/user-attachments/assets/f64b629e-eadb-4bf1-915c-546c3855b831" />
-
-Star [TaskTrove repo](https://github.com/dohsimpson/TaskTrove) to get notified!
-
-
 ![cover](https://github.com/user-attachments/assets/b63e98b4-64ae-49c7-ae7e-21ef76c04a5a)
 
 HabitTrove is a gamified habit tracking application that helps you build and maintain positive habits by rewarding you with coins, which you can use to exchange for rewards.
 
-> **⚠️ Important:** HabitTrove is currently in beta. Please regularly backup your `data/` directory to prevent any potential data loss.
+Also, try [TaskTrove](https://github.com/dohsimpson/TaskTrove):
+
+<a href="https://github.com/dohsimpson/TaskTrove"><img width="3400" height="920" alt="tasktrove-banner" src="https://github.com/user-attachments/assets/ec728fba-7645-4169-b383-f760967840b9" /></a>
+
 
 ## Try the Demo
 
