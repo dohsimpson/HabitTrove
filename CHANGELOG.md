@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.27
+
+### Fixed
+
+* Mobile navigation text centering and sizing for multi-word translations
+
 ## Version 0.2.26
 
 ### Improved
