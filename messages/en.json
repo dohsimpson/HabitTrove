@@ -288,7 +288,18 @@
     "cancelButton": "Cancel",
     "saveChangesButton": "Save Changes",
     "createUserButton": "Create User",
-    "deleteAccountButton": "Delete Account"
+    "deleteAccountButton": "Delete Account",
+    "toastDemoDeleteDisabled": "Deletion is disabled in demo instance",
+    "toastCannotDeleteSelf": "You cannot delete your own account",
+    "confirmDeleteUser": "Are you sure you want to delete user {username}?",
+    "toastUserDeletedTitle": "User deleted",
+    "toastUserDeletedDescription": "User {username} has been deleted successfully",
+    "toastDeleteUserFailed": "Failed to delete user: {error}",
+    "deletingButtonText": "Deleting...",
+    "areYouSure": "Are you sure?",
+    "deleteUserConfirmation": "Are you sure you want to delete user {username}?",
+    "cancel": "Cancel",
+    "confirmDeleteButtonText": "Delete"
   },
   "ViewToggle": {
     "habitsLabel": "Habits",
