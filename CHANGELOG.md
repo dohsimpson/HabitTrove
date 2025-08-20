@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.26
+
+### Improved
+
+* Docker build performance optimization with cache mounts
+
 ## Version 0.2.25
 
 ### Added

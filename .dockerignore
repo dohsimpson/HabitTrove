@@ -9,3 +9,15 @@ npm-debug.log
 data
 CLAUDE.md
 docs/
+Budfile
+PLAN.md
+/backups/
+/data.bak/
+/coverage/
+*.md
+!README.md
+!CHANGELOG.md
+tags
+tsconfig.tsbuildinfo
+.env.local
+.env.*.local
