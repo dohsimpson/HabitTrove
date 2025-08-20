@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 0.2.25
+
+### Added
+
+* 🌍 Added Catalan language support (Català)
+
+### Fixed
+
+* Translation files consistency: Added missing UserForm keys to English and Korean translations
+
 ## Version 0.2.24
 
 ### Added
