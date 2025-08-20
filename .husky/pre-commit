@@ -1,1 +1,11 @@
+#!/bin/sh
+# Check that package.json version exists in CHANGELOG.md
+VERSION=$(node -p "require('./package.json').version")
+if ! grep -q "## Version $VERSION" CHANGELOG.md; then
+  echo "❌ Error: Version $VERSION from package.json not found in CHANGELOG.md"
+  echo "Please add an entry for version $VERSION in CHANGELOG.md"
+  exit 1
+fi
+echo "✅ Version $VERSION found in CHANGELOG.md"
+
 npm run typecheck && npm run lint && npm run test
