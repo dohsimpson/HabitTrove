@@ -28,7 +28,7 @@ HabitTrove is a gamified habit tracking PWA built with Next.js 15, TypeScript, a
 
 ### Creating a New Version
 1. Update version in `package.json`
-2. Update `CHANGELOG.md` with new version and changes (follow existing patterns in the file)
+2. Update `CHANGELOG.md` with new version and changes (follow existing patterns in the file, keep entries concise - ideally 1 line per change)
 3. Run `npm run typecheck && npm run lint` to ensure code quality
 4. Commit changes: `git add . && git commit -m "feat: description"`
   * Follow Conventional Commits Standard: `<type>[scope]: <description>` (e.g., `feat(auth): add OAuth integration`, `fix: resolve memory leak in task loader`).
