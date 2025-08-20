@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.2.28
+
+### Added
+
+* Server permission checking system to validate data directory access on startup
+* Permission error display with troubleshooting guidance and recheck functionality
+
 ## Version 0.2.27
 
 ### Fixed
