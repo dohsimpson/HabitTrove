@@ -82,6 +82,9 @@
     "timesSuffix": "회",
     "rewardLabel": "보상",
     "coinsSuffix": "코인",
+    "drawingLabel": "그림",
+    "addDrawing": "그림 추가",
+    "editDrawing": "그림 편집",
     "shareLabel": "공유",
     "saveChangesButton": "변경 사항 저장",
     "addTaskButton": "할 일 추가",
@@ -105,6 +108,9 @@
     "errorTargetCompletionsMin": "목표 완료 횟수는 최소 1이어야 합니다",
     "errorInvalidUrl": "유효한 URL을 입력하세요",
     "linkLabel": "링크",
+    "drawingLabel": "그림",
+    "addDrawing": "그림 추가",
+    "editDrawing": "그림 편집",
     "shareLabel": "공유",
     "saveButton": "변경 사항 저장",
     "addButton": "보상 추가"
@@ -431,5 +437,13 @@
   "Warning": {
     "areYouSure": "확실합니까?",
     "cancel": "취소"
+  },
+  "DrawingModal": {
+    "colorLabel": "색상:",
+    "thicknessLabel": "두께:",
+    "undoButton": "실행 취소",
+    "clearButton": "지우기",
+    "saveDrawingButton": "그림 저장",
+    "cancelButton": "취소"
   }
 }

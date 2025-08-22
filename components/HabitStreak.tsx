@@ -2,7 +2,7 @@
 
 import { Habit } from '@/lib/types'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { d2s, getNow, t2d } from '@/lib/utils' // Removed getCompletedHabitsForDate
+import { d2s, getNow } from '@/lib/utils' // Removed getCompletedHabitsForDate
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'

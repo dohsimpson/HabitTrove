@@ -22,18 +22,15 @@ import {
   Permission,
   ServerSettings
 } from '@/lib/types'
-import { d2t, deepMerge, getNow, checkPermission, uuid } from '@/lib/utils';
+import { d2t, getNow, uuid } from '@/lib/utils';
 import { verifyPassword } from "@/lib/server-helpers";
 import { saltAndHashPassword } from "@/lib/server-helpers";
 import { signInSchema } from '@/lib/zod';
-import { auth } from '@/auth';
 import _ from 'lodash';
-import { getCurrentUser, getCurrentUserId } from '@/lib/server-helpers'
-import stableStringify from 'json-stable-stringify';
+import { getCurrentUser } from '@/lib/server-helpers'
 import { prepareDataForHashing, generateCryptoHash } from '@/lib/utils';
 
 
-import { PermissionError } from '@/lib/exceptions'
 
 type ResourceType = 'habit' | 'wishlist' | 'coins'
 type ActionType = 'write' | 'interact'

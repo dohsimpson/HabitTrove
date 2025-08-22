@@ -82,6 +82,9 @@
     "timesSuffix": "回",
     "rewardLabel": "報酬",
     "coinsSuffix": "コイン",
+    "drawingLabel": "描画",
+    "addDrawing": "描画を追加",
+    "editDrawing": "描画を編集",
     "shareLabel": "共有",
     "saveChangesButton": "変更を保存",
     "addTaskButton": "タスクを追加",
@@ -105,6 +108,9 @@
     "errorTargetCompletionsMin": "目標達成回数は1以上である必要があります",
     "errorInvalidUrl": "有効なURLを入力してください",
     "linkLabel": "リンク",
+    "drawingLabel": "描画",
+    "addDrawing": "描画を追加",
+    "editDrawing": "描画を編集",
     "shareLabel": "共有",
     "saveButton": "変更を保存",
     "addButton": "報酬を追加"
@@ -431,5 +437,13 @@
     "maxAmountExceededDescription": "金額は{max}を超えることはできません。",
     "transactionNotFoundDescription": "取引が見つかりません",
     "maxAmountExceededDescription": "金額は{max}を超えることはできません。"
+  },
+  "DrawingModal": {
+    "colorLabel": "色：",
+    "thicknessLabel": "太さ：",
+    "undoButton": "元に戻す",
+    "clearButton": "クリア",
+    "saveDrawingButton": "描画を保存",
+    "cancelButton": "キャンセル"
   }
 }

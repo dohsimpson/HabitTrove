@@ -1,4 +1,4 @@
-import { Habit, User } from '@/lib/types';
+import { Habit } from '@/lib/types';
 import { useHabits } from '@/hooks/useHabits';
 import { useAtom } from 'jotai';
 import { pomodoroAtom, settingsAtom, currentUserAtom } from '@/lib/atoms';

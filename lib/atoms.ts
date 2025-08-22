@@ -9,12 +9,10 @@ import {
   getDefaultUsersData,
   CompletionCache,
   getDefaultServerSettings,
-  User,
   UserId,
 } from "./types";
 import {
   getTodayInTimezone,
-  isSameDate,
   t2d,
   calculateCoinsEarnedToday,
   calculateTotalEarned,
@@ -22,9 +20,6 @@ import {
   calculateCoinsSpentToday,
   calculateTransactionsToday,
   getCompletionsForToday,
-  getISODate,
-  isHabitDueToday,
-  getNow,
   isHabitDue,
   getHabitFreq,
   roundToInteger

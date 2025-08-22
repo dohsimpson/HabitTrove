@@ -82,6 +82,9 @@
     "timesSuffix": "veces",
     "rewardLabel": "Recompensa",
     "coinsSuffix": "monedas",
+    "drawingLabel": "Dibujo",
+    "addDrawing": "Añadir Dibujo",
+    "editDrawing": "Editar Dibujo",
     "shareLabel": "Compartir",
     "saveChangesButton": "Guardar cambios",
     "addTaskButton": "Añadir tarea",
@@ -105,6 +108,9 @@
     "errorTargetCompletionsMin": "El número de finalizaciones objetivo debe ser al menos 1",
     "errorInvalidUrl": "Por favor ingresa una URL válida",
     "linkLabel": "Enlace",
+    "drawingLabel": "Dibujo",
+    "addDrawing": "Añadir Dibujo",
+    "editDrawing": "Editar Dibujo",
     "shareLabel": "Compartir",
     "saveButton": "Guardar cambios",
     "addButton": "Añadir recompensa"
@@ -384,6 +390,14 @@
     "languageChangedTitle": "Idioma cambiado",
     "languageChangedDescription": "Por favor actualiza la página para ver los cambios",
     "languageDisabledInDemoTooltip": "Cambiar el idioma está deshabilitado en la versión de demostración."
+  },
+  "DrawingModal": {
+    "colorLabel": "Color:",
+    "thicknessLabel": "Grosor:",
+    "undoButton": "Deshacer",
+    "clearButton": "Limpiar",
+    "saveDrawingButton": "Guardar Dibujo",
+    "cancelButton": "Cancelar"
   },
   "Common": {
     "authenticationRequiredTitle": "Autenticación requerida",

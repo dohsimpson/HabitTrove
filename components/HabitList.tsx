@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react' // Added useMemo, useEffect
 import { Plus, ArrowUpNarrowWide, ArrowDownWideNarrow, Search } from 'lucide-react' // Added sort icons, Search icon
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
-import { habitsAtom, settingsAtom, browserSettingsAtom } from '@/lib/atoms'
+import { habitsAtom, browserSettingsAtom } from '@/lib/atoms'
 import EmptyState from './EmptyState'
 import { Button } from '@/components/ui/button'
 import HabitItem from './HabitItem'

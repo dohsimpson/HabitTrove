@@ -1,6 +1,5 @@
 'use client'
 
-import { useHabits } from "@/hooks/useHabits";
 import { habitsAtom, settingsAtom } from "@/lib/atoms";
 import { Habit } from "@/lib/types";
 import { useAtom } from "jotai";

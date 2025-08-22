@@ -82,6 +82,9 @@
     "timesSuffix": "vegades",
     "rewardLabel": "Recompensa",
     "coinsSuffix": "monedes",
+    "drawingLabel": "Dibuix",
+    "addDrawing": "Afegeix Dibuix",
+    "editDrawing": "Edita Dibuix",
     "shareLabel": "Comparteix",
     "saveChangesButton": "Desa els canvis",
     "addTaskButton": "Afegeix tasca",
@@ -105,6 +108,9 @@
     "errorTargetCompletionsMin": "El nombre de finalitzacions objectiu ha de ser com a mínim 1",
     "errorInvalidUrl": "Si us plau, introdueix una URL vàlida",
     "linkLabel": "Enllaç",
+    "drawingLabel": "Dibuix",
+    "addDrawing": "Afegeix Dibuix",
+    "editDrawing": "Edita Dibuix",
     "shareLabel": "Comparteix",
     "saveButton": "Desa els canvis",
     "addButton": "Afegeix recompensa"
@@ -429,5 +435,13 @@
     "successTitle": "Èxit",
     "transactionNotFoundDescription": "Transacció no trobada",
     "maxAmountExceededDescription": "La quantitat no pot excedir {max}."
+  },
+  "DrawingModal": {
+    "colorLabel": "Color:",
+    "thicknessLabel": "Gruix:",
+    "undoButton": "Desfés",
+    "clearButton": "Neteja",
+    "saveDrawingButton": "Desa el dibuix",
+    "cancelButton": "Cancel·la"
   }
 }

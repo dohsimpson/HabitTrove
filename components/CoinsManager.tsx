@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react' // Import useEffect, useRef
 import { useSearchParams } from 'next/navigation' // Import useSearchParams
-import { t2d, d2s, getNow, isSameDate } from '@/lib/utils'
+import { t2d, d2s } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { FormattedNumber } from '@/components/FormattedNumber'
-import { History, Pencil } from 'lucide-react'
+import { History } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import EmptyState from './EmptyState'
 import { Input } from '@/components/ui/input'
