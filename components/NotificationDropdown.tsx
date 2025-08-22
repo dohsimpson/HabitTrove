@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CoinsData, HabitsData, WishlistData, UserData, User, CoinTransaction } from '@/lib/types';
+import { HabitsData, WishlistData, UserData, User, CoinTransaction } from '@/lib/types';
 import { t2d } from '@/lib/utils';
 import Link from 'next/link';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';

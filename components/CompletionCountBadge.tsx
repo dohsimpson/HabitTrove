@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { useAtom } from 'jotai'
-import { completedHabitsMapAtom, habitsAtom, habitsByDateFamily } from '@/lib/atoms'
+import { completedHabitsMapAtom, habitsByDateFamily } from '@/lib/atoms'
 import { getTodayInTimezone } from '@/lib/utils'
 // import { useHabits } from '@/hooks/useHabits' // Not used
 import { settingsAtom } from '@/lib/atoms'

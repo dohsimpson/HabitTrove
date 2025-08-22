@@ -5,24 +5,12 @@ import PasswordEntryForm from './PasswordEntryForm';
 import UserForm from './UserForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Crown, Pencil, Plus, User as UserIcon, UserRoundPen, Trash2 } from 'lucide-react';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import { Crown, Plus, User as UserIcon, UserRoundPen } from 'lucide-react';
+
+
 import { useAtom } from 'jotai';
 import { usersAtom, currentUserAtom } from '@/lib/atoms';
 import { signIn } from '@/app/actions/user';
-import { createUser } from '@/app/actions/data';
 import { useTranslations } from 'next-intl';
 import { toast } from '@/hooks/use-toast';
 import { Description } from '@radix-ui/react-dialog';

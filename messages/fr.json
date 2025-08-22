@@ -82,6 +82,9 @@
     "timesSuffix": "fois",
     "rewardLabel": "Récompense",
     "coinsSuffix": "pièces",
+    "drawingLabel": "Dessin",
+    "addDrawing": "Ajouter un Dessin",
+    "editDrawing": "Modifier le Dessin",
     "shareLabel": "Partager",
     "saveChangesButton": "Sauvegarder les modifications",
     "addTaskButton": "Ajouter une tâche",
@@ -105,6 +108,9 @@
     "errorTargetCompletionsMin": "Les complétions cibles doivent être d'au moins 1",
     "errorInvalidUrl": "Veuillez entrer une URL valide",
     "linkLabel": "Lien",
+    "drawingLabel": "Dessin",
+    "addDrawing": "Ajouter un Dessin",
+    "editDrawing": "Modifier le Dessin",
     "shareLabel": "Partager",
     "saveButton": "Sauvegarder les modifications",
     "addButton": "Ajouter une récompense"
@@ -431,5 +437,13 @@
     "maxAmountExceededDescription": "Le montant ne peut pas dépasser {max}.",
     "transactionNotFoundDescription": "Transaction non trouvée",
     "maxAmountExceededDescription": "Le montant ne peut pas dépasser {max}."
+  },
+  "DrawingModal": {
+    "colorLabel": "Couleur :",
+    "thicknessLabel": "Épaisseur :",
+    "undoButton": "Annuler",
+    "clearButton": "Effacer",
+    "saveDrawingButton": "Enregistrer le dessin",
+    "cancelButton": "Annuler"
   }
 }

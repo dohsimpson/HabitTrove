@@ -1,5 +1,4 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
 import { DM_Sans } from 'next/font/google'
 import { JotaiProvider } from '@/components/jotai-providers'
 import { JotaiHydrate } from '@/components/jotai-hydrate'

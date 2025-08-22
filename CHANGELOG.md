@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.2.29
+
+### Added
+
+* ✏️ Freehand drawing capability for habits and wishlist items
+
+### Fixed
+
+* Wishlist and Habit card layout - time and rewards sections now stay at bottom regardless of description length
+* Wishlist card user avatars now appear on same row as title for consistency with habit cards
+
 ## Version 0.2.28
 
 ### Added

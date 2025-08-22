@@ -1,23 +1,25 @@
 'use client'
 
 import { useState } from 'react'
-import { RRule, RRuleSet, rrulestr } from 'rrule'
+import { RRule } from 'rrule'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
-import { settingsAtom, browserSettingsAtom, usersAtom, currentUserAtom } from '@/lib/atoms'
+import { settingsAtom, usersAtom, currentUserAtom } from '@/lib/atoms'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Zap } from 'lucide-react'
+import { Zap, Brush } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Habit, SafeUser } from '@/lib/types'
+import { Habit } from '@/lib/types'
 import EmojiPickerButton from './EmojiPickerButton'
 import ModalOverlay from './ModalOverlay' // Import the new component
-import { convertHumanReadableFrequencyToMachineReadable, convertMachineReadableFrequencyToHumanReadable, d2s, d2t, serializeRRule } from '@/lib/utils'
-import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES, RECURRENCE_RULE_MAP, MAX_COIN_LIMIT } from '@/lib/constants'
+import DrawingModal from './DrawingModal'
+import DrawingDisplay from './DrawingDisplay'
+import { convertHumanReadableFrequencyToMachineReadable, convertMachineReadableFrequencyToHumanReadable, d2t, serializeRRule } from '@/lib/utils'
+import { INITIAL_DUE, INITIAL_RECURRENCE_RULE, QUICK_DATES, MAX_COIN_LIMIT } from '@/lib/constants'
 import { DateTime } from 'luxon'
 
 
@@ -49,6 +51,8 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>((habit?.userIds || []).filter(id => id !== currentUser?.id))
   const [usersData] = useAtom(usersAtom)
   const users = usersData.users
+  const [drawing, setDrawing] = useState<string>(habit?.drawing || '')
+  const [isDrawingModalOpen, setIsDrawingModalOpen] = useState(false)
 
   function getFrequencyUpdate() {
     if (ruleText === initialRuleText && habit?.frequency) {
@@ -83,14 +87,19 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
       targetCompletions: targetCompletions > 1 ? targetCompletions : undefined,
       completions: habit?.completions || [],
       frequency: getFrequencyUpdate(),
-      userIds: selectedUserIds.length > 0 ? selectedUserIds.concat(currentUser?.id || []) : (currentUser && [currentUser.id])
+      userIds: selectedUserIds.length > 0 ? selectedUserIds.concat(currentUser?.id || []) : (currentUser && [currentUser.id]),
+      drawing: drawing && drawing !== '[]' ? drawing : undefined
     })
   }
 
   return (
     <>
       <ModalOverlay />
-      <Dialog open={true} onOpenChange={onClose} modal={false}>
+      <Dialog open={true} onOpenChange={(open) => {
+        if (!open && !isDrawingModalOpen) {
+          onClose()
+        }
+      }} modal={false}>
         <DialogContent> {/* DialogContent from shadcn/ui is typically z-50, ModalOverlay is z-40 */}
           <DialogHeader>
             <DialogTitle>
@@ -290,6 +299,38 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
                   </div>
                 </div>
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">
+                  {t('drawingLabel')}
+                </Label>
+                <div className="col-span-3">
+                  <div className="flex gap-4 items-center">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setIsDrawingModalOpen(true)
+                      }}
+                      className="flex-1 justify-start"
+                    >
+                      <Brush className="h-4 w-4 mr-2" />
+                      {drawing ? t('editDrawing') : t('addDrawing')}
+                    </Button>
+                    {drawing && (
+                      <div className="flex-shrink-0">
+                        <DrawingDisplay
+                          drawingData={drawing}
+                          width={80}
+                          height={53}
+                          className=""
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
               {users && users.length > 1 && (
                 <div className="grid grid-cols-4 items-center gap-4">
                   <div className="flex items-center justify-end gap-2">
@@ -333,6 +374,13 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
           </form>
         </DialogContent>
       </Dialog>
+      <DrawingModal
+        isOpen={isDrawingModalOpen}
+        onClose={() => setIsDrawingModalOpen(false)}
+        onSave={(drawingData) => setDrawing(drawingData)}
+        initialDrawing={drawing}
+        title={name}
+      />
     </>
   )
 }

@@ -23,7 +23,6 @@ import { toast } from '@/hooks/use-toast';
 import { useAtom, useAtomValue } from 'jotai';
 import { serverSettingsAtom, usersAtom, currentUserAtom } from '@/lib/atoms';
 import { createUser, updateUser, updateUserPassword, uploadAvatar } from '@/app/actions/data';
-import { SafeUser, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { User as UserIcon } from 'lucide-react';
 import _ from 'lodash';

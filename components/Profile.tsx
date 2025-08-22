@@ -9,7 +9,7 @@ import UserForm from './UserForm'
 import Link from "next/link"
 import { useAtom } from "jotai"
 import { aboutOpenAtom, settingsAtom, userSelectAtom, currentUserAtom } from "@/lib/atoms"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useTheme } from "next-themes"
 import { signOut } from "@/app/actions/user"
 import { toast } from "@/hooks/use-toast"

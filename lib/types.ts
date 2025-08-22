@@ -47,6 +47,7 @@ export type Habit = {
   archived?: boolean // mark the habit as archived
   pinned?: boolean // mark the habit as pinned
   userIds?: UserId[]
+  drawing?: string // Optional JSON string of drawing data
 }
 
 
@@ -61,6 +62,7 @@ export type WishlistItemType = {
   targetCompletions?: number // Optional field, infinity when unset
   link?: string // Optional URL to external resource
   userIds?: UserId[]
+  drawing?: string // Optional JSON string of drawing data
 }
 
 export type TransactionType = 'HABIT_COMPLETION' | 'HABIT_UNDO' | 'WISH_REDEMPTION' | 'MANUAL_ADJUSTMENT' | 'TASK_COMPLETION' | 'TASK_UNDO';

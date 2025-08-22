@@ -82,6 +82,9 @@
     "timesSuffix": "次",
     "rewardLabel": "奖励",
     "coinsSuffix": "金币",
+    "drawingLabel": "绘图",
+    "addDrawing": "添加绘图",
+    "editDrawing": "编辑绘图",
     "shareLabel": "分享",
     "saveChangesButton": "保存更改",
     "addTaskButton": "添加任务",
@@ -105,6 +108,9 @@
     "errorTargetCompletionsMin": "目标完成次数至少为 1",
     "errorInvalidUrl": "请输入有效的 URL",
     "linkLabel": "链接",
+    "drawingLabel": "绘图",
+    "addDrawing": "添加绘图",
+    "editDrawing": "编辑绘图",
     "shareLabel": "分享",
     "saveButton": "保存更改",
     "addButton": "添加奖励"
@@ -431,5 +437,13 @@
     "maxAmountExceededDescription": "金额不能超过 {max}。",
     "transactionNotFoundDescription": "未找到交易记录",
     "maxAmountExceededDescription": "金额不能超过 {max}。"
+  },
+  "DrawingModal": {
+    "colorLabel": "颜色：",
+    "thicknessLabel": "粗细：",
+    "undoButton": "撤销",
+    "clearButton": "清除",
+    "saveDrawingButton": "保存绘图",
+    "cancelButton": "取消"
   }
 }

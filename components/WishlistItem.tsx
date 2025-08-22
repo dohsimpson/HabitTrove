@@ -5,7 +5,6 @@ import { usersAtom, currentUserAtom } from '@/lib/atoms'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { hasPermission } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Coins, Edit, Trash2, Gift, MoreVertical, Archive, ArchiveRestore } from 'lucide-react'
 import {
@@ -15,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import DrawingDisplay from './DrawingDisplay'
 
 interface WishlistItemProps {
   item: WishlistItemType
@@ -73,37 +73,51 @@ export default function WishlistItem({
         } ${isRecentlyRedeemed ? 'animate-[celebrate_1s_ease-in-out] shadow-lg ring-2 ring-primary' : ''
         } ${item.archived ? 'opacity-75' : ''}`}
     >
-      <CardHeader className="flex-none">
-        <div className="flex items-center gap-2">
-          <CardTitle className={`line-clamp-1 ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
-            {item.name}
-          </CardTitle>
-          {item.targetCompletions && (
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              ({item.targetCompletions === 1 ? t('usesLeftSingular') : t('usesLeftPlural', { count: item.targetCompletions })})
-            </span>
-          )}
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            {item.description && (
-              <CardDescription className={`whitespace-pre-line ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
-                {item.description}
-              </CardDescription>
+      <CardHeader className="flex-shrink-0">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <CardTitle className={`line-clamp-1 ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
+              {item.name}
+            </CardTitle>
+            {item.targetCompletions && (
+              <span className="text-sm text-gray-500 dark:text-gray-400 flex-shrink-0">
+                ({item.targetCompletions === 1 ? t('usesLeftSingular') : t('usesLeftPlural', { count: item.targetCompletions })})
+              </span>
             )}
           </div>
           {renderUserAvatars(item, currentUser as User, usersData)}
         </div>
+        {(item.description || item.drawing) && (
+          <div className={`flex gap-4 mt-2 ${!item.description ? 'justify-end' : ''}`}>
+            {item.description && (
+              <CardDescription className={`whitespace-pre-line flex-1 min-w-0 break-words ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
+                {item.description}
+              </CardDescription>
+            )}
+            {item.drawing && (
+              <div className="flex-shrink-0">
+                <DrawingDisplay 
+                  drawingData={item.drawing} 
+                  width={120} 
+                  height={80}
+                  className=""
+                />
+              </div>
+            )}
+          </div>
+        )}
       </CardHeader>
-      <CardContent className="flex-1">
-        <div className="flex items-center gap-2">
-          <Coins className={`h-4 w-4 ${item.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />
-          <span className={`text-sm font-medium ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
-            {item.coinCost} {t('coinsSuffix')}
-          </span>
+      <CardContent className="flex-grow flex flex-col justify-end">
+        <div className="mt-auto">
+          <div className="flex items-center gap-2">
+            <Coins className={`h-4 w-4 ${item.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />
+            <span className={`text-sm font-medium ${item.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>
+              {item.coinCost} {t('coinsSuffix')}
+            </span>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between gap-2">
+      <CardFooter className="flex-shrink-0 flex justify-between gap-2">
         <div className="flex gap-2">
           <Button
             variant={canRedeem ? "default" : "secondary"}
@@ -180,4 +194,3 @@ export default function WishlistItem({
     </Card>
   )
 }
-

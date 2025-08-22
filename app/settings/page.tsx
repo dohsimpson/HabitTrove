@@ -14,10 +14,8 @@ import { useAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { settingsAtom, serverSettingsAtom } from '@/lib/atoms';
 import { Settings, WeekDay } from '@/lib/types'
-import { saveSettings, uploadAvatar } from '../actions/data'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button';
-import { User, Info } from 'lucide-react'; // Import Info icon
+import { saveSettings } from '../actions/data'
+import { Info } from 'lucide-react'; // Import Info icon
 import { toast } from '@/hooks/use-toast'
 import { useSession } from 'next-auth/react'; // signOut removed
 import { useRouter } from 'next/navigation';

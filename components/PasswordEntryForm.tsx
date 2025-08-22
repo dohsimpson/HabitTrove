@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { User as UserIcon } from 'lucide-react';
-import { Permission, User } from '@/lib/types';
+import { User } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';

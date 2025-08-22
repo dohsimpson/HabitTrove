@@ -3,8 +3,6 @@ import CompletionCountBadge from './CompletionCountBadge'
 import {
   ContextMenu,
   ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 import { cn } from '@/lib/utils'
@@ -12,7 +10,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
-import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, BrowserSettings, hasTasksAtom } from '@/lib/atoms'
+import { pomodoroAtom, settingsAtom, completedHabitsMapAtom, browserSettingsAtom, hasTasksAtom } from '@/lib/atoms'
 import { getTodayInTimezone, isSameDate, t2d, d2t, getNow, isHabitDue, isTaskOverdue } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,7 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Progress } from '@/components/ui/progress'
-import { Settings, WishlistItemType } from '@/lib/types'
+import { WishlistItemType } from '@/lib/types'
 import { Habit } from '@/lib/types'
 import Linkify from './linkify'
 import { useHabits } from '@/hooks/useHabits'
@@ -31,6 +29,7 @@ import AddEditHabitModal from './AddEditHabitModal'
 import ConfirmDialog from './ConfirmDialog'
 import { Button } from './ui/button'
 import { HabitContextMenuItems } from './HabitContextMenuItems'
+import DrawingDisplay from './DrawingDisplay'
 
 interface UpcomingItemsProps {
   habits: Habit[]
@@ -255,6 +254,16 @@ const ItemSection = ({
                               {habit.name}
                             </span>
                           </Link>
+                          {habit.drawing && (
+                            <div className="ml-2 pr-2">
+                              <DrawingDisplay
+                                drawingData={habit.drawing}
+                                width={40}
+                                height={26}
+                                className="border-0"
+                              />
+                            </div>
+                          )}
                         </span>
                       </div>
                     </ContextMenuTrigger>
@@ -473,9 +482,19 @@ export default function DailyOverview({
                               )}
                             >
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm">
-                                  <Linkify>{item.name}</Linkify>
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm">
+                                    <Linkify>{item.name}</Linkify>
+                                  </span>
+                                  {item.drawing && (
+                                    <DrawingDisplay
+                                      drawingData={item.drawing}
+                                      width={40}
+                                      height={26}
+                                      className="border-0"
+                                    />
+                                  )}
+                                </div>
                                 <span className="text-xs flex items-center">
                                   <Coins className={cn(
                                     "h-3 w-3 mr-1 transition-all",
