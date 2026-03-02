@@ -16,6 +16,7 @@ import {
   UserData,
   getDefaultUsersData,
   User,
+  SafeUser,
   getDefaultWishlistData,
   getDefaultHabitsData,
   getDefaultCoinsData,
@@ -29,6 +30,7 @@ import { signInSchema } from '@/lib/zod';
 import _ from 'lodash';
 import { getCurrentUser } from '@/lib/server-helpers'
 import { prepareDataForHashing, generateCryptoHash } from '@/lib/utils';
+import { sanitizeUserData } from '@/lib/user-sanitizer'
 
 
 
@@ -133,7 +135,7 @@ async function calculateServerFreshnessToken(): Promise<string | null> {
     const habits = await loadHabitsData();
     const coins = await loadCoinsData();
     const wishlist = await loadWishlistData();
-    const users = await loadUsersData();
+    const users = await loadUsersPublicData();
 
     const dataString = prepareDataForHashing(
       settings,
@@ -397,6 +399,11 @@ export async function loadUsersData(): Promise<UserData> {
   }
 }
 
+export async function loadUsersPublicData(): Promise<UserData> {
+  const data = await loadUsersData()
+  return sanitizeUserData(data)
+}
+
 export async function saveUsersData(data: UserData): Promise<void> {
   return saveData('auth', data)
 }
@@ -414,7 +421,7 @@ export async function getUser(username: string, plainTextPassword?: string): Pro
   return user
 }
 
-export async function createUser(formData: FormData): Promise<User> {
+export async function createUser(formData: FormData): Promise<SafeUser> {
   const username = formData.get('username') as string;
   let password = formData.get('password') as string | undefined;
   const avatarPath = formData.get('avatarPath') as string;
@@ -451,10 +458,10 @@ export async function createUser(formData: FormData): Promise<User> {
   };
 
   await saveUsersData(newData);
-  return newUser;
+  return sanitizeUserData({ users: [newUser] }).users[0]
 }
 
-export async function updateUser(userId: string, updates: Partial<Omit<User, 'id' | 'password'>>): Promise<User> {
+export async function updateUser(userId: string, updates: Partial<Omit<User, 'id' | 'password'>>): Promise<SafeUser> {
   const data = await loadUsersData()
   const userIndex = data.users.findIndex(user => user.id === userId)
 
@@ -486,7 +493,7 @@ export async function updateUser(userId: string, updates: Partial<Omit<User, 'id
   }
 
   await saveUsersData(newData)
-  return updatedUser
+  return sanitizeUserData({ users: [updatedUser] }).users[0]
 }
 
 export async function updateUserPassword(userId: string, newPassword?: string): Promise<void> {

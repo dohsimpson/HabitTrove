@@ -28,6 +28,7 @@ export type SafeUser = SessionUser & {
   avatarPath?: string
   permissions?: Permission[]
   isAdmin?: boolean
+  hasPassword?: boolean
 }
 
 export type User = SafeUser & {

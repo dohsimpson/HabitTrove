@@ -2,7 +2,7 @@ import './globals.css'
 import { DM_Sans } from 'next/font/google'
 import { JotaiProvider } from '@/components/jotai-providers'
 import { JotaiHydrate } from '@/components/jotai-hydrate'
-import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData, loadUsersData, loadServerSettings } from './actions/data'
+import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData, loadUsersPublicData, loadServerSettings } from './actions/data'
 import Layout from '@/components/Layout'
 import { Toaster } from '@/components/ui/toaster'
 import { ThemeProvider } from "@/components/theme-provider"
@@ -49,7 +49,7 @@ export default async function RootLayout({
     loadHabitsData(),
     loadCoinsData(),
     loadWishlistData(),
-    loadUsersData(),
+    loadUsersPublicData(),
     loadServerSettings(),
   ])
 

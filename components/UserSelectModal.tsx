@@ -14,7 +14,7 @@ import { signIn } from '@/app/actions/user';
 import { useTranslations } from 'next-intl';
 import { toast } from '@/hooks/use-toast';
 import { Description } from '@radix-ui/react-dialog';
-import { SafeUser, User } from '@/lib/types';
+import { SafeUser } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 
@@ -25,7 +25,7 @@ function UserCard({
   showEdit,
   isCurrentUser,
 }: {
-  user: User,
+  user: SafeUser,
   onSelect: () => void,
   onEdit: () => void,
   showEdit: boolean,
@@ -100,7 +100,7 @@ function UserSelectionView({
   onEditUser,
   onCreateUser,
 }: {
-  users: User[],
+  users: SafeUser[],
   currentUserFromHook?: SafeUser,
   onUserSelect: (userId: string) => void,
   onEditUser: (userId: string) => void,

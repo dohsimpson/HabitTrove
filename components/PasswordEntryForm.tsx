@@ -5,13 +5,13 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { User as UserIcon } from 'lucide-react';
-import { User } from '@/lib/types';
+import { SafeUser } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface PasswordEntryFormProps {
-  user: User;
+  user: SafeUser;
   onCancel: () => void;
   onSubmit: (password: string) => Promise<void>;
   error?: string;
@@ -24,7 +24,7 @@ export default function PasswordEntryForm({
   error 
 }: PasswordEntryFormProps) {
   const t = useTranslations('PasswordEntryForm');
-  const hasPassword = !!user.password;
+  const hasPassword = user.hasPassword ?? false;
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {

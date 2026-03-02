@@ -59,7 +59,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
   const [avatarPath, setAvatarPath] = useState(user?.avatarPath)
   const [username, setUsername] = useState(user?.username || '');
   const [password, setPassword] = useState<string | undefined>('');
-  const [disablePassword, setDisablePassword] = useState(user?.password === '' || serverSettings.isDemo);
+  const [disablePassword, setDisablePassword] = useState(user ? !user.hasPassword : serverSettings.isDemo);
   const [error, setError] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isAdmin, setIsAdmin] = useState(user?.isAdmin || false);
@@ -173,7 +173,7 @@ export default function UserForm({ userId, onCancel, onSuccess }: UserFormProps)
               avatarPath,
               permissions,
               isAdmin,
-              password: disablePassword ? '' : (password || u.password) // use the correct password to update atom
+              hasPassword: disablePassword ? false : (password ? true : !!u.hasPassword)
             } : u
           ),
         }));
