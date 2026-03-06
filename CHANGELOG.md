@@ -2,9 +2,15 @@
 
 ## Version 0.2.31
 
-### Added
+### Fixed
 
-* 
+* Security: Updated Next.js from 15.5.7 to 15.5.10
+* Security: Hardened avatar route against path traversal attacks
+* Security: Sanitized user data in client-facing payloads
+* Security: Hardened debug actions and avatar validation
+* Fixed missing English translations for DrawingModal
+
+Thank you @1ARdotNO for the security audit!
 
 ## Version 0.2.30
 

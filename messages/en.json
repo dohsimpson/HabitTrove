@@ -70,6 +70,14 @@
   "CoinBalance": {
     "coinBalanceTitle": "Coin Balance"
   },
+  "DrawingModal": {
+    "colorLabel": "Color",
+    "thicknessLabel": "Thickness",
+    "undoButton": "Undo",
+    "clearButton": "Clear",
+    "saveDrawingButton": "Save Drawing",
+    "cancelButton": "Cancel"
+  },
   "AddEditHabitModal": {
     "editTaskTitle": "Edit Task",
     "editHabitTitle": "Edit Habit",
