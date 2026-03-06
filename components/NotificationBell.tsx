@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { updateLastNotificationReadTimestamp } from '@/app/actions/data';
 import { d2t, getNow, t2d } from '@/lib/utils';
-import { User, CoinTransaction } from '@/lib/types';
+import { CoinTransaction } from '@/lib/types';
 
 export default function NotificationBell() {
   const t = useTranslations('NotificationBell');
@@ -121,7 +121,7 @@ export default function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="p-0 w-80 md:w-96">
         <NotificationDropdown
-          currentUser={currentUser as User | null} // Cast needed as as currentUser can be undefined
+          currentUser={currentUser ?? null}
           unreadNotifications={unreadNotifications}
           displayedReadNotifications={displayedReadNotifications}
           habitsData={habitsData} // Pass necessary data down

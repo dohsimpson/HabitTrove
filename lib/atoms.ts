@@ -6,7 +6,7 @@ import {
   getDefaultWishlistData,
   Habit,
   ViewType,
-  getDefaultUsersData,
+  getDefaultPublicUsersData,
   CompletionCache,
   getDefaultServerSettings,
   UserId,
@@ -42,7 +42,7 @@ export const browserSettingsAtom = atomWithStorage('browserSettings', {
   expandedWishlist: false
 } as BrowserSettings)
 
-export const usersAtom = atom(getDefaultUsersData())
+export const usersAtom = atom(getDefaultPublicUsersData())
 export const settingsAtom = atom(getDefaultSettings());
 export const habitsAtom = atom(getDefaultHabitsData());
 export const coinsAtom = atom(getDefaultCoinsData());

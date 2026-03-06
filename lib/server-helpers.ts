@@ -1,8 +1,19 @@
 import { auth } from '@/auth'
 import 'server-only'
-import { User, UserId } from './types'
-import { loadUsersData } from '@/app/actions/data'
+import { User, UserData, UserId, getDefaultUsersData } from './types'
 import { randomBytes, scryptSync } from 'crypto'
+import fs from 'fs/promises'
+import path from 'path'
+
+async function loadUsersDataFromStore(): Promise<UserData> {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'auth.json')
+    const data = await fs.readFile(filePath, 'utf8')
+    return JSON.parse(data) as UserData
+  } catch {
+    return getDefaultUsersData()
+  }
+}
 
 export async function getCurrentUserId(): Promise<UserId | undefined> {
   const session = await auth()
@@ -15,7 +26,7 @@ export async function getCurrentUser(): Promise<User | undefined> {
   if (!currentUserId) {
     return undefined
   }
-  const usersData = await loadUsersData()
+  const usersData = await loadUsersDataFromStore()
   return usersData.users.find((u) => u.id === currentUserId)
 }
 export function saltAndHashPassword(password: string, salt?: string): string {

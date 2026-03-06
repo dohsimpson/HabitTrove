@@ -16,7 +16,8 @@ import {
   UserData,
   getDefaultUsersData,
   User,
-  SafeUser,
+  PublicUser,
+  PublicUserData,
   getDefaultWishlistData,
   getDefaultHabitsData,
   getDefaultCoinsData,
@@ -391,7 +392,7 @@ export async function getChangelog(): Promise<string> {
 }
 
 // user logic
-export async function loadUsersData(): Promise<UserData> {
+async function loadUsersData(): Promise<UserData> {
   try {
     return await loadData<UserData>('auth')
   } catch {
@@ -399,7 +400,7 @@ export async function loadUsersData(): Promise<UserData> {
   }
 }
 
-export async function loadUsersPublicData(): Promise<UserData> {
+export async function loadUsersPublicData(): Promise<PublicUserData> {
   const data = await loadUsersData()
   return sanitizeUserData(data)
 }
@@ -421,7 +422,7 @@ export async function getUser(username: string, plainTextPassword?: string): Pro
   return user
 }
 
-export async function createUser(formData: FormData): Promise<SafeUser> {
+export async function createUser(formData: FormData): Promise<PublicUser> {
   const username = formData.get('username') as string;
   let password = formData.get('password') as string | undefined;
   const avatarPath = formData.get('avatarPath') as string;
@@ -461,7 +462,7 @@ export async function createUser(formData: FormData): Promise<SafeUser> {
   return sanitizeUserData({ users: [newUser] }).users[0]
 }
 
-export async function updateUser(userId: string, updates: Partial<Omit<User, 'id' | 'password'>>): Promise<SafeUser> {
+export async function updateUser(userId: string, updates: Partial<Omit<User, 'id' | 'password'>>): Promise<PublicUser> {
   const data = await loadUsersData()
   const userIndex = data.users.findIndex(user => user.id === userId)
 

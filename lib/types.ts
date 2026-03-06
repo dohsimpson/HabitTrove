@@ -36,6 +36,10 @@ export type User = SafeUser & {
   lastNotificationReadTimestamp?: string // UTC ISO date string
 }
 
+export type PublicUser = Omit<User, 'password'> & {
+  hasPassword: boolean
+}
+
 export type Habit = {
   id: string
   name: string
@@ -83,6 +87,10 @@ export interface UserData {
   users: User[]
 }
 
+export interface PublicUserData {
+  users: PublicUser[]
+}
+
 export interface HabitsData {
   habits: Habit[];
 }
@@ -110,6 +118,13 @@ export const getDefaultUsersData = (): UserData => ({
       lastNotificationReadTimestamp: undefined, // Initialize as undefined
     }
   ]
+});
+
+export const getDefaultPublicUsersData = (): PublicUserData => ({
+  users: getDefaultUsersData().users.map(({ password, ...user }) => ({
+    ...user,
+    hasPassword: !!password,
+  })),
 });
 
 export const getDefaultHabitsData = (): HabitsData => ({
@@ -193,7 +208,7 @@ export interface JotaiHydrateInitialValues {
   coins: CoinsData;
   habits: HabitsData;
   wishlist: WishlistData;
-  users: UserData;
+  users: PublicUserData;
   serverSettings: ServerSettings;
 }
 

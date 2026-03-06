@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DateTime, DateTimeFormatOptions } from "luxon"
 import { datetime, RRule } from 'rrule'
-import { Freq, Habit, CoinTransaction, Permission, ParsedFrequencyResult, ParsedResultType, User, Settings, HabitsData, CoinsData, WishlistData, UserData } from '@/lib/types'
+import { Freq, Habit, CoinTransaction, Permission, ParsedFrequencyResult, ParsedResultType, User, Settings, HabitsData, CoinsData, WishlistData, UserData, PublicUserData } from '@/lib/types'
 import { DUE_MAP, INITIAL_DUE, RECURRENCE_RULE_MAP } from "./constants"
 import * as chrono from 'chrono-node'
 import _ from "lodash"
@@ -497,7 +497,7 @@ export function prepareDataForHashing(
   habits: HabitsData,
   coins: CoinsData,
   wishlist: WishlistData,
-  users: UserData
+  users: UserData | PublicUserData
 ): string {
   // Combine all data into a single object.
   // The order of keys in this object itself doesn't matter due to stableStringify,

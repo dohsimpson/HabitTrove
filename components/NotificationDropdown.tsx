@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { HabitsData, WishlistData, UserData, User, CoinTransaction } from '@/lib/types';
+import { HabitsData, WishlistData, PublicUserData, PublicUser, CoinTransaction } from '@/lib/types';
 import { t2d } from '@/lib/utils';
 import Link from 'next/link';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
@@ -16,12 +16,12 @@ import {
 } from '@/components/ui/tooltip';
 
 interface NotificationDropdownProps {
-  currentUser: User | null;
+  currentUser: PublicUser | null;
   unreadNotifications: CoinTransaction[];
   displayedReadNotifications: CoinTransaction[];
   habitsData: HabitsData; 
   wishlistData: WishlistData;
-  usersData: UserData;
+  usersData: PublicUserData;
 }
 
 // Helper function to get the name of the related item
@@ -48,7 +48,7 @@ export default function NotificationDropdown({
   const t = useTranslations('NotificationDropdown');
 
   // Helper function to generate notification message, now using t
-  const getNotificationMessage = (tx: CoinTransaction, triggeringUser?: User, relatedItemName?: string): string => {
+  const getNotificationMessage = (tx: CoinTransaction, triggeringUser?: PublicUser, relatedItemName?: string): string => {
     const username = triggeringUser?.username || t('defaultUsername');
     const itemName = relatedItemName || t('defaultItemName');
     switch (tx.type) {
