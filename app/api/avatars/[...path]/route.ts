@@ -1,24 +1,7 @@
 import { NextResponse } from 'next/server'
 import fs from 'fs/promises'
 import path from 'path'
-
-const ALLOWED_AVATAR_EXTENSIONS = new Set([
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.gif',
-  '.webp',
-  '.avif',
-])
-
-const AVATAR_CONTENT_TYPE: Record<string, string> = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
-  '.avif': 'image/avif',
-}
+import { ALLOWED_AVATAR_EXTENSIONS, AVATAR_CONTENT_TYPE } from '@/lib/avatar'
 
 function sanitizePathSegments(pathSegments?: string[]): string[] | null {
   if (!pathSegments || pathSegments.length === 0) {

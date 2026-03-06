@@ -32,12 +32,12 @@ import _ from 'lodash';
 import { getCurrentUser } from '@/lib/server-helpers'
 import { prepareDataForHashing, generateCryptoHash } from '@/lib/utils';
 import { sanitizeUserData } from '@/lib/user-sanitizer'
+import { ALLOWED_AVATAR_EXTENSIONS, ALLOWED_AVATAR_MIME_TYPES } from '@/lib/avatar'
 
 
 
 type ResourceType = 'habit' | 'wishlist' | 'coins'
 type ActionType = 'write' | 'interact'
-
 
 async function verifyPermission(
   resource: ResourceType,
@@ -69,22 +69,28 @@ async function ensureDataDir() {
 
 // --- Backup Debug Action ---
 export async function triggerManualBackup(): Promise<{ success: boolean; message: string }> {
-  // Optional: Add extra permission check if needed for debug actions
-  // const user = await getCurrentUser();
-  // if (!user?.isAdmin) {
-  //   return { success: false, message: "Permission denied." };
-  // }
+  if (process.env.NODE_ENV !== 'development') {
+    return { success: false, message: 'Permission denied.' }
+  }
 
-  console.log("Manual backup trigger requested...");
+  const user = await getCurrentUser()
+  if (!user?.isAdmin) {
+    return { success: false, message: 'Permission denied.' }
+  }
+
+  console.log('Manual backup trigger requested...')
   try {
     // Import runBackup locally to avoid potential circular dependencies if moved
-    const { runBackup } = await import('@/lib/backup');
-    await runBackup();
-    console.log("Manual backup trigger completed successfully.");
-    return { success: true, message: "Backup process completed successfully." };
+    const { runBackup } = await import('@/lib/backup')
+    await runBackup()
+    console.log('Manual backup trigger completed successfully.')
+    return { success: true, message: 'Backup process completed successfully.' }
   } catch (error) {
-    console.error("Manual backup trigger failed:", error);
-    return { success: false, message: `Backup failed: ${error instanceof Error ? error.message : 'Unknown error'}` };
+    console.error('Manual backup trigger failed:', error)
+    return {
+      success: false,
+      message: `Backup failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    }
   }
 }
 
@@ -365,13 +371,22 @@ export async function uploadAvatar(formData: FormData): Promise<string> {
     throw new Error('File size must be less than 5MB')
   }
 
+  const mimeType = file.type.toLowerCase()
+  if (!ALLOWED_AVATAR_MIME_TYPES.has(mimeType)) {
+    throw new Error('Unsupported avatar MIME type')
+  }
+
+  const ext = path.extname(file.name).toLowerCase()
+  if (!ALLOWED_AVATAR_EXTENSIONS.has(ext)) {
+    throw new Error('Unsupported avatar file extension')
+  }
+
   // Create avatars directory if it doesn't exist
   const avatarsDir = path.join(process.cwd(), 'data', 'avatars')
   await fs.mkdir(avatarsDir, { recursive: true })
 
   // Generate unique filename
-  const ext = file.name.split('.').pop()
-  const filename = `${Date.now()}.${ext}`
+  const filename = `${Date.now()}-${uuid()}${ext}`
   const filePath = path.join(avatarsDir, filename)
 
   // Save file
