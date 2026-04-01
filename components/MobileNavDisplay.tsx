@@ -42,7 +42,7 @@ export default function MobileNavDisplay({ navItems }: MobileNavDisplayProps) {
     <>
       <div className={isIOS ? "pb-20" : "pb-16"} /> {/* Add padding at the bottom to prevent content from being hidden */}
       <nav className={`lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg ${isIOS ? "pb-4" : ""}`}>
-        <div className="grid grid-cols-5 w-full">
+        <div className="grid grid-cols-6 w-full">
           {mobileNavItems.map((item) => (
             <Link
               key={item.label} // Assuming labels are unique

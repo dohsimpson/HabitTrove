@@ -210,11 +210,124 @@ export interface JotaiHydrateInitialValues {
   wishlist: WishlistData;
   users: PublicUserData;
   serverSettings: ServerSettings;
+  challengeIndex: ChallengeIndex;
 }
 
 export interface ServerSettings {
   isDemo: boolean
 }
+
+// ─── Challenge Types (ported from APE) ───────────────────────────────
+
+export type ChallengeStatus = 'active' | 'completed' | 'draft' | 'cancelled'
+export type ChallengeGoalFrequency = 'daily' | 'weekly' | 'monthly' | 'once'
+
+export interface ChallengeGoal {
+  id: string
+  title: string
+  description: string
+  icon: string // emoji
+  points: number
+  frequency: ChallengeGoalFrequency
+  maxCompletionsPerPeriod: number
+  createdAt: string // ISO date
+}
+
+export interface ChallengeParticipant {
+  userId: UserId
+  joinedAt: string // ISO date
+}
+
+export interface GoalCompletion {
+  id: string
+  goalId: string
+  userId: UserId
+  completionAt: string // ISO date
+  pointsAtTime: number
+  periodKey: string // e.g. "daily-2026-03-31", "weekly-2026-w14", "monthly-2026-03", "once"
+  createdAt: string // ISO date
+}
+
+export interface ChallengeMessage {
+  id: string
+  userId: UserId
+  messageText: string
+  createdAt: string // ISO date
+}
+
+export interface Challenge {
+  id: string
+  ownerId: UserId
+  name: string
+  description: string
+  startAt: string // ISO date
+  endAt: string // ISO date
+  maxPlayers: number
+  status: ChallengeStatus
+  joinCode: string // 8-char random
+  coverImage?: string
+  goals: ChallengeGoal[]
+  participants: ChallengeParticipant[]
+  completions: GoalCompletion[]
+  messages: ChallengeMessage[]
+  createdAt: string // ISO date
+}
+
+export interface ChallengeIndexEntry {
+  id: string
+  name: string
+  status: ChallengeStatus
+  joinCode: string
+  ownerName: string
+  ownerId: UserId
+  participantCount: number
+  startAt: string
+  endAt: string
+}
+
+export interface ChallengeIndex {
+  challenges: ChallengeIndexEntry[]
+}
+
+export const getDefaultChallengeIndex = (): ChallengeIndex => ({
+  challenges: []
+})
+
+// ─── Challenge Stats (replaces APE's get_challenge_stats_v2 RPC) ─────
+
+export interface ChallengeScoreEntry {
+  userId: UserId
+  totalScore: number
+}
+
+export interface ChallengeGoalScoreEntry {
+  userId: UserId
+  goalId: string
+  score: number
+}
+
+export interface ChallengePeriodCount {
+  userId: UserId
+  goalId: string
+  periodKey: string
+  count: number
+}
+
+export interface ChallengeDailyPoints {
+  goalId: string
+  day: string // YYYY-MM-DD
+  points: number
+}
+
+export interface ChallengeStats {
+  scores: ChallengeScoreEntry[]
+  goalScores: ChallengeGoalScoreEntry[]
+  periodCounts: ChallengePeriodCount[]
+  userDailyPoints: ChallengeDailyPoints[]
+  groupDailyPoints: ChallengeDailyPoints[]
+}
+
+// ─────────────────────────────────────────────────────────────────────
 
 export type ParsedResultType = DateTime<true> | RRule | string | null // null if invalid
 

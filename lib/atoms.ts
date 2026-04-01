@@ -10,6 +10,10 @@ import {
   CompletionCache,
   getDefaultServerSettings,
   UserId,
+  Challenge,
+  ChallengeStats,
+  ChallengeMessage,
+  getDefaultChallengeIndex,
 } from "./types";
 import {
   getTodayInTimezone,
@@ -48,6 +52,33 @@ export const habitsAtom = atom(getDefaultHabitsData());
 export const coinsAtom = atom(getDefaultCoinsData());
 export const wishlistAtom = atom(getDefaultWishlistData());
 export const serverSettingsAtom = atom(getDefaultServerSettings());
+
+// ─── Challenge atoms ─────────────────────────────────────────────────
+
+// Base atom — hydrated from SSR with lightweight index data
+export const challengeIndexAtom = atom(getDefaultChallengeIndex())
+
+// Derived — active challenges where current user is a participant
+export const activeChallengesAtom = atom((get) => {
+  const index = get(challengeIndexAtom)
+  return index.challenges.filter(c => c.status === 'active')
+})
+
+// Writable — holds full Challenge JSON when viewing detail page
+export const currentChallengeAtom = atom<Challenge | null>(null)
+
+// Writable — updated by polling in chat
+export const challengeMessagesAtom = atom<ChallengeMessage[]>([])
+
+// Derived — computed from currentChallengeAtom completions
+export const challengeStatsAtom = atom<ChallengeStats | null>(null)
+
+// Derived — count of user's active challenges (for nav badge)
+export const userChallengeCountAtom = atom((get) => {
+  return get(activeChallengesAtom).length
+})
+
+// ─────────────────────────────────────────────────────────────────────
 
 // Derived atom for coins earned today
 export const coinsEarnedTodayAtom = atom((get) => {
