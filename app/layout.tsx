@@ -3,6 +3,7 @@ import { DM_Sans } from 'next/font/google'
 import { JotaiProvider } from '@/components/jotai-providers'
 import { JotaiHydrate } from '@/components/jotai-hydrate'
 import { loadSettings, loadHabitsData, loadCoinsData, loadWishlistData, loadUsersPublicData, loadServerSettings } from './actions/data'
+import { loadChallengesIndexForUser } from './actions/challenges'
 import Layout from '@/components/Layout'
 import { Toaster } from '@/components/ui/toaster'
 import { ThemeProvider } from "@/components/theme-provider"
@@ -44,13 +45,14 @@ export default async function RootLayout({
   // side is the easiest way to get started
   const messages = await getMessages();
 
-  const [initialSettings, initialHabits, initialCoins, initialWishlist, initialUsers, initialServerSettings] = await Promise.all([
+  const [initialSettings, initialHabits, initialCoins, initialWishlist, initialUsers, initialServerSettings, initialChallengeIndex] = await Promise.all([
     loadSettings(),
     loadHabitsData(),
     loadCoinsData(),
     loadWishlistData(),
     loadUsersPublicData(),
     loadServerSettings(),
+    loadChallengesIndexForUser(),
   ])
 
   return (
@@ -84,6 +86,7 @@ export default async function RootLayout({
                 wishlist: initialWishlist,
                 users: initialUsers,
                 serverSettings: initialServerSettings,
+                challengeIndex: initialChallengeIndex,
               }}
             >
               <NextIntlClientProvider locale={locale} messages={messages}>

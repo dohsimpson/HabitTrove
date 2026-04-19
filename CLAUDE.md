@@ -98,3 +98,26 @@ Reference `CoinsManager.tsx:107-119` for admin user selection implementation. Si
 - State updates use immutable patterns
 - Large dataset filtering happens at hook level
 - Derived atoms prevent unnecessary re-renders
+
+## Documentation Log
+
+### 2026-04-01 -- APE Social Challenge Features: Plan-Reviewer Fixes
+
+#### Context
+Post-review fixes after plan-reviewer returned CONDITIONAL APPROVAL on the completed 6-phase APE social challenge feature implementation.
+
+#### Changes
+| File | Change |
+|------|--------|
+| `app/actions/challenges.ts` | Fixed `atomicWrite()` temp path to use `path.dirname(filePath)` (avoids cross-FS EXDEV in Docker); removed unused `os` import |
+| `app/layout.tsx` | Switched SSR hydration to `loadChallengesIndexForUser()` — fixes data leak where all challenges were visible to all users |
+| `hooks/useChallenges.ts` | Removed unused `settingsAtom` subscription to prevent unnecessary re-renders |
+
+#### Decisions
+- Used `loadChallengesIndexForUser()` (O(n) file reads per SSR) rather than adding `participantIds` to index entries. Acceptable trade-off for self-hosted app with small challenge counts.
+- Non-critical reviewer issues (I1-I6, S1-S4) deferred to future iterations.
+
+#### Plan Status
+- Plan: Extend HabitTrove with APE Social Challenge Features (`transient-herding-robin.md`)
+- Phases: 6/6 complete, reviewer verdict: CONDITIONAL APPROVAL (critical fixes applied)
+- Gaps: Non-critical issues I1-I6, S1-S4 remain open for future work

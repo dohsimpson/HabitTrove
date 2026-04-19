@@ -2,6 +2,7 @@ import { useAtom, atom } from 'jotai'
 import { useTranslations } from 'next-intl'
 import { habitsAtom, coinsAtom, settingsAtom, usersAtom, habitFreqMapAtom, currentUserAtom } from '@/lib/atoms'
 import { addCoins, removeCoins, saveHabitsData } from '@/app/actions/data'
+import { syncGCalHabit, removeGCalHabit } from '@/app/actions/google-calendar'
 import { Habit, Permission, SafeUser, User } from '@/lib/types'
 import { toast } from '@/hooks/use-toast'
 import { DateTime } from 'luxon'
@@ -215,11 +216,28 @@ export function useHabits() {
 
     await saveHabitsData({ habits: updatedHabits })
     setHabitsData({ habits: updatedHabits })
+
+    // Trigger GCal sync for this habit if sync is enabled
+    if (settings.googleCalendar?.connected && settings.googleCalendar?.syncEnabled) {
+      syncGCalHabit(newHabit.id).catch((err) => {
+        console.error('GCal sync failed:', err)
+      })
+    }
+
     return updatedHabits
   }
 
   const deleteHabit = async (id: string) => {
     if (!handlePermissionCheck(currentUser, 'habit', 'write', tCommon)) return
+
+    // Remove from GCal if synced
+    const habit = habitsData.habits.find(h => h.id === id)
+    if (habit?.googleCalendarEventId && settings.googleCalendar?.connected) {
+      removeGCalHabit(id).catch((err) => {
+        console.error('GCal remove failed:', err)
+      })
+    }
+
     const updatedHabits = habitsData.habits.filter(h => h.id !== id)
     await saveHabitsData({ habits: updatedHabits })
     setHabitsData({ habits: updatedHabits })

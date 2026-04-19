@@ -1,10 +1,11 @@
 import { Habit, User } from '@/lib/types'
 import { useAtom } from 'jotai'
 import { settingsAtom, pomodoroAtom, browserSettingsAtom, usersAtom, currentUserAtom } from '@/lib/atoms'
-import { getCompletionsForToday, isTaskOverdue, convertMachineReadableFrequencyToHumanReadable } from '@/lib/utils'
+import { getCompletionsForToday, isTaskOverdue, convertMachineReadableFrequencyToHumanReadable, isTimeBlocked } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { Coins, Edit, Check, Undo2, MoreVertical, Pin } from 'lucide-react'
+import { Coins, Edit, Check, Undo2, MoreVertical, Pin, Plus, Minus, Calendar as CalendarIcon } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -93,6 +94,11 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
                 <Pin className="h-4 w-4 text-yellow-500" />
               )}
               <span>{habit.name}</span>
+              {habit.googleCalendarEventId && (
+                <span title="Synced with Google Calendar">
+                  <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground ml-1 flex-shrink-0" />
+                </span>
+              )}
             </div>
             {isTaskOverdue(habit, settings.system.timezone) && (
               <span className="ml-2 inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/30 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10 dark:ring-red-500/20">
@@ -133,6 +139,16 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
               })
             })}
           </p>
+          {isTimeBlocked(habit) && habit.startTime && habit.endTime && (
+            <p className={`text-xs mt-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-muted-foreground'}`}>
+              {habit.startTime}–{habit.endTime}
+            </p>
+          )}
+          {target > 1 && !isCompletedToday && (
+            <div className="mt-2">
+              <Progress value={(completionsToday / target) * 100} className="h-1.5" />
+            </div>
+          )}
           <div className="flex items-center mt-2">
             <Coins className={`h-4 w-4 mr-1 ${habit.archived ? 'text-gray-400 dark:text-gray-500' : 'text-yellow-400'}`} />
             <span className={`text-sm font-medium ${habit.archived ? 'text-gray-400 dark:text-gray-500' : ''}`}>{t('coinsPerCompletion', { count: habit.coinReward })}</span>
@@ -140,56 +156,74 @@ export default function HabitItem({ habit, onEdit, onDelete }: HabitItemProps) {
         </div>
       </CardContent>
       <CardFooter className="flex-shrink-0 flex justify-between gap-2">
-        <div className="flex gap-2">
-          <div className="relative">
-            <Button
-              variant={isCompletedToday ? "secondary" : "default"}
-              size="sm"
-              onClick={async () => await completeHabit(habit)}
-              disabled={!canInteract || habit.archived || (isCompletedToday && completionsToday >= target)}
-              className={`overflow-hidden w-24 sm:w-auto ${habit.archived ? 'cursor-not-allowed' : ''}`}
-            >
-              <Check className="h-4 w-4 sm:mr-2" />
-              <span>
-                {isCompletedToday ? (
-                  target > 1 ? (
-                    <>
-                      <span className="sm:hidden">{t('completedStatusCountMobile', { completed: completionsToday, target })}</span>
-                      <span className="hidden sm:inline">{t('completedStatusCount', { completed: completionsToday, target })}</span>
-                    </>
-                  ) : (
-                    t('completedStatus')
-                  )
-                ) : (
-                  target > 1 ? (
-                    <>
-                      <span className="sm:hidden">{t('completeButtonCountMobile', { completed: completionsToday, target })}</span>
-                      <span className="hidden sm:inline">{t('completeButtonCount', { completed: completionsToday, target })}</span>
-                    </>
-                  ) : t('completeButton')
-                )}
+        <div className="flex gap-2 flex-wrap">
+          {/* Counter habit +/- buttons */}
+          {target > 1 ? (
+            <>
+              <span className="flex items-center text-sm font-medium self-center">
+                {completionsToday}/{target}
               </span>
-              {habit.targetCompletions && habit.targetCompletions > 1 && (
-                <div
-                  className="absolute bottom-0 left-0 h-1 bg-white/50"
-                  style={{
-                    width: `${(completionsToday / target) * 100}%`
-                  }}
-                />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => await completeHabit(habit)}
+                disabled={!canInteract || habit.archived || isCompletedToday}
+                className="w-8 px-0"
+                aria-label="Increment"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => await undoComplete(habit)}
+                disabled={!canWrite || habit.archived || completionsToday === 0}
+                className="w-8 px-0"
+                aria-label="Decrement"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              {isCompletedToday && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled
+                  className="overflow-hidden"
+                >
+                  <Check className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{t('completedStatus')}</span>
+                </Button>
               )}
-            </Button>
-          </div>
-          {completionsToday > 0 && !habit.archived && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => await undoComplete(habit)}
-              disabled={!canWrite}
-              className="w-10 sm:w-auto"
-            >
-              <Undo2 className="h-4 w-4" />
-              <span className="hidden sm:inline ml-2">{t('undoButton')}</span>
-            </Button>
+            </>
+          ) : (
+            <>
+              <div className="relative">
+                <Button
+                  variant={isCompletedToday ? "secondary" : "default"}
+                  size="sm"
+                  onClick={async () => await completeHabit(habit)}
+                  disabled={!canInteract || habit.archived || isCompletedToday}
+                  className={`overflow-hidden w-24 sm:w-auto ${habit.archived ? 'cursor-not-allowed' : ''}`}
+                >
+                  <Check className="h-4 w-4 sm:mr-2" />
+                  <span>
+                    {isCompletedToday ? t('completedStatus') : t('completeButton')}
+                  </span>
+                </Button>
+              </div>
+              {completionsToday > 0 && !habit.archived && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => await undoComplete(habit)}
+                  disabled={!canWrite}
+                  className="w-10 sm:w-auto"
+                >
+                  <Undo2 className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-2">{t('undoButton')}</span>
+                </Button>
+              )}
+            </>
           )}
         </div>
         <div className="flex gap-2">

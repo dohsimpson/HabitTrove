@@ -40,6 +40,8 @@ export type PublicUser = Omit<User, 'password'> & {
   hasPassword: boolean
 }
 
+export type ScheduleType = 'all-day' | 'time-blocked'
+
 export type Habit = {
   id: string
   name: string
@@ -53,6 +55,12 @@ export type Habit = {
   pinned?: boolean // mark the habit as pinned
   userIds?: UserId[]
   drawing?: string // Optional JSON string of drawing data
+  // Scheduling fields (all optional — undefined = all-day with targetCompletions=1)
+  scheduleType?: ScheduleType
+  startTime?: string // "HH:mm" local time, time-blocked only
+  endTime?: string   // "HH:mm" local time, time-blocked only
+  notificationsEnabled?: boolean // per-habit notification opt-in
+  googleCalendarEventId?: string // GCal event ID for sync
 }
 
 
@@ -159,6 +167,12 @@ export const getDefaultServerSettings = (): ServerSettings => ({
   isDemo: false
 })
 
+export const getDefaultPushSubscriptionsData = (): PushSubscriptionsData => ({
+  subscriptions: []
+})
+
+export const getDefaultNotificationStateData = (): NotificationStateData => ({})
+
 // Map of data types to their default values
 export const DATA_DEFAULTS = {
   wishlist: getDefaultWishlistData,
@@ -166,6 +180,8 @@ export const DATA_DEFAULTS = {
   coins: getDefaultCoinsData,
   settings: getDefaultSettings,
   auth: getDefaultUsersData,
+  pushSubscriptions: getDefaultPushSubscriptionsData,
+  notificationState: getDefaultNotificationStateData,
 } as const;
 
 // Type for all possible data types
@@ -189,10 +205,47 @@ export interface ProfileSettings {
   avatarPath?: string; // deprecated
 }
 
+export interface NotificationSettings {
+  globalEnabled: boolean; // master switch — per-habit toggle still required
+  reminderTimes?: string[]; // "HH:mm" strings for all-day habits (default: ["08:00","12:00","18:00"])
+}
+
+export interface GoogleCalendarSettings {
+  connected: boolean;
+  calendarId?: string; // ID of the "HabitTrove" calendar created on connect
+  accessToken?: string;
+  refreshToken?: string;
+  tokenExpiry?: string; // ISO date
+  lastSyncAt?: string; // ISO date
+  syncEnabled: boolean;
+}
+
+export interface PushSubscriptionRecord {
+  userId: UserId;
+  subscription: {
+    endpoint: string;
+    keys: {
+      p256dh: string;
+      auth: string;
+    };
+  };
+}
+
+export interface PushSubscriptionsData {
+  subscriptions: PushSubscriptionRecord[];
+}
+
+export interface NotificationStateData {
+  // keyed by "{YYYY-MM-DD}:{habitId}:{trigger}" → true when notification was sent
+  [key: string]: boolean;
+}
+
 export interface Settings {
   ui: UISettings;
   system: SystemSettings;
   profile: ProfileSettings;
+  notifications?: NotificationSettings;
+  googleCalendar?: GoogleCalendarSettings;
 }
 
 export type CompletionCache = {
@@ -210,11 +263,124 @@ export interface JotaiHydrateInitialValues {
   wishlist: WishlistData;
   users: PublicUserData;
   serverSettings: ServerSettings;
+  challengeIndex: ChallengeIndex;
 }
 
 export interface ServerSettings {
   isDemo: boolean
 }
+
+// ─── Challenge Types (ported from APE) ───────────────────────────────
+
+export type ChallengeStatus = 'active' | 'completed' | 'draft' | 'cancelled'
+export type ChallengeGoalFrequency = 'daily' | 'weekly' | 'monthly' | 'once'
+
+export interface ChallengeGoal {
+  id: string
+  title: string
+  description: string
+  icon: string // emoji
+  points: number
+  frequency: ChallengeGoalFrequency
+  maxCompletionsPerPeriod: number
+  createdAt: string // ISO date
+}
+
+export interface ChallengeParticipant {
+  userId: UserId
+  joinedAt: string // ISO date
+}
+
+export interface GoalCompletion {
+  id: string
+  goalId: string
+  userId: UserId
+  completionAt: string // ISO date
+  pointsAtTime: number
+  periodKey: string // e.g. "daily-2026-03-31", "weekly-2026-w14", "monthly-2026-03", "once"
+  createdAt: string // ISO date
+}
+
+export interface ChallengeMessage {
+  id: string
+  userId: UserId
+  messageText: string
+  createdAt: string // ISO date
+}
+
+export interface Challenge {
+  id: string
+  ownerId: UserId
+  name: string
+  description: string
+  startAt: string // ISO date
+  endAt: string // ISO date
+  maxPlayers: number
+  status: ChallengeStatus
+  joinCode: string // 8-char random
+  coverImage?: string
+  goals: ChallengeGoal[]
+  participants: ChallengeParticipant[]
+  completions: GoalCompletion[]
+  messages: ChallengeMessage[]
+  createdAt: string // ISO date
+}
+
+export interface ChallengeIndexEntry {
+  id: string
+  name: string
+  status: ChallengeStatus
+  joinCode: string
+  ownerName: string
+  ownerId: UserId
+  participantCount: number
+  startAt: string
+  endAt: string
+}
+
+export interface ChallengeIndex {
+  challenges: ChallengeIndexEntry[]
+}
+
+export const getDefaultChallengeIndex = (): ChallengeIndex => ({
+  challenges: []
+})
+
+// ─── Challenge Stats (replaces APE's get_challenge_stats_v2 RPC) ─────
+
+export interface ChallengeScoreEntry {
+  userId: UserId
+  totalScore: number
+}
+
+export interface ChallengeGoalScoreEntry {
+  userId: UserId
+  goalId: string
+  score: number
+}
+
+export interface ChallengePeriodCount {
+  userId: UserId
+  goalId: string
+  periodKey: string
+  count: number
+}
+
+export interface ChallengeDailyPoints {
+  goalId: string
+  day: string // YYYY-MM-DD
+  points: number
+}
+
+export interface ChallengeStats {
+  scores: ChallengeScoreEntry[]
+  goalScores: ChallengeGoalScoreEntry[]
+  periodCounts: ChallengePeriodCount[]
+  userDailyPoints: ChallengeDailyPoints[]
+  groupDailyPoints: ChallengeDailyPoints[]
+}
+
+// ─────────────────────────────────────────────────────────────────────
 
 export type ParsedResultType = DateTime<true> | RRule | string | null // null if invalid
 

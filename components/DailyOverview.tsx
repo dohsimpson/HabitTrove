@@ -1,4 +1,4 @@
-import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Plus, Pin, AlertTriangle } from 'lucide-react' // Removed unused icons
+import { Circle, Coins, ArrowRight, CircleCheck, ChevronDown, ChevronUp, Plus, Pin, AlertTriangle, PlusCircle } from 'lucide-react' // Removed unused icons
 import CompletionCountBadge from './CompletionCountBadge'
 import {
   ContextMenu,
@@ -282,6 +282,20 @@ const ItemSection = ({
                     <span className="bg-secondary px-1.5 py-0.5 rounded-full">
                       {completionsToday}/{target}
                     </span>
+                  )}
+                  {/* Quick-increment "+" for counter habits not yet complete */}
+                  {habit.targetCompletions && habit.targetCompletions > 1 && !isCompleted && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        completeHabit(habit)
+                      }}
+                      className="hover:text-primary transition-colors"
+                      aria-label="Quick increment"
+                    >
+                      <PlusCircle className="h-3.5 w-3.5" />
+                    </button>
                   )}
                   {habitFreqMap.get(habit.id) !== 'daily' && (
                     <Badge variant="outline" className="text-xs">
