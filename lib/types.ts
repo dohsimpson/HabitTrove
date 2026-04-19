@@ -40,6 +40,8 @@ export type PublicUser = Omit<User, 'password'> & {
   hasPassword: boolean
 }
 
+export type ScheduleType = 'all-day' | 'time-blocked'
+
 export type Habit = {
   id: string
   name: string
@@ -53,6 +55,12 @@ export type Habit = {
   pinned?: boolean // mark the habit as pinned
   userIds?: UserId[]
   drawing?: string // Optional JSON string of drawing data
+  // Scheduling fields (all optional — undefined = all-day with targetCompletions=1)
+  scheduleType?: ScheduleType
+  startTime?: string // "HH:mm" local time, time-blocked only
+  endTime?: string   // "HH:mm" local time, time-blocked only
+  notificationsEnabled?: boolean // per-habit notification opt-in
+  googleCalendarEventId?: string // GCal event ID for sync
 }
 
 
@@ -159,6 +167,12 @@ export const getDefaultServerSettings = (): ServerSettings => ({
   isDemo: false
 })
 
+export const getDefaultPushSubscriptionsData = (): PushSubscriptionsData => ({
+  subscriptions: []
+})
+
+export const getDefaultNotificationStateData = (): NotificationStateData => ({})
+
 // Map of data types to their default values
 export const DATA_DEFAULTS = {
   wishlist: getDefaultWishlistData,
@@ -166,6 +180,8 @@ export const DATA_DEFAULTS = {
   coins: getDefaultCoinsData,
   settings: getDefaultSettings,
   auth: getDefaultUsersData,
+  pushSubscriptions: getDefaultPushSubscriptionsData,
+  notificationState: getDefaultNotificationStateData,
 } as const;
 
 // Type for all possible data types
@@ -189,10 +205,47 @@ export interface ProfileSettings {
   avatarPath?: string; // deprecated
 }
 
+export interface NotificationSettings {
+  globalEnabled: boolean; // master switch — per-habit toggle still required
+  reminderTimes?: string[]; // "HH:mm" strings for all-day habits (default: ["08:00","12:00","18:00"])
+}
+
+export interface GoogleCalendarSettings {
+  connected: boolean;
+  calendarId?: string; // ID of the "HabitTrove" calendar created on connect
+  accessToken?: string;
+  refreshToken?: string;
+  tokenExpiry?: string; // ISO date
+  lastSyncAt?: string; // ISO date
+  syncEnabled: boolean;
+}
+
+export interface PushSubscriptionRecord {
+  userId: UserId;
+  subscription: {
+    endpoint: string;
+    keys: {
+      p256dh: string;
+      auth: string;
+    };
+  };
+}
+
+export interface PushSubscriptionsData {
+  subscriptions: PushSubscriptionRecord[];
+}
+
+export interface NotificationStateData {
+  // keyed by "{YYYY-MM-DD}:{habitId}:{trigger}" → true when notification was sent
+  [key: string]: boolean;
+}
+
 export interface Settings {
   ui: UISettings;
   system: SystemSettings;
   profile: ProfileSettings;
+  notifications?: NotificationSettings;
+  googleCalendar?: GoogleCalendarSettings;
 }
 
 export type CompletionCache = {

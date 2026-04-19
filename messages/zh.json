@@ -529,8 +529,6 @@
     "invalidAmountDescription": "请输入有效的正数",
     "successTitle": "成功",
     "transactionNotFoundDescription": "未找到交易记录",
-    "maxAmountExceededDescription": "金额不能超过 {max}。",
-    "transactionNotFoundDescription": "未找到交易记录",
     "maxAmountExceededDescription": "金额不能超过 {max}。"
   },
   "DrawingModal": {
@@ -540,5 +538,37 @@
     "clearButton": "清除",
     "saveDrawingButton": "保存绘图",
     "cancelButton": "取消"
+  },
+  "WeeklyAgenda": {
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "today": "Today",
+    "allDay": "All Day",
+    "noHabits": "No habits",
+    "weekView": "Week",
+    "monthView": "Month",
+    "timeBlocked": "Time-blocked"
+  },
+  "Notifications": {
+    "notifications": "Notifications",
+    "enableNotifications": "Enable notifications",
+    "permissionRequired": "Permission required",
+    "permissionDenied": "Notifications are blocked by your browser",
+    "testNotification": "Send test notification",
+    "notificationsSent": "Notification sent",
+    "subscribed": "Notifications enabled",
+    "unsubscribed": "Notifications disabled"
+  },
+  "GoogleCalendar": {
+    "connectGoogleCalendar": "Connect Google Calendar",
+    "disconnect": "Disconnect",
+    "syncNow": "Sync now",
+    "synced": "Synced",
+    "syncing": "Syncing…",
+    "syncError": "Sync error",
+    "lastSynced": "Last synced",
+    "habitTroveCalendar": "HabitTrove calendar",
+    "connected": "Connected",
+    "disconnected": "Disconnected"
   }
 }

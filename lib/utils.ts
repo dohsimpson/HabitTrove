@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DateTime, DateTimeFormatOptions } from "luxon"
 import { datetime, RRule } from 'rrule'
-import { Freq, Habit, CoinTransaction, Permission, ParsedFrequencyResult, ParsedResultType, User, Settings, HabitsData, CoinsData, WishlistData, UserData, PublicUserData } from '@/lib/types'
+import { Freq, Habit, CoinTransaction, Permission, ParsedFrequencyResult, ParsedResultType, User, Settings, HabitsData, CoinsData, WishlistData, UserData, PublicUserData, ScheduleType } from '@/lib/types'
 import { DUE_MAP, INITIAL_DUE, RECURRENCE_RULE_MAP } from "./constants"
 import * as chrono from 'chrono-node'
 import _ from "lodash"
@@ -515,6 +515,14 @@ export function prepareDataForHashing(
     throw new Error("Failed to stringify data for hashing. stableStringify returned undefined.");
   }
   return stringifiedData;
+}
+
+export function getEffectiveScheduleType(habit: Habit): ScheduleType {
+  return habit.scheduleType ?? 'all-day'
+}
+
+export function isTimeBlocked(habit: Habit): boolean {
+  return getEffectiveScheduleType(habit) === 'time-blocked'
 }
 
 /**

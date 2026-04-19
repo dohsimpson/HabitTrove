@@ -6,17 +6,24 @@ self.addEventListener('push', function (event) {
       icon: data.icon || '/icon.png',
       badge: '/badge.png',
       vibrate: [100, 50, 100],
+      tag: data.tag,
       data: {
+        habitId: data.data?.habitId,
+        url: data.data?.url,
         dateOfArrival: Date.now(),
-        primaryKey: '2',
       },
     }
     event.waitUntil(self.registration.showNotification(data.title, options))
   }
 })
 
+self.addEventListener('notificationclose', function (event) {
+  console.log('Notification closed:', event.notification.tag)
+})
+
 self.addEventListener('notificationclick', function (event) {
   console.log('Notification click received.')
   event.notification.close()
-  event.waitUntil(clients.openWindow('/'))
+  const url = event.notification.data?.url || '/'
+  event.waitUntil(clients.openWindow(url))
 })

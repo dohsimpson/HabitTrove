@@ -431,8 +431,6 @@
     "invalidAmountDescription": "유효한 양의 숫자를 입력하세요",
     "successTitle": "성공",
     "transactionNotFoundDescription": "거래를 찾을 수 없습니다",
-    "maxAmountExceededDescription": "금액은 {max}을(를) 초과할 수 없습니다.",
-    "transactionNotFoundDescription": "거래를 찾을 수 없습니다",
     "maxAmountExceededDescription": "금액은 {max}을(를) 초과할 수 없습니다."
   },
   "Challenges": {
@@ -540,5 +538,37 @@
     "clearButton": "지우기",
     "saveDrawingButton": "그림 저장",
     "cancelButton": "취소"
+  },
+  "WeeklyAgenda": {
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "today": "Today",
+    "allDay": "All Day",
+    "noHabits": "No habits",
+    "weekView": "Week",
+    "monthView": "Month",
+    "timeBlocked": "Time-blocked"
+  },
+  "Notifications": {
+    "notifications": "Notifications",
+    "enableNotifications": "Enable notifications",
+    "permissionRequired": "Permission required",
+    "permissionDenied": "Notifications are blocked by your browser",
+    "testNotification": "Send test notification",
+    "notificationsSent": "Notification sent",
+    "subscribed": "Notifications enabled",
+    "unsubscribed": "Notifications disabled"
+  },
+  "GoogleCalendar": {
+    "connectGoogleCalendar": "Connect Google Calendar",
+    "disconnect": "Disconnect",
+    "syncNow": "Sync now",
+    "synced": "Synced",
+    "syncing": "Syncing…",
+    "syncError": "Sync error",
+    "lastSynced": "Last synced",
+    "habitTroveCalendar": "HabitTrove calendar",
+    "connected": "Connected",
+    "disconnected": "Disconnected"
   }
 }

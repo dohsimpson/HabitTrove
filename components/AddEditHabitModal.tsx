@@ -11,9 +11,10 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import { Zap, Brush } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Habit } from '@/lib/types'
+import { Habit, ScheduleType } from '@/lib/types'
 import EmojiPickerButton from './EmojiPickerButton'
 import ModalOverlay from './ModalOverlay' // Import the new component
 import DrawingModal from './DrawingModal'
@@ -53,6 +54,11 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
   const users = usersData.users
   const [drawing, setDrawing] = useState<string>(habit?.drawing || '')
   const [isDrawingModalOpen, setIsDrawingModalOpen] = useState(false)
+  const [scheduleType, setScheduleType] = useState<ScheduleType>(habit?.scheduleType ?? 'all-day')
+  const [startTime, setStartTime] = useState<string>(habit?.startTime ?? '')
+  const [endTime, setEndTime] = useState<string>(habit?.endTime ?? '')
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(habit?.notificationsEnabled ?? false)
+  const [timeError, setTimeError] = useState<string | null>(null)
 
   function getFrequencyUpdate() {
     if (ruleText === initialRuleText && habit?.frequency) {
@@ -80,6 +86,18 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Validate time window
+    if (scheduleType === 'time-blocked') {
+      if (!startTime || !endTime) {
+        setTimeError('Start time and end time are required for Time Window.')
+        return
+      }
+      if (endTime <= startTime) {
+        setTimeError('End time must be after start time.')
+        return
+      }
+    }
+    setTimeError(null)
     await onSave({
       name,
       description,
@@ -88,7 +106,11 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
       completions: habit?.completions || [],
       frequency: getFrequencyUpdate(),
       userIds: selectedUserIds.length > 0 ? selectedUserIds.concat(currentUser?.id || []) : (currentUser && [currentUser.id]),
-      drawing: drawing && drawing !== '[]' ? drawing : undefined
+      drawing: drawing && drawing !== '[]' ? drawing : undefined,
+      scheduleType,
+      startTime: scheduleType === 'time-blocked' ? startTime : undefined,
+      endTime: scheduleType === 'time-blocked' ? endTime : undefined,
+      notificationsEnabled,
     })
   }
 
@@ -236,15 +258,15 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
                         value={targetCompletions}
                         onChange={(e) => {
                           const value = parseInt(e.target.value)
-                          setTargetCompletions(isNaN(value) ? 1 : Math.max(1, value))
+                          setTargetCompletions(isNaN(value) ? 1 : Math.max(1, Math.min(100, value)))
                         }}
                         min={1}
-                        max={10}
+                        max={100}
                         className="w-20 text-center border-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <button
                         type="button"
-                        onClick={() => setTargetCompletions(prev => Math.min(10, prev + 1))}
+                        onClick={() => setTargetCompletions(prev => Math.min(100, prev + 1))}
                         className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
                       >
                         +
@@ -254,6 +276,72 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
                       {t('timesSuffix')}
                     </span>
                   </div>
+                </div>
+              </div>
+              {/* Schedule type toggle */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Schedule</Label>
+                <div className="col-span-3 flex gap-2">
+                  <Button
+                    type="button"
+                    variant={scheduleType === 'all-day' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => { setScheduleType('all-day'); setTimeError(null) }}
+                  >
+                    All Day
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={scheduleType === 'time-blocked' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setScheduleType('time-blocked')}
+                  >
+                    Time Window
+                  </Button>
+                </div>
+              </div>
+              {/* Time inputs — shown only in time-blocked mode */}
+              {scheduleType === 'time-blocked' && (
+                <>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="startTime" className="text-right">Start Time</Label>
+                    <Input
+                      id="startTime"
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => { setStartTime(e.target.value); setTimeError(null) }}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="endTime" className="text-right">End Time</Label>
+                    <Input
+                      id="endTime"
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => { setEndTime(e.target.value); setTimeError(null) }}
+                      className="col-span-3"
+                    />
+                  </div>
+                  {timeError && (
+                    <div className="col-start-2 col-span-3 text-destructive text-xs">
+                      {timeError}
+                    </div>
+                  )}
+                </>
+              )}
+              {/* Per-habit notifications toggle */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Notifications</Label>
+                <div className="col-span-3 flex items-center gap-2">
+                  <Switch
+                    id="notificationsEnabled"
+                    checked={notificationsEnabled}
+                    onCheckedChange={setNotificationsEnabled}
+                  />
+                  <Label htmlFor="notificationsEnabled" className="text-sm text-muted-foreground cursor-pointer">
+                    Enable notifications for this habit
+                  </Label>
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -365,7 +453,7 @@ export default function AddEditHabitModal({ onClose, onSave, habit, isTask }: Ad
               )}
             </div>
             <DialogFooter>
-              <Button type="submit" disabled={!!errorMessage}>
+              <Button type="submit" disabled={!!errorMessage || !!timeError}>
                 {habit
                   ? t('saveChangesButton')
                   : t(isTask ? 'addTaskButton' : 'addHabitButton')}

@@ -666,3 +666,24 @@ export async function checkDataFreshness(clientToken: string): Promise<{ isFresh
     return { isFresh: false };
   }
 }
+
+// Raw data loaders for server-side cron jobs (bypass auth)
+export async function loadHabitsDataRaw(): Promise<HabitsData> {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'habits.json')
+    const data = await fs.readFile(filePath, 'utf8')
+    return JSON.parse(data) as HabitsData
+  } catch {
+    return getDefaultHabitsData()
+  }
+}
+
+export async function loadSettingsRaw(): Promise<Settings> {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'settings.json')
+    const data = await fs.readFile(filePath, 'utf8')
+    return JSON.parse(data) as Settings
+  } catch {
+    return getDefaultSettings()
+  }
+}

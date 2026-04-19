@@ -26,7 +26,8 @@ import {
   getCompletionsForToday,
   isHabitDue,
   getHabitFreq,
-  roundToInteger
+  roundToInteger,
+  getEffectiveScheduleType
 } from "@/lib/utils";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { DateTime } from "luxon";
@@ -37,13 +38,15 @@ export interface BrowserSettings {
   expandedHabits: boolean
   expandedTasks: boolean
   expandedWishlist: boolean
+  calendarView: 'month' | 'week'
 }
 
 export const browserSettingsAtom = atomWithStorage('browserSettings', {
   viewType: 'habits',
   expandedHabits: false,
   expandedTasks: false,
-  expandedWishlist: false
+  expandedWishlist: false,
+  calendarView: 'month',
 } as BrowserSettings)
 
 export const usersAtom = atom(getDefaultPublicUsersData())
@@ -270,3 +273,56 @@ export const dailyHabitsAtom = atom((get) => {
   const today = getTodayInTimezone(settings.system.timezone);
   return get(habitsByDateFamily(today));
 });
+
+// Writable atom for the week offset from current week (0 = current, -1 = last, +1 = next)
+export const weekOffsetAtom = atom<number>(0)
+
+// Derived atom for the start of the displayed week (respects weekStartDay setting)
+export const weekStartAtom = atom((get) => {
+  const settings = get(settingsAtom)
+  const weekOffset = get(weekOffsetAtom)
+  const timezone = settings.system.timezone
+  const weekStartDay = settings.system.weekStartDay // 0=Sun, 1=Mon
+
+  const now = DateTime.now().setZone(timezone)
+  // luxon: weekday 1=Mon...7=Sun, our WeekDay: 0=Sun...6=Sat
+  // Convert our weekStartDay to luxon weekday
+  const luxonStartDay = weekStartDay === 0 ? 7 : weekStartDay
+  let start = now.startOf('week', { useLocaleWeeks: false })
+  // Adjust if our start differs from ISO Monday
+  if (luxonStartDay !== 1) {
+    start = start.minus({ days: 1 }).startOf('day') // Sunday-start: go back to Sunday
+  }
+  return start.plus({ weeks: weekOffset })
+})
+
+export type WeeklyHabitsDay = {
+  date: DateTime
+  dateKey: string // "YYYY-MM-DD"
+  allDay: Habit[]      // scheduleType 'all-day' or undefined, due on this day
+  timeBlocked: Habit[] // scheduleType 'time-blocked', due on this day, sorted by startTime
+}
+
+// Derived atom partitioning habits into 7 days of the displayed week
+export const weeklyHabitsAtom = atom((get): WeeklyHabitsDay[] => {
+  const habits = get(habitsAtom).habits
+  const settings = get(settingsAtom)
+  const timezone = settings.system.timezone
+  const weekStart = get(weekStartAtom)
+
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = weekStart.plus({ days: i })
+    const dateKey = date.toFormat('yyyy-MM-dd')
+
+    const dueHabits = habits.filter(habit =>
+      !habit.archived && !habit.isTask && isHabitDue({ habit, timezone, date })
+    )
+
+    const allDay = dueHabits.filter(h => getEffectiveScheduleType(h) === 'all-day')
+    const timeBlocked = dueHabits
+      .filter(h => getEffectiveScheduleType(h) === 'time-blocked')
+      .sort((a, b) => (a.startTime ?? '').localeCompare(b.startTime ?? ''))
+
+    return { date, dateKey, allDay, timeBlocked }
+  })
+})

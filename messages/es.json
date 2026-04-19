@@ -537,8 +537,38 @@
     "invalidAmountDescription": "Por favor ingresa un número positivo válido",
     "successTitle": "Éxito",
     "transactionNotFoundDescription": "Transacción no encontrada",
-    "maxAmountExceededDescription": "La cantidad no puede exceder {max}.",
-    "transactionNotFoundDescription": "Transacción no encontrada",
     "maxAmountExceededDescription": "La cantidad no puede exceder {max}."
+  },
+  "WeeklyAgenda": {
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "today": "Today",
+    "allDay": "All Day",
+    "noHabits": "No habits",
+    "weekView": "Week",
+    "monthView": "Month",
+    "timeBlocked": "Time-blocked"
+  },
+  "Notifications": {
+    "notifications": "Notifications",
+    "enableNotifications": "Enable notifications",
+    "permissionRequired": "Permission required",
+    "permissionDenied": "Notifications are blocked by your browser",
+    "testNotification": "Send test notification",
+    "notificationsSent": "Notification sent",
+    "subscribed": "Notifications enabled",
+    "unsubscribed": "Notifications disabled"
+  },
+  "GoogleCalendar": {
+    "connectGoogleCalendar": "Connect Google Calendar",
+    "disconnect": "Disconnect",
+    "syncNow": "Sync now",
+    "synced": "Synced",
+    "syncing": "Syncing…",
+    "syncError": "Sync error",
+    "lastSynced": "Last synced",
+    "habitTroveCalendar": "HabitTrove calendar",
+    "connected": "Connected",
+    "disconnected": "Disconnected"
   }
 }

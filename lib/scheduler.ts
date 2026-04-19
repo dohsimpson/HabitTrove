@@ -1,5 +1,8 @@
 import cron from 'node-cron';
 import { runBackup } from './backup';
+import { checkAndSendNotifications } from './notification-checker';
+import { isGoogleCalendarEnabled } from './google-calendar';
+import { runGoogleCalendarSync } from './google-calendar-sync';
 
 let isSchedulerInitialized = false;
 
@@ -28,21 +31,45 @@ export function initializeScheduler() {
     // timezone: "Your/Timezone"
   });
 
-  console.log('Scheduler initialized. Daily backup scheduled for 2:00 AM server time.');
+  // Schedule notification checks every 5 minutes
+  const notificationJob = cron.schedule('*/5 * * * *', async () => {
+    try {
+      await checkAndSendNotifications()
+    } catch (err) {
+      console.error(`[${new Date().toISOString()}] Notification check failed:`, err)
+    }
+  })
+
+  // Schedule Google Calendar sync every 15 minutes (if enabled)
+  let gcalJob: cron.ScheduledTask | null = null
+  if (isGoogleCalendarEnabled()) {
+    gcalJob = cron.schedule('*/15 * * * *', async () => {
+      try {
+        await runGoogleCalendarSync()
+      } catch (err) {
+        console.error(`[${new Date().toISOString()}] GCal sync failed:`, err)
+      }
+    })
+  }
+
+  const gcalStatus = isGoogleCalendarEnabled() ? ' Google Calendar sync every 15 minutes.' : ''
+  console.log(`Scheduler initialized. Daily backup scheduled for 2:00 AM server time. Notification checks every 5 minutes.${gcalStatus}`);
   isSchedulerInitialized = true;
 
   // Graceful shutdown handling (optional but recommended)
   process.on('SIGTERM', () => {
     console.log('SIGTERM signal received. Stopping scheduler...');
     backupJob.stop();
-    // Add cleanup for other jobs if needed
+    notificationJob.stop();
+    gcalJob?.stop();
     process.exit(0);
   });
 
   process.on('SIGINT', () => {
     console.log('SIGINT signal received. Stopping scheduler...');
     backupJob.stop();
-    // Add cleanup for other jobs if needed
+    notificationJob.stop();
+    gcalJob?.stop();
     process.exit(0);
   });
 

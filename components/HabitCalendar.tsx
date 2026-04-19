@@ -5,7 +5,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import CompletionCountBadge from '@/components/CompletionCountBadge'
 import { Circle, CircleCheck } from 'lucide-react'
-import { d2s, getNow, isHabitDue, getISODate, getCompletionsForDate } from '@/lib/utils'
+import { d2s, getNow, isHabitDue, getISODate, getCompletionsForDate, isTimeBlocked } from '@/lib/utils'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
 import { useHabits } from '@/hooks/useHabits'
@@ -155,13 +155,24 @@ export default function HabitCalendar() {
                         timezone: settings.system.timezone,
                         date: selectedDateTime
                       }))
+                      .sort((a, b) => {
+                        // Sort time-blocked habits by startTime, all-day habits come first
+                        const aTime = isTimeBlocked(a) ? (a.startTime ?? '') : ''
+                        const bTime = isTimeBlocked(b) ? (b.startTime ?? '') : ''
+                        if (!isTimeBlocked(a) && isTimeBlocked(b)) return -1
+                        if (isTimeBlocked(a) && !isTimeBlocked(b)) return 1
+                        return aTime.localeCompare(bTime)
+                      })
                       .map((habit) => {
                         const completions = getCompletionsForDate({ habit, date: selectedDateTime, timezone: settings.system.timezone })
                         const isCompleted = completions >= (habit.targetCompletions || 1)
                         return (
                           <li key={habit.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
-                            <span className="flex items-center gap-2">
+                            <span className="flex flex-col gap-0.5">
                               <Linkify>{habit.name}</Linkify>
+                              {isTimeBlocked(habit) && habit.startTime && habit.endTime && (
+                                <span className="text-xs text-muted-foreground">{habit.startTime}–{habit.endTime}</span>
+                              )}
                             </span>
                             <div className="flex items-center gap-2">
                               <div className="flex items-center gap-2">
